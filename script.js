@@ -1,8 +1,7 @@
-import { GoogleGenerativeAI } from "https://sdk.gemini.ai/v1.5/gemini-web.js";
-
 document.addEventListener('DOMContentLoaded', () => {
     const i18n = {
         en: {
+            appTitle: 'AI Chat Companion',
             apiKeyLabel: '🔑 API Key',
             apiKeyPlaceholder: 'Enter your Google AI API Key',
             getApiKeyBtn: 'Get a free API key (1 min)',
@@ -20,11 +19,11 @@ document.addEventListener('DOMContentLoaded', () => {
             modalStep2: 'Click "Create API Key".',
             modalStep3: 'Copy the key and paste it here.',
             modalLink: 'Go to Google AI Studio',
-            // New neutral title suggestions
-            appTitle: 'AI Chat Companion',
-            appTitleKo: 'AI 채팅 친구',
+            lightMode: 'Light Mode',
+            darkMode: 'Dark Mode',
         },
         ko: {
+            appTitle: 'AI 채팅 친구',
             apiKeyLabel: '🔑 API 키',
             apiKeyPlaceholder: 'Google AI API 키를 입력하세요',
             getApiKeyBtn: '무료 API 키 발급받기 (1분 소요)',
@@ -42,42 +41,18 @@ document.addEventListener('DOMContentLoaded', () => {
             modalStep2: '"Create API Key" 클릭',
             modalStep3: '키를 복사해서 붙여넣기',
             modalLink: 'Google AI Studio로 이동',
-            // New neutral title suggestions
-            appTitle: 'AI 채팅 친구',
-            appTitleKo: 'AI 채팅 친구',
+            lightMode: '라이트 모드',
+            darkMode: '다크 모드',
         }
     };
 
     const app = {
-        elements: {
-            app: document.getElementById('app'),
-            setupScreen: document.getElementById('setup-screen'),
-            chatScreen: document.getElementById('chat-screen'),
-            langKoBtn: document.getElementById('lang-ko'),
-            langEnBtn: document.getElementById('lang-en'),
-            apiKeyInput: document.getElementById('api-key'),
-            getApiKeyBtn: document.getElementById('get-api-key-btn'),
-            apiKeyModal: document.getElementById('api-key-modal'),
-            closeModalBtn: document.querySelector('#api-key-modal .close-btn'), // More specific selector
-            themeOptions: document.querySelectorAll('.theme-option'),
-            personaNameInput: document.getElementById('persona-name'),
-            personaRelationshipInput: document.getElementById('persona-relationship'),
-            personaMbtiInput: document.getElementById('persona-mbti'),
-            personaToneInput: document.getElementById('persona-tone'),
-            startChatBtn: document.getElementById('start-chat-btn'),
-            backToSetupBtn: document.getElementById('back-to-setup-btn'),
-            resetSettingsBtn: document.getElementById('reset-settings-btn'),
-            chatPersonaName: document.getElementById('chat-persona-name'),
-            chatPersonaStatus: document.getElementById('chat-persona-status'),
-            messageArea: document.getElementById('message-area'),
-            typingIndicator: document.getElementById('typing-indicator'),
-            messageInput: document.getElementById('message-input'),
-            sendBtn: document.getElementById('send-btn'),
-        },
+        elements: {},
         state: {
             apiKey: null,
-            language: 'en',
-            theme: 'theme-yellow',
+            language: 'ko',
+            accentTheme: 'theme-yellow',
+            lightTheme: true, // true for light, false for dark
             persona: { name: '', relationship: '', mbti: '', tone: '' },
             chat: null,
             chatHistory: [],
@@ -87,153 +62,147 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         init() {
-            console.log('App initialization started.');
+            // Query all elements at once
+            const elementIds = [
+                'app', 'setup-screen', 'chat-screen', 'lang-ko', 'lang-en', 
+                'api-key', 'get-api-key-btn', 'api-key-modal', 'persona-name', 
+                'persona-relationship', 'persona-mbti', 'persona-tone', 'start-chat-btn', 
+                'back-to-setup-btn', 'reset-settings-btn', 'chat-persona-name', 'chat-persona-status', 
+                'message-area', 'typing-indicator', 'message-input', 'send-btn', 'theme-toggle'
+            ];
+            elementIds.forEach(id => {
+                this.elements[id] = document.getElementById(id);
+            });
+            this.elements.closeModalBtn = document.querySelector('#api-key-modal .close-btn');
+            this.elements.themeOptions = document.querySelectorAll('.theme-option');
+
             this.loadSettings();
             this.applyTheme();
-            this.updateUI(); // Initial UI update to apply language and theme to existing elements
+            this.updateUI();
             this.addEventListeners();
             
             if (this.elements.typingIndicator) {
                 this.elements.typingIndicator.innerHTML = `<p>typing... <span></span><span></span><span></span></p>`;
-            } else {
-                console.error('Typing indicator element not found.');
             }
-
-            // Set initial screen
-            if (this.state.apiKey && this.state.persona.name) { // If essential settings are present, go to chat
-                this.elements.setupScreen.style.display = 'none';
-                this.elements.chatScreen.style.display = 'flex';
-                this.initChat(); // Initialize chat only if we're going to the chat screen directly
-            } else { // Otherwise, stay on setup
-                this.elements.setupScreen.style.display = 'flex';
-                this.elements.chatScreen.style.display = 'none';
-            }
-            console.log('App initialization completed. Current state:', this.state);
         },
 
         addEventListeners() {
-            console.log('Attaching event listeners...');
-            // Loop through all elements to log their status and attach listeners
-            for (const key in this.elements) {
-                const el = this.elements[key];
-                if (!el) {
-                    console.error(`Element not found for: ${key}`);
-                    continue;
+            this.elements.langKoBtn.addEventListener('click', () => this.setLanguage('ko'));
+            this.elements.langEnBtn.addEventListener('click', () => this.setLanguage('en'));
+            this.elements.getApiKeyBtn.addEventListener('click', () => { this.elements.apiKeyModal.style.display = 'flex'; });
+            this.elements.closeModalBtn.addEventListener('click', () => { this.elements.apiKeyModal.style.display = 'none'; });
+            this.elements.themeOptions.forEach(option => {
+                option.addEventListener('click', () => this.setAccentTheme(option.dataset.theme));
+            });
+            this.elements.themeToggle.addEventListener('click', () => this.toggleTheme());
+            this.elements.startChatBtn.addEventListener('click', () => this.startChat());
+            this.elements.backToSetupBtn.addEventListener('click', () => {
+                this.showSetupScreen();
+                clearTimeout(this.state.nudgeTimer);
+            });
+            this.elements.resetSettingsBtn.addEventListener('click', () => this.resetSettings());
+            this.elements.sendBtn.addEventListener('click', () => this.sendMessage());
+            this.elements.messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
                 }
-                if (key === 'themeOptions') { // NodeList needs special handling
-                    el.forEach((option, index) => {
-                        console.log(`Found NodeList element for: ${key}[${index}]`);
-                        option.addEventListener('click', () => { console.log(`themeOption ${option.dataset.theme} clicked`); this.setTheme(option.dataset.theme); });
-                    });
-                } else if (typeof el.addEventListener === 'function') {
-                    console.log(`Found element for: ${key}`);
-                    // Attach specific listeners
-                    switch (key) {
-                        case 'langKoBtn': el.addEventListener('click', () => { console.log('langKoBtn clicked'); this.setLanguage('ko'); }); break;
-                        case 'langEnBtn': el.addEventListener('click', () => { console.log('langEnBtn clicked'); this.setLanguage('en'); }); break;
-                        case 'getApiKeyBtn': el.addEventListener('click', () => { console.log('getApiKeyBtn clicked'); this.elements.apiKeyModal.style.display = 'flex'; }); break;
-                        case 'closeModalBtn': el.addEventListener('click', () => { console.log('closeModalBtn clicked'); this.elements.apiKeyModal.style.display = 'none'; }); break;
-                        case 'startChatBtn': el.addEventListener('click', () => { console.log('startChatBtn clicked'); this.startChat(); }); break;
-                        case 'backToSetupBtn': el.addEventListener('click', () => { console.log('backToSetupBtn clicked'); this.showSetupScreen(); clearTimeout(this.state.nudgeTimer); }); break;
-                        case 'resetSettingsBtn': el.addEventListener('click', () => { console.log('resetSettingsBtn clicked'); this.resetSettings(); }); break;
-                        case 'sendBtn': el.addEventListener('click', () => { console.log('sendBtn clicked'); this.sendMessage(); }); break;
-                        case 'messageInput': el.addEventListener('keydown', (e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                console.log('messageInput Enter keydown');
-                                this.sendMessage();
-                            }
-                        }); break;
-                        // No default, as we're explicitly handling each expected element
-                    }
-                } else {
-                    console.warn(`Element for "${key}" is not null but not an HTMLElement or NodeList suitable for event listener.`);
-                }
-            }
-            console.log('Event listeners attachment attempt completed.');
+            });
         },
 
         setLanguage(lang) {
             this.state.language = lang;
             this.updateUI();
+            this.saveSettings();
+        },
+        
+        toggleTheme() {
+            this.state.lightTheme = !this.state.lightTheme;
+            this.applyTheme();
+            this.saveSettings();
         },
 
-        setTheme(theme) {
-            this.state.theme = theme;
+        setAccentTheme(theme) {
+            this.state.accentTheme = theme;
             this.applyTheme();
             this.updateUI();
+            this.saveSettings();
         },
 
         applyTheme() {
-            if (document.body) {
-                document.body.className = this.state.theme;
-            } else {
-                console.warn('Document body not found to apply theme.');
+            document.body.className = ''; // Clear classes
+            document.body.classList.add(this.state.accentTheme);
+            if (!this.state.lightTheme) {
+                document.body.classList.add('dark-mode');
             }
         },
 
         updateUI() {
             const translations = i18n[this.state.language];
-            // Update app title
-            const appTitleElement = document.querySelector('title');
-            if (appTitleElement) {
-                appTitleElement.textContent = translations.appTitle;
-            } else {
-                console.warn('App title element not found.');
-            }
+            document.title = translations.appTitle;
             
             document.querySelectorAll('[data-i18n]').forEach(el => {
-                if (el) el.textContent = translations[el.dataset.i18n];
+                el.textContent = translations[el.dataset.i18n];
             });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                if (el) el.placeholder = translations[el.dataset.i18nPlaceholder];
+                el.placeholder = translations[el.dataset.i18nPlaceholder];
             });
             
-            if (this.elements.langKoBtn) this.elements.langKoBtn.classList.toggle('active', this.state.language === 'ko');
-            if (this.elements.langEnBtn) this.elements.langEnBtn.classList.toggle('active', this.state.language === 'en');
+            this.elements.langKoBtn.classList.toggle('active', this.state.language === 'ko');
+            this.elements.langEnBtn.classList.toggle('active', this.state.language === 'en');
             this.elements.themeOptions.forEach(option => {
-                if (option) option.classList.toggle('active', option.dataset.theme === this.state.theme);
+                option.classList.toggle('active', option.dataset.theme === this.state.accentTheme);
             });
-            if (this.elements.chatPersonaName) this.elements.chatPersonaName.textContent = this.state.persona.name || 'AI';
-            if (this.elements.chatPersonaStatus) this.elements.chatPersonaStatus.textContent = this.state.persona.mbti || 'Online';
+            this.elements.chatPersonaName.textContent = this.state.persona.name || 'AI';
+            this.elements.chatPersonaStatus.textContent = this.state.persona.mbti || 'Online';
         },
 
         saveSettings() {
-            if (this.elements.apiKeyInput) this.state.apiKey = this.elements.apiKeyInput.value;
-            if (this.elements.personaNameInput) this.state.persona.name = this.elements.personaNameInput.value;
-            if (this.elements.personaRelationshipInput) this.state.persona.relationship = this.elements.personaRelationshipInput.value;
-            if (this.elements.personaMbtiInput) this.state.persona.mbti = this.elements.personaMbtiInput.value;
-            if (this.elements.personaToneInput) this.state.persona.tone = this.elements.personaToneInput.value;
-
+            this.state.apiKey = this.elements.apiKeyInput.value;
+            this.state.persona = {
+                name: this.elements.personaNameInput.value,
+                relationship: this.elements.personaRelationshipInput.value,
+                mbti: this.elements.personaMbtiInput.value,
+                tone: this.elements.personaToneInput.value,
+            };
             const settings = {
-                apiKey: this.state.apiKey, language: this.state.language, theme: this.state.theme, persona: this.state.persona,
+                apiKey: this.state.apiKey,
+                language: this.state.language,
+                accentTheme: this.state.accentTheme,
+                lightTheme: this.state.lightTheme,
+                persona: this.state.persona,
                 chatHistory: this.state.chatHistory,
                 lastMessageTimestamp: Date.now()
             };
             localStorage.setItem('aiLoverSettings', JSON.stringify(settings));
-            console.log('Settings saved:', settings);
         },
 
         loadSettings() {
             const settings = JSON.parse(localStorage.getItem('aiLoverSettings'));
             if (settings) {
-                this.state = { ...this.state, ...settings };
-                if (this.elements.apiKeyInput) this.elements.apiKeyInput.value = this.state.apiKey || '';
-                Object.keys(this.state.persona).forEach(key => {
-                    const el = this.elements[`persona${key.charAt(0).toUpperCase() + key.slice(1)}Input`];
-                    if (el) el.value = this.state.persona[key] || '';
-                });
-                console.log('Settings loaded:', settings);
-            } else {
-                console.log('No settings found in localStorage.');
+                // Merge saved settings with defaults
+                Object.assign(this.state, settings);
+                
+                this.elements.apiKeyInput.value = this.state.apiKey || '';
+                if(this.state.persona) {
+                    Object.keys(this.state.persona).forEach(key => {
+                        const elKey = `persona${key.charAt(0).toUpperCase() + key.slice(1)}Input`;
+                        if (this.elements[elKey]) {
+                            this.elements[elKey].value = this.state.persona[key] || '';
+                        }
+                    });
+                }
             }
         },
         
         async startChat() {
-            console.log('startChat called.');
             this.saveSettings();
             if (!this.state.apiKey) {
                 alert('Please enter your API key.');
+                return;
+            }
+            if (!this.state.persona.name) {
+                alert('Please give your AI a name.');
                 return;
             }
             
@@ -241,34 +210,29 @@ document.addEventListener('DOMContentLoaded', () => {
             const wasLongAgo = timeSinceLast > (60 * 60 * 1000); // 1 hour
 
             this.initChat();
-            if (this.elements.setupScreen) this.elements.setupScreen.style.display = 'none';
-            if (this.elements.chatScreen) this.elements.chatScreen.style.display = 'flex';
-            if (this.elements.messageArea) this.elements.messageArea.innerHTML = '';
+            this.elements.setupScreen.style.display = 'none';
+            this.elements.chatScreen.style.display = 'flex';
+            this.elements.messageArea.innerHTML = '';
             this.state.chatHistory.forEach(({ role, parts }) => this.displayMessage(role, parts[0].text, false));
             this.updateUI();
 
             if (wasLongAgo && this.state.chatHistory.length > 0) {
-                console.log('Sending welcome back message due to long absence.');
                 await this.sendWelcomeBackMessage();
             }
 
             this.resetNudgeTimer();
-            console.log('Chat started.');
         },
 
         initChat() {
-            console.log('initChat called with API Key:', this.state.apiKey);
             try {
                 const genAI = new GoogleGenerativeAI(this.state.apiKey);
-                // Ensure model name is correct, e.g., "gemini-pro" or "gemini-1.5-flash"
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); 
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                 const systemPrompt = `You are ${this.state.persona.name}, my ${this.state.persona.relationship}. Your personality is ${this.state.persona.mbti}. You talk like this: "${this.state.persona.tone}". Please reply in ${this.state.language === 'ko' ? 'Korean' : 'English'}. Keep your replies short and natural, like a real chat.`;
                 this.state.chat = model.startChat({
                     history: this.state.chatHistory,
                     generationConfig: { maxOutputTokens: 100 },
                     systemInstruction: systemPrompt,
                 });
-                console.log('Gemini chat model initialized.');
             } catch (error) {
                 console.error("Error initializing chat:", error);
                 alert("Failed to initialize chat. Check your API key and network connection.");
@@ -277,52 +241,48 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         async sendMessage() {
-            const messageText = (this.elements.messageInput ? this.elements.messageInput.value.trim() : '');
-            console.log('sendMessage called with text:', messageText);
-            if (!messageText || this.state.isTyping) {
-                console.log('Message empty or AI is typing, returning.');
-                return;
-            }
+            const messageText = this.elements.messageInput.value.trim();
+            if (!messageText || this.state.isTyping) return;
             
             this.resetNudgeTimer();
             this.displayMessage('user', messageText, true);
-            if (this.elements.messageInput) this.elements.messageInput.value = '';
+            this.elements.messageInput.value = '';
             
             await this.getAiResponse(messageText);
         },
 
         async getAiResponse(prompt) {
-            console.log('getAiResponse called with prompt:', prompt);
             this.state.isTyping = true;
-            if (this.elements.typingIndicator) this.elements.typingIndicator.style.display = 'block';
-            if (this.elements.messageArea) this.elements.messageArea.scrollTop = this.elements.messageArea.scrollHeight;
+            this.elements.typingIndicator.style.display = 'block';
+            this.elements.messageArea.scrollTop = this.elements.messageArea.scrollHeight;
 
             try {
                 const result = await this.state.chat.sendMessage(prompt);
-                const response = result.response;
                 this.removeReadReceipts();
-                const aiText = response.text();
+                const aiText = result.response.text();
                 this.displayMessage('model', aiText, false);
                 this.state.chatHistory = await this.state.chat.getHistory();
-                console.log('AI response received and displayed.');
             } catch (error) {
                 console.error("Error sending message to AI:", error);
                 this.displayMessage('model', "Sorry, I'm having a little trouble right now.", false);
             } finally {
                 this.state.isTyping = false;
-                if (this.elements.typingIndicator) this.elements.typingIndicator.style.display = 'none';
+                this.elements.typingIndicator.style.display = 'none';
                 this.saveSettings();
             }
         },
 
         displayMessage(role, text, showReadReceipt) {
-            console.log(`Displaying message - role: ${role}, text: ${text}, showReadReceipt: ${showReadReceipt}`);
             const container = document.createElement('div');
             container.classList.add('message-container', role === 'user' ? 'user' : 'partner');
 
             const bubble = document.createElement('div');
-            bubble.classList.add('message-bubble', role === 'user' ? 'user' : 'partner');
+            bubble.classList.add('message-bubble');
             bubble.innerHTML = marked.parse(text);
+
+            const timestamp = document.createElement('span');
+            timestamp.classList.add('timestamp');
+            timestamp.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             if (role === 'user') {
                 if (showReadReceipt) {
@@ -331,22 +291,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     readReceipt.textContent = '1';
                     container.appendChild(readReceipt);
                 }
+                container.appendChild(timestamp);
                 container.appendChild(bubble);
             } else {
                 container.appendChild(bubble);
+                container.appendChild(timestamp);
             }
             
-            if (this.elements.messageArea) {
-                this.elements.messageArea.appendChild(container);
-                this.elements.messageArea.scrollTop = this.elements.messageArea.scrollHeight;
-            } else {
-                console.error('Message area element not found.');
-            }
+            this.elements.messageArea.appendChild(container);
+            this.elements.messageArea.scrollTop = this.elements.messageArea.scrollHeight;
         },
 
         removeReadReceipts() {
-            console.log('Removing read receipts.');
-            const receipts = this.elements.messageArea ? this.elements.messageArea.querySelectorAll('.read-receipt') : [];
+            const receipts = this.elements.messageArea.querySelectorAll('.read-receipt');
             receipts.forEach(receipt => receipt.remove());
         },
 
@@ -354,26 +311,19 @@ document.addEventListener('DOMContentLoaded', () => {
             clearTimeout(this.state.nudgeTimer);
             const randomInterval = (Math.random() * 4 * 60 * 1000) + (1 * 60 * 1000); // 1 to 5 minutes
             this.state.nudgeTimer = setTimeout(() => this.sendNudgeMessage(), randomInterval);
-            console.log(`Nudge timer reset for ${randomInterval / 1000} seconds.`);
         },
 
         async sendNudgeMessage() {
             if (this.isLastMessageFromUser() && !this.state.isTyping && this.state.chat) {
-                console.log('Attempting to send nudge message.');
                 const nudgePrompt = "I haven't heard from you in a bit, say something to gently restart the conversation based on your persona. For example: 'What are you up to?', 'Thinking of you!', or 'I'm bored...'.";
                 await this.getAiResponse(nudgePrompt);
-            } else {
-                console.log('Nudge condition not met or AI is typing.');
             }
         },
         
         async sendWelcomeBackMessage() {
             if (!this.state.isTyping && this.state.chat) {
-                console.log('Attempting to send welcome back message.');
                 const welcomePrompt = "I'm opening the app again after a long time. Greet me in character, like you missed me. For example: 'I missed you!', 'Where have you been?', or 'Finally! I was waiting...'.";
                 await this.getAiResponse(welcomePrompt);
-            } else {
-                console.log('Welcome back condition not met or AI is typing.');
             }
         },
 
@@ -383,28 +333,31 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         showSetupScreen() {
-            console.log('Showing setup screen.');
-            if (this.elements.chatScreen) this.elements.chatScreen.style.display = 'none';
-            if (this.elements.setupScreen) this.elements.setupScreen.style.display = 'flex';
+            this.elements.chatScreen.style.display = 'none';
+            this.elements.setupScreen.style.display = 'flex';
         },
         
         resetSettings() {
-            console.log('Resetting all settings.');
             if (confirm('Are you sure you want to reset all settings? This will clear your chat history.')) {
                 clearTimeout(this.state.nudgeTimer);
                 localStorage.removeItem('aiLoverSettings');
-                this.state.apiKey = null;
-                this.state.persona = { name: '', relationship: '', mbti: '', tone: '' };
-                this.state.chatHistory = [];
-                this.state.lastMessageTimestamp = null;
-                if (this.elements.apiKeyInput) this.elements.apiKeyInput.value = '';
-                if (this.elements.personaNameInput) this.elements.personaNameInput.value = '';
-                if (this.elements.personaRelationshipInput) this.elements.personaRelationshipInput.value = '';
-                if (this.elements.personaMbtiInput) this.elements.personaMbtiInput.value = '';
-                if (this.elements.personaToneInput) this.elements.personaToneInput.value = '';
+                // Reset state fully
+                Object.assign(this.state, {
+                    apiKey: null,
+                    language: 'ko',
+                    accentTheme: 'theme-yellow',
+                    lightTheme: true,
+                    persona: { name: '', relationship: '', mbti: '', tone: '' },
+                    chat: null,
+                    chatHistory: [],
+                    isTyping: false,
+                    nudgeTimer: null,
+                    lastMessageTimestamp: null,
+                });
+                this.loadSettings(); // to clear inputs
+                this.applyTheme();
+                this.updateUI();
                 this.showSetupScreen();
-                this.updateUI(); // Re-apply UI state after reset
-                console.log('Settings reset and setup screen shown.');
             }
         }
     };

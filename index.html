@@ -13,6 +13,10 @@
                 <button id="lang-ko">🇰🇷</button>
                 <button id="lang-en" class="active">🇺🇸</button>
             </div>
+            <div class="theme-toggle-container">
+                <label for="theme-toggle" data-i18n="darkMode">Dark Mode</label>
+                <button id="theme-toggle">🌙</button>
+            </div>
             <h1 data-i18n="appTitle">AI Chat Companion</h1>
             <div class="setup-section">
                 <label for="api-key" data-i18n="apiKeyLabel">🔑 API Key</label>
@@ -78,6 +82,7 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script type="module" src="script.js"></script>
+    <script src="https://sdk.gemini.ai/v1.5/gemini-web.js"></script>
+    <script src="script.js" defer></script>
 </body>
 </html>
