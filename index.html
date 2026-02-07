@@ -255,7 +255,7 @@
                     if (this.elements['go-to-api-btn']) this.elements['go-to-api-btn'].addEventListener('click', () => this.savePersonaSettings() && this.showScreen('api-key-screen'));
                     if (this.elements['get-api-key-btn']) this.elements['get-api-key-btn'].addEventListener('click', () => this.elements['api-key-modal'].style.display = 'flex');
                     if (this.elements['close-modal-btn']) this.elements['close-modal-btn'].addEventListener('click', () => this.elements['api-key-modal'].style.display = 'none');
-                    if (this.elements['start-chat-btn']) this.elements['start-chat-btn'].addEventListener('click', () => this.startChat()); // Corrected typo here
+                    if (this.elements['start-chat-btn']) this.elements['start-chat-btn'].addEventListener('click', () => this.startChat());
                     if (this.elements['back-to-welcome-btn']) this.elements['back-to-welcome-btn'].addEventListener('click', () => this.showScreen('welcome-screen'));
                     if (this.elements['back-to-persona-btn']) this.elements['back-to-persona-btn'].addEventListener('click', () => this.showScreen('persona-screen'));
                     if (this.elements['back-to-api-setup-btn']) this.elements['back-to-api-setup-btn'].addEventListener('click', () => this.showScreen('api-key-screen'));
@@ -265,12 +265,10 @@
                     });
                     if (this.elements['persona-avatar-upload']) this.elements['persona-avatar-upload'].addEventListener('change', (e) => this.previewAvatar(e));
                     if (this.elements['logout-btn']) this.elements['logout-btn'].addEventListener('click', () => signOut(this.state.auth));
-                    // The HTML currently does not have a login-btn, so this will be safely skipped.
-                    // If login is re-introduced, the button must be added to the HTML.
-                    // The original "go-to-persona-btn" is now effectively the login trigger.
-                    if (this.elements['go-to-persona-btn'] && !this.state.user) { // If not logged in, this becomes a login/setup trigger
+                    
+                    if (this.elements['go-to-persona-btn'] && !this.state.user) {
                         this.elements['go-to-persona-btn'].addEventListener('click', () => {
-                            if (!this.state.user) { // Only log in if no user
+                            if (!this.state.user) {
                                 this.loginWithGoogle();
                             } else {
                                 this.showScreen('persona-screen');
@@ -287,13 +285,13 @@
                 }
                 ,
                 async loadDataFromFirestore() {
-                    if (!this.state.user) return; // Should not happen if called after user login
+                    if (!this.state.user) return;
                     const userRef = doc(this.state.db, 'users', this.state.user.uid);
                     try {
                         const docSnap = await getDoc(userRef);
                         if (docSnap.exists()) {
                             const data = docSnap.data();
-                            Object.assign(this.state, data); // Load all data
+                            Object.assign(this.state, data);
                             // Pre-fill fields from Firestore
                             if (this.elements['api-key-input']) this.elements['api-key-input'].value = this.state.apiKey || '';
                             if (this.elements['persona-name-input']) this.elements['persona-name-input'].value = this.state.persona.name || '';
@@ -306,24 +304,22 @@
                             if (this.elements['persona-avatar-preview']) this.elements['persona-avatar-preview'].src = this.state.persona.avatarUrl || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
                             if (this.elements['chat-header-avatar']) this.elements['chat-header-avatar'].src = this.state.persona.avatarUrl || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
-                            this.startChat(true); // Auto-start chat with loaded data
+                            this.startChat(true);
                         } else {
-                            // First-time user after login, show persona setup
                             this.showScreen('persona-screen');
                         }
                     } catch (error) {
                         console.error("Firestore 데이터 로드 실패:", error);
                         alert(`데이터 로드 실패: ${error.message}. 설정 화면으로 이동합니다.`);
-                        this.showScreen('persona-screen'); // Fallback to persona setup
+                        this.showScreen('persona-screen');
                     }
-                    this.applyTheme(); // Re-apply theme after loading
-                    this.updateUI(); // Re-update UI after loading
+                    this.applyTheme();
+                    this.updateUI();
                 }
                 ,
                 async saveDataToFirestore() {
-                    if (!this.state.user) return; // User must be logged in to save
+                    if (!this.state.user) return;
                     const userRef = doc(this.state.db, 'users', this.state.user.uid);
-                    // Exclude non-serializable properties (auth, db, storage, chat, elements)
                     const { user, db, auth, storage, chat, elements, ...settingsToSave } = this.state;
                     await setDoc(userRef, settingsToSave, { merge: true });
                 }
@@ -341,7 +337,7 @@
                 toggleTheme() { this.state.isDarkMode = !this.state.isDarkMode; this.applyTheme(); this.saveSettings(); }
                 ,
                 applyTheme() {
-                    document.body.className = ''; // Clear existing theme classes
+                    document.body.className = '';
                     if(this.state.isDarkMode) document.body.classList.add('dark-mode');
                     if (this.elements['theme-toggle']) this.elements['theme-toggle'].textContent = this.state.isDarkMode ? '☀️' : '🌙';
                 }
@@ -352,23 +348,21 @@
                     if (this.elements['lang-toggle']) this.elements['lang-toggle'].textContent = this.state.language === 'ko' ? '🇺🇸' : '🇰🇷';
                     document.querySelectorAll('[data-i18n]').forEach(el => {
                         const key = el.dataset.i18n;
-                        if(translations[key] !== undefined) { // Check for existence before assigning
+                        if(translations[key] !== undefined) {
                             if (el.placeholder !== undefined) el.placeholder = translations[key];
                             else el.textContent = translations[key];
                         }
                     });
                 }
                 ,
-                saveSettings() { // Save all settings to local storage (for now, will switch to Firestore)
+                saveSettings() {
                     localStorage.setItem('aiChatSettings', JSON.stringify(this.state));
-                    // Also save to Firestore if user is logged in
                     if (this.state.user) this.saveDataToFirestore();
                 }
                 ,
-                loadSettings() { // Load settings from local storage
+                loadLocalSettings() {
                     const settings = JSON.parse(localStorage.getItem('aiChatSettings'));
                     if (settings) Object.assign(this.state, settings);
-                    // Pre-fill fields if data exists
                     if (this.elements['api-key-input']) this.elements['api-key-input'].value = this.state.apiKey || '';
                     if (this.elements['persona-name-input']) this.elements['persona-name-input'].value = this.state.persona.name || '';
                     if (this.elements['chat-room-name-input']) this.elements['chat-room-name-input'].value = this.state.persona.chatRoomName || '';
@@ -380,7 +374,7 @@
                     if (this.elements['persona-avatar-preview']) this.elements['persona-avatar-preview'].src = this.state.persona.avatarUrl || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
                 }
                 ,
-                savePersonaSettings() { // New function to save persona inputs before moving to next screen
+                savePersonaSettings() {
                     this.state.persona.name = this.elements['persona-name-input'].value.trim();
                     this.state.persona.chatRoomName = this.elements['chat-room-name-input'].value.trim();
                     this.state.persona.style = this.elements['persona-style-input'].value.trim();
@@ -389,40 +383,36 @@
                     this.state.persona.nickname = this.elements['persona-nickname-input'].value.trim();
                     this.state.persona.age = this.elements['persona-age-input'].value.trim();
                     this.saveSettings();
-                    return true; // Indicate success for chaining
+                    return true;
                 }
                 ,
                 async startChat(isAutoStart = false) {
-                    // If not auto-start (i.e., user clicked Start Chat button)
                     if (!isAutoStart) {
                         this.state.apiKey = this.elements['api-key-input'].value.trim();
                         if (!this.state.apiKey || !this.state.persona.name) { alert('API 키와 AI 이름을 모두 입력해주세요.'); return; }
-                        this.savePersonaSettings(); // Save persona before starting chat
-                        this.saveSettings(); // Save API key as well
+                        this.savePersonaSettings();
+                        this.saveSettings();
                     }
 
-                    // Handle avatar upload and get URL
                     try {
                         const avatarFile = this.elements['persona-avatar-upload'].files[0];
-                        if (avatarFile && this.state.user) { // Only upload if logged in
+                        if (avatarFile && this.state.user) {
                             const storageRef = ref(this.state.storage, `avatars/${this.state.user.uid}/${Date.now()}_${avatarFile.name}`);
                             const snapshot = await uploadBytes(storageRef, avatarFile);
                             this.state.persona.avatarUrl = await getDownloadURL(snapshot.ref);
-                            this.saveSettings(); // Save new avatar URL
+                            this.saveSettings();
                         }
                     } catch (e) {
                         alert(`이미지 업로드 실패: ${e.message}`);
                         console.error("이미지 업로드 오류:", e);
-                        // Do not return, continue with chat even if avatar fails
                     }
                     
-                    // Gemini SDK check
                     if (typeof GoogleGenerativeAI === 'undefined') {
                         alert('AI 서비스에 연결할 수 없습니다. 인터넷 연결을 확인하고 새로고침 해주세요.');
-                        this.showScreen('api-key-screen'); return; // Go back to API key screen
+                        this.showScreen('api-key-screen'); return;
                     }
                     
-                    if (this.elements['chat-room-name-header']) this.elements['chat-room-name-header'].textContent = this.state.persona.chatRoomName || this.state.persona.name; // Use chat room name
+                    if (this.elements['chat-room-name-header']) this.elements['chat-room-name-header'].textContent = this.state.persona.chatRoomName || this.state.persona.name;
                     if (this.elements['chat-header-avatar']) this.elements['chat-header-avatar'].src = this.state.persona.avatarUrl || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
                     if (this.elements['message-area']) this.elements['message-area'].innerHTML = '';
                     
@@ -435,8 +425,8 @@
                             history: history, generationConfig: { maxOutputTokens: 200 }, systemInstruction: systemPrompt,
                         });
                         this.showScreen('chat-screen');
-                        if (!isAutoStart && !this.state.chatHistory.length) { // Only send greeting if new chat session
-                            this.sendInitialGreeting(); // Send greeting after starting
+                        if (!isAutoStart && !this.state.chatHistory.length) {
+                            this.sendInitialGreeting();
                         }
                     } catch (error) {
                         alert(`AI 채팅 시작 중 오류가 발생했습니다. API 키가 올바른지 확인해주세요. 오류: ${error.message}`);
