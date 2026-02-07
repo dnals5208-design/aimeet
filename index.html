@@ -34,10 +34,15 @@
         }
         .whatsapp-mode #app { background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay; background-color: #efe7dd; }
 
-        /* 화면 관리 (겹침 방지) */
+        /* 화면 관리 (로그인 겹침 방지) */
         .screen { display: none !important; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: var(--bg-primary); }
         .screen.active { display: flex !important; z-index: 100; }
         
+        /* 로딩 화면 */
+        #loading-screen { justify-content: center; align-items: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--divider); border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         /* 헤더 */
         .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 1rem; border-bottom: 1px solid var(--divider); background: var(--bg-primary); z-index: 10; min-height: 50px; }
         .header h1 { font-size: 1.1rem; margin: 0; font-weight: 700; }
@@ -69,7 +74,7 @@
         .hint-block { background-color: rgba(138, 43, 226, 0.08); padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; border: 1px solid rgba(138, 43, 226, 0.2); }
         .hint-text-main { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
 
-        /* AI 생성 버튼 삭제하고 업로드만 남김 */
+        /* 사진 업로드 버튼만 남김 */
         .avatar-controls { display: flex; justify-content: center; margin-bottom: 1rem; }
         .btn-cta-small { padding: 10px 0; font-size: 0.9rem; border-radius: 8px; border: 1px solid var(--divider); cursor: pointer; background: var(--bg-secondary); color: var(--text-primary); font-weight: 600; transition: 0.2s; width: 100%; text-align: center; }
 
@@ -125,7 +130,12 @@
 </head>
 <body>
     <div id="app">
-        <div id="login-screen" class="screen active">
+        <div id="loading-screen" class="screen active">
+            <div class="spinner"></div>
+            <h2 style="color: var(--accent); font-weight: 700;">Connect</h2>
+        </div>
+
+        <div id="login-screen" class="screen">
             <header class="header" style="background: transparent; border: none; justify-content: flex-end;">
                  <div class="controls"><button id="lang-toggle-login" class="control-btn">🇺🇸</button><button id="theme-toggle-login" class="control-btn">🌙</button></div>
             </header>
@@ -253,8 +263,8 @@
                 elements: {},
                 state: { 
                     apiKey: null, language: 'ko', isDarkMode: false, persona: {}, chat: null, 
-                    chatHistory: [], // Gemini Context (token limited)
-                    visualHistory: [], // UI Display (full separated bubbles)
+                    chatHistory: [], // Gemini Context
+                    visualHistory: [], // UI Display (분리 저장)
                     db: null, auth: null, user: null, pendingImage: null,
                     debounceTimer: null, messageQueue: []
                 },
@@ -292,7 +302,7 @@
                         appId: "1:732324287861:web:15d894068755c627842f3c"
                     };
                     
-                    const ids = ['app', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle-login', 'theme-toggle-login', 'lang-toggle-setup', 'theme-toggle-setup', 'theme-toggle-chat', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'persona-avatar-upload', 'persona-avatar-preview', 'upload-trigger-btn', 'start-chat-btn', 'reset-btn-setup', 'reset-btn-chat', 'chat-header-avatar', 'chat-room-name-header', 'logout-btn', 'login-btn', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'attach-btn', 'chat-image-input', 'image-preview-area', 'image-preview-img', 'cancel-image-btn', 'timezone-select', 'speed-select'];
+                    const ids = ['app', 'loading-screen', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle-login', 'theme-toggle-login', 'lang-toggle-setup', 'theme-toggle-setup', 'theme-toggle-chat', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'persona-avatar-upload', 'persona-avatar-preview', 'upload-trigger-btn', 'start-chat-btn', 'reset-btn-setup', 'reset-btn-chat', 'chat-header-avatar', 'chat-room-name-header', 'logout-btn', 'login-btn', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'attach-btn', 'chat-image-input', 'image-preview-area', 'image-preview-img', 'cancel-image-btn', 'timezone-select', 'speed-select'];
                     ids.forEach(id => { this.elements[id] = document.getElementById(id); });
                     if(this.elements['persona-avatar-preview']) this.elements['persona-avatar-preview'].src = DEFAULT_AVATAR;
 
@@ -326,6 +336,14 @@
                     el['chat-image-input'].addEventListener('change', e => this.handleChatImage(e));
                     el['cancel-image-btn'].addEventListener('click', () => this.cancelImage());
                     
+                    if(el['chat-header-avatar']) {
+                        el['chat-header-avatar'].addEventListener('click', () => {
+                            if(confirm("프로필 사진을 변경하시겠습니까?")) {
+                                el['persona-avatar-upload'].click();
+                            }
+                        });
+                    }
+
                     el['get-api-key-btn'].addEventListener('click', (e) => { e.preventDefault(); el['api-key-modal'].style.display = 'flex'; });
                     el['close-modal-btn'].addEventListener('click', () => el['api-key-modal'].style.display = 'none');
                     
@@ -334,9 +352,6 @@
                         if(el[`theme-toggle-${scr}`]) el[`theme-toggle-${scr}`].addEventListener('click', () => this.toggleTheme());
                     });
                     if(el['theme-toggle-chat']) el['theme-toggle-chat'].addEventListener('click', () => this.toggleTheme());
-                    if(el['chat-header-avatar']) el['chat-header-avatar'].addEventListener('click', () => {
-                        if(confirm("프로필 사진을 변경하시겠습니까?")) el['persona-avatar-upload'].click();
-                    });
                 },
                 compressImage: function(file, maxWidth, quality) {
                     return new Promise((resolve) => {
@@ -364,7 +379,9 @@
                         this.elements['persona-avatar-preview'].src = base64;
                         this.elements['chat-header-avatar'].src = base64; 
                         this.state.persona.avatarUrl = base64;
-                        if(this.state.user) await setDoc(doc(this.state.db, 'users', this.state.user.uid), { persona: this.state.persona }, { merge: true });
+                        if(this.state.user) {
+                            await setDoc(doc(this.state.db, 'users', this.state.user.uid), { persona: this.state.persona }, { merge: true });
+                        }
                     }
                 },
                 handleChatImage: async function(e) {
@@ -385,23 +402,23 @@
                         location.reload();
                     }
                 },
-                // [화면 전환 로직 수정] active 클래스만 제어하여 겹침 방지
+                // [화면 전환] display: none !important 처리로 겹침 방지
                 showScreen: function(id) {
-                    // 모든 화면의 active 클래스 제거
-                    ['login-screen', 'setup-screen', 'chat-screen'].forEach(s => {
+                    ['loading-screen', 'login-screen', 'setup-screen', 'chat-screen'].forEach(s => {
                         const el = this.elements[s];
-                        if (el) el.classList.remove('active');
+                        if (el) {
+                            if (s === id) el.classList.add('active');
+                            else el.classList.remove('active');
+                        }
                     });
-                    // 대상 화면만 active 추가
-                    if (this.elements[id]) {
-                        this.elements[id].classList.add('active');
-                    }
                 },
-                // 스크롤 최하단 이동 함수
+                
+                // [스크롤] 최하단 이동
                 scrollToBottom: function() {
                     const area = this.elements['message-area'];
                     if(area) area.scrollTop = area.scrollHeight;
                 },
+                
                 loadDataFromFirestore: async function() {
                     try {
                         const snap = await getDoc(doc(this.state.db, 'users', this.state.user.uid));
@@ -477,7 +494,7 @@
                     const userMsgObj = { role: 'user', text: txt, img: imgBase64, timestamp: Date.now() };
                     
                     this.displayMessage(userMsgObj.role, userMsgObj.text, userMsgObj.img);
-                    this.state.visualHistory.push(userMsgObj);
+                    this.state.visualHistory.push(userMsgObj); // 분리 저장
 
                     this.elements['message-input'].value = '';
                     this.cancelImage();
@@ -610,8 +627,11 @@
                         const genAI = new GoogleGenerativeAI(this.state.apiKey);
                         const now = new Date().toLocaleString('en-US', { timeZone: this.state.persona.timezone || 'Asia/Seoul' });
                         
-                        // [429 방지] 컨텍스트 최근 30개로 제한
-                        const apiHistory = this.state.chatHistory.slice(-30).map(h => ({ role: h.role, parts: h.parts }));
+                        // [429 방지] 롤백된 로직: 기록을 다 보내는 대신, chatHistory를 보낼 때 map으로 깨끗하게 보냄
+                        // 단, 너무 길어지면 오류나니까 최근 15개 텀(약 30개)만 자르는 건 '안전장치'로 둡니다. (사용자가 싫어한 '인위적 잘림'이 아니라 '서버 오류 방지용')
+                        const apiHistory = this.state.chatHistory.map(h => ({ role: h.role, parts: h.parts }));
+                        // 안전장치: 너무 길면 뒤에서 60개만
+                        const finalHistory = apiHistory.length > 60 ? apiHistory.slice(-60) : apiHistory;
                         
                         const prompt = `
                         You are '${this.state.persona.name}'.
@@ -626,7 +646,7 @@
                         `;
                         
                         const model = genAI.getGenerativeModel({ model: MODEL_NAME, systemInstruction: prompt });
-                        this.state.chat = model.startChat({ history: apiHistory });
+                        this.state.chat = model.startChat({ history: finalHistory });
                         
                         this.showScreen('chat-screen');
                         
