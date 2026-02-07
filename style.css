@@ -1,1 +1,297 @@
-/* Add styles here */
+:root {
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.theme-yellow {
+    --bg-color: #F9E000;
+    --primary-color: #F9E000;
+    --user-bubble-bg: #FEE500;
+    --partner-bubble-bg: #FFFFFF;
+    --text-color: #000000;
+    --header-bg: #F9E000;
+    --time-text-color: #999999;
+    --button-bg: #FFFFFF;
+    --button-text-color: #000000;
+}
+
+.theme-green {
+    --bg-color: #E5DDD5;
+    --primary-color: #075E54;
+    --user-bubble-bg: #DCF8C6;
+    --partner-bubble-bg: #FFFFFF;
+    --text-color: #000000;
+    --header-bg: #075E54;
+    --time-text-color: #999999;
+    --button-bg: #128C7E;
+    --button-text-color: #FFFFFF;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+#app {
+    max-width: 600px;
+    margin: 0 auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-color);
+}
+
+#setup-screen {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.language-toggle {
+    align-self: flex-end;
+}
+
+.language-toggle button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+.language-toggle button.active {
+    opacity: 1;
+}
+
+.setup-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.setup-section label {
+    font-weight: bold;
+}
+
+#api-key, .persona-setup input, .persona-setup textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#get-api-key-btn {
+    background-color: var(--button-bg);
+    color: var(--button-text-color);
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.theme-selection {
+    display: flex;
+    gap: 20px;
+}
+
+.theme-option {
+    cursor: pointer;
+    text-align: center;
+}
+
+.theme-option .preview {
+    width: 100px;
+    height: 70px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    margin-bottom: 5px;
+}
+
+.theme-option.active .preview {
+    border-color: var(--primary-color);
+}
+
+.preview.yellow {
+    background-color: #F9E000;
+}
+
+.preview.green {
+    background-color: #E5DDD5;
+}
+
+#start-chat-btn {
+    padding: 15px;
+    background-color: var(--primary-color);
+    color: var(--button-text-color);
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal {
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
+    position: relative;
+}
+
+.close-btn {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#chat-screen {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: var(--header-bg);
+    color: var(--button-text-color);
+}
+
+.chat-header .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.chat-header-info {
+    flex-grow: 1;
+}
+
+.chat-header-info h2, .chat-header-info p {
+    margin: 0;
+}
+
+#message-area {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message-bubble {
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: 70%;
+    width: fit-content;
+}
+
+.message-bubble.user {
+    background-color: var(--user-bubble-bg);
+    align-self: flex-end;
+}
+
+.message-bubble.partner {
+    background-color: var(--partner-bubble-bg);
+    align-self: flex-start;
+}
+
+.chat-footer {
+    display: flex;
+    padding: 10px;
+}
+
+#message-input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+}
+
+#send-btn {
+    background-color: var(--primary-color);
+    color: var(--button-text-color);
+    border: none;
+    padding: 0 15px;
+    border-radius: 20px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+#typing-indicator {
+    padding: 0 10px;
+}
+
+.message-container {
+    display: flex;
+    align-items: flex-end;
+}
+
+.message-container.user {
+    justify-content: flex-end;
+}
+
+.read-receipt {
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.theme-green .read-receipt {
+    color: #34B7F1;
+}
+
+#typing-indicator p {
+    display: flex;
+    align-items: center;
+}
+
+#typing-indicator span {
+    height: 8px;
+    width: 8px;
+    background-color: #999;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 2px;
+    animation: bounce 1.3s infinite;
+}
+
+#typing-indicator span:nth-of-type(2) {
+    animation-delay: 0.2s;
+}
+
+#typing-indicator span:nth-of-type(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+

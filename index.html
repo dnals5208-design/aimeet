@@ -1,14 +1,84 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lover Simulation</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+    <div id="app">
+        <!-- Setup Screen -->
+        <div id="setup-screen">
+            <div class="language-toggle">
+                <button id="lang-ko">🇰🇷</button>
+                <button id="lang-en" class="active">🇺🇸</button>
+            </div>
+            <h1>AI Lover Simulation</h1>
+            <div class="setup-section">
+                <label for="api-key" data-i18n="apiKeyLabel">🔑 API Key</label>
+                <input type="password" id="api-key" data-i18n-placeholder="apiKeyPlaceholder">
+                <button id="get-api-key-btn" data-i18n="getApiKeyBtn">Get a free API key (1 min)</button>
+            </div>
+            <div class="setup-section">
+                <label data-i18n="themeLabel">Messenger Theme</label>
+                <div class="theme-selection">
+                    <div class="theme-option" data-theme="theme-yellow">
+                        <div class="preview yellow"></div>
+                        <span data-i18n="yellowTalk">Yellow Talk</span>
+                    </div>
+                    <div class="theme-option" data-theme="theme-green">
+                        <div class="preview green"></div>
+                        <span data-i18n="greenChat">Green Chat</span>
+                    </div>
+                </div>
+            </div>
+            <div class="setup-section persona-setup">
+                <label data-i18n="personaLabel">AI Persona</label>
+                <input type="text" id="persona-name" data-i18n-placeholder="personaNamePlaceholder">
+                <input type="text" id="persona-relationship" data-i18n-placeholder="personaRelationshipPlaceholder">
+                <input type="text" id="persona-mbti" data-i18n-placeholder="personaMbtiPlaceholder">
+                <textarea id="persona-tone" data-i18n-placeholder="personaTonePlaceholder"></textarea>
+            </div>
+            <button id="start-chat-btn" data-i18n="startChatBtn">Start Chat</button>
+
+            <!-- API Key Modal -->
+            <div id="api-key-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close-btn">&times;</span>
+                    <h2 data-i18n="modalTitle">Get Your Free Google AI API Key</h2>
+                    <ol>
+                        <li data-i18n="modalStep1">Log in with your Google account.</li>
+                        <li data-i18n="modalStep2">Click "Create API Key".</li>
+                        <li data-i18n="modalStep3">Copy the key and paste it here.</li>
+                    </ol>
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" data-i18n="modalLink">Go to Google AI Studio</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Screen -->
+        <div id="chat-screen" style="display: none;">
+            <header class="chat-header">
+                <button id="back-to-setup-btn">&lt;</button>
+                <img id="chat-persona-img" src="assets/default-avatar.png" alt="Avatar" class="avatar">
+                <div class="chat-header-info">
+                    <h2 id="chat-persona-name"></h2>
+                    <p id="chat-persona-status"></p>
+                </div>
+                <button id="reset-settings-btn">⚙️</button>
+            </header>
+            <main id="message-area"></main>
+            <div id="typing-indicator" style="display: none;">
+                <p>typing...</p>
+            </div>
+            <footer class="chat-footer">
+                <input type="text" id="message-input" placeholder="Type a message...">
+                <button id="send-btn">Send</button>
+            </footer>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
