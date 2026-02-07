@@ -219,7 +219,7 @@
                         measurementId: "G-CD2L6WFJN9"
                     };
 
-                    const ids = ['app', 'welcome-screen', 'persona-screen', 'api-key-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'go-to-persona-btn', 'go-to-api-btn', 'start-chat-btn', 'back-to-welcome-btn', 'back-to-persona-btn', 'back-to-api-setup-btn', 'chat-header-avatar', 'chat-room-name-header', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'persona-avatar-upload', 'persona-avatar-preview', 'logout-btn', 'login-btn'];
+                    const ids = ['app', 'welcome-screen', 'persona-screen', 'api-key-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'go-to-persona-btn', 'go-to-api-btn', 'start-chat-btn', 'back-to-welcome-btn', 'back-to-persona-btn', 'back-to-api-setup-btn', 'chat-header-avatar', 'chat-room-name-header', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'persona-avatar-upload', 'persona-avatar-preview', 'logout-btn'];
                     ids.forEach(id => { this.elements[id] = document.getElementById(id); });
                     
                     try {
@@ -232,7 +232,7 @@
                         alert("Firebase 초기화 실패. 콘솔을 확인해주세요."); return;
                     }
                     
-                    this.loadSettings(); // Load local settings first
+                    this.loadLocalSettings();
                     this.applyTheme();
                     this.addEventListeners();
                     
@@ -255,7 +255,7 @@
                     if (this.elements['go-to-api-btn']) this.elements['go-to-api-btn'].addEventListener('click', () => this.savePersonaSettings() && this.showScreen('api-key-screen'));
                     if (this.elements['get-api-key-btn']) this.elements['get-api-key-btn'].addEventListener('click', () => this.elements['api-key-modal'].style.display = 'flex');
                     if (this.elements['close-modal-btn']) this.elements['close-modal-btn'].addEventListener('click', () => this.elements['api-key-modal'].style.display = 'none');
-                    if (this.elements['start-chat-btn']) this.elements.startChatBtn.addEventListener('click', () => this.startChat());
+                    if (this.elements['start-chat-btn']) this.elements['start-chat-btn'].addEventListener('click', () => this.startChat()); // Corrected typo here
                     if (this.elements['back-to-welcome-btn']) this.elements['back-to-welcome-btn'].addEventListener('click', () => this.showScreen('welcome-screen'));
                     if (this.elements['back-to-persona-btn']) this.elements['back-to-persona-btn'].addEventListener('click', () => this.showScreen('persona-screen'));
                     if (this.elements['back-to-api-setup-btn']) this.elements['back-to-api-setup-btn'].addEventListener('click', () => this.showScreen('api-key-screen'));
@@ -266,6 +266,8 @@
                     if (this.elements['persona-avatar-upload']) this.elements['persona-avatar-upload'].addEventListener('change', (e) => this.previewAvatar(e));
                     if (this.elements['logout-btn']) this.elements['logout-btn'].addEventListener('click', () => signOut(this.state.auth));
                     // Check if login button exists on current screen (welcome)
+                    // The HTML currently does not have a login-btn, so this will be safely skipped.
+                    // If login is re-introduced, the button must be added to the HTML.
                     if (this.elements['login-btn']) this.elements['login-btn'].addEventListener('click', () => this.loginWithGoogle());
                 }
                 ,
@@ -311,9 +313,10 @@
                 }
                 ,
                 async saveDataToFirestore() {
-                    if (!this.state.user) return;
+                    if (!this.state.user) return; // User must be logged in to save
                     const userRef = doc(this.state.db, 'users', this.state.user.uid);
-                    const { user, db, auth, storage, chat, ...settingsToSave } = this.state; // Exclude non-serializable state
+                    // Exclude non-serializable properties (auth, db, storage, chat, elements)
+                    const { user, db, auth, storage, chat, elements, ...settingsToSave } = this.state;
                     await setDoc(userRef, settingsToSave, { merge: true });
                 }
                 ,
