@@ -2,176 +2,173 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Connect DEBUG MODE</title>
+    <title>Connect Manual Debugger</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
-        #debug-console { 
-            width: 100%; height: 300px; background: #000; color: #0f0; 
-            font-family: monospace; padding: 10px; overflow-y: scroll; 
-            border-radius: 8px; margin-bottom: 20px; font-size: 12px;
+        body { font-family: monospace; background: #222; color: #0f0; padding: 20px; line-height: 1.5; }
+        h1 { color: #fff; border-bottom: 1px solid #555; padding-bottom: 10px; }
+        .control-panel { background: #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #555; }
+        
+        input { background: #000; color: #fff; border: 1px solid #555; padding: 10px; width: 300px; margin-right: 10px; }
+        button { padding: 10px 20px; cursor: pointer; font-weight: bold; background: #444; color: #fff; border: 1px solid #fff; }
+        button:hover { background: #666; }
+        button.primary { background: #007bff; border-color: #007bff; }
+        button.danger { background: #dc3545; border-color: #dc3545; }
+
+        #log-area { 
+            width: 100%; height: 500px; background: #000; border: 1px solid #555; 
+            overflow-y: scroll; padding: 10px; white-space: pre-wrap; 
         }
-        .log-line { margin: 2px 0; border-bottom: 1px solid #333; }
-        .error { color: #ff5555; font-weight: bold; }
-        .warn { color: #ffaa00; }
-        .info { color: #00aaff; }
-        button { padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        .log-time { color: #888; margin-right: 10px; }
+        .log-error { color: #ff5555; font-weight: bold; }
+        .log-success { color: #55ff55; }
+        .log-warn { color: #ffff55; }
     </style>
 </head>
 <body>
-    <h1>🛠️ 429 오류 추적 디버거</h1>
-    <p>아래 검은 화면에 뜨는 내용을 확인해주세요.</p>
+    <h1>🛠️ API 키 직접 입력 디버거</h1>
     
-    <div id="debug-console"></div>
-    
-    <div id="app-ui">
-        <button id="login-btn">1. 구글 로그인</button>
-        <button id="start-btn">2. 채팅 시작 (API 연결)</button>
-        <button id="send-test-btn">3. 테스트 메시지 전송</button>
-        <button id="reset-btn" style="background:red; color:white;">데이터 초기화</button>
+    <div class="control-panel">
+        <h3>1. 로그인 & 키 설정</h3>
+        <button id="login-btn">구글 로그인</button>
+        <br><br>
+        <label>API KEY: </label>
+        <input type="text" id="manual-api-key" placeholder="여기에 API 키를 붙여넣으세요">
+        <button id="save-key-btn">키 저장(DB)</button>
     </div>
+
+    <div class="control-panel">
+        <h3>2. API 연결 테스트</h3>
+        <button id="check-history-btn">저장된 대화량 확인</button>
+        <button id="test-api-btn" class="primary">단순 연결 테스트 (안녕?)</button>
+        <button id="reset-db-btn" class="danger">DB 초기화 (429 해결용)</button>
+    </div>
+
+    <div id="log-area">로그 대기중...</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-        // --- 디버그 로그 함수 ---
-        const debugEl = document.getElementById('debug-console');
-        function log(msg, type = 'normal') {
-            const line = document.createElement('div');
-            line.className = `log-line ${type}`;
-            line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            debugEl.appendChild(line);
-            debugEl.scrollTop = debugEl.scrollHeight;
-            console.log(msg); // 브라우저 콘솔에도 출력
-        }
-
-        // --- Firebase 설정 ---
+        // Firebase 설정
         const firebaseConfig = { apiKey: "AIzaSyDmO1wpZQJEiPEjNoq7xtFcq33akIzoGY8", authDomain: "aimeet-c235c.firebaseapp.com", projectId: "aimeet-c235c", appId: "1:732324287861:web:15d894068755c627842f3c" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let userState = { uid: null, apiKey: null, persona: {}, history: [] };
-        let chatInstance = null;
+        let currentUser = null;
+
+        // 로깅 함수
+        const logArea = document.getElementById('log-area');
+        function log(msg, type = '') {
+            const time = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-${type}">${msg}</span>`;
+            logArea.appendChild(div);
+            logArea.scrollTop = logArea.scrollHeight;
+            console.log(msg);
+        }
 
         // 1. 로그인
         document.getElementById('login-btn').onclick = () => {
-            log("👉 로그인 버튼 클릭됨");
-            signInWithPopup(auth, new GoogleAuthProvider()).catch(e => log(`🛑 로그인 실패: ${e.message}`, 'error'));
+            signInWithPopup(auth, new GoogleAuthProvider())
+                .then(res => log(`✅ 로그인 성공: ${res.user.uid}`, 'success'))
+                .catch(e => log(`🛑 로그인 실패: ${e.message}`, 'error'));
         };
 
-        // 2. Auth 상태 감지
+        // Auth 상태 감지 & 키 불러오기
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                userState.uid = user.uid;
-                log(`✅ 로그인 성공 (UID: ${user.uid.slice(0, 5)}...)`, 'info');
+                currentUser = user;
+                log(`ℹ️ 사용자 감지됨: ${user.uid}`);
                 
-                // 데이터 로드
                 try {
                     const snap = await getDoc(doc(db, 'users', user.uid));
                     if (snap.exists()) {
                         const data = snap.data();
-                        userState.apiKey = data.apiKey;
-                        userState.history = data.chatHistory || [];
-                        userState.persona = data.persona || {};
-                        
-                        log(`📂 Firestore 데이터 로드 완료`, 'info');
-                        log(`   - API Key 존재 여부: ${userState.apiKey ? 'O' : 'X'}`, userState.apiKey ? 'info' : 'error');
-                        log(`   - 저장된 대화 개수: ${userState.history.length}개`, 'info');
-                    } else {
-                        log(`📂 신규 유저입니다. 데이터 없음.`);
+                        if (data.apiKey) {
+                            document.getElementById('manual-api-key').value = data.apiKey;
+                            log(`📂 DB에서 API 키를 불러왔습니다.`, 'success');
+                        } else {
+                            log(`⚠️ DB에 API 키가 없습니다. 직접 입력해주세요.`, 'warn');
+                        }
                     }
                 } catch (e) {
-                    log(`🛑 데이터 로드 실패: ${e.message}`, 'error');
+                    log(`🛑 DB 로드 실패: ${e.message}`, 'error');
                 }
-            } else {
-                log(`ℹ️ 로그아웃 상태`);
             }
         });
 
-        // 3. 채팅 시작 (여기가 429 핵심 구간)
-        document.getElementById('start-btn').onclick = async () => {
-            if (!userState.apiKey) {
-                log("🛑 API 키가 없습니다. 데이터베이스를 확인하세요.", 'error');
-                return;
-            }
-
-            log("🚀 [API 연결 시도] startChat 실행");
+        // 키 저장
+        document.getElementById('save-key-btn').onclick = async () => {
+            const key = document.getElementById('manual-api-key').value.trim();
+            if (!currentUser) return log("🛑 먼저 로그인해주세요.", 'error');
+            if (!key) return log("🛑 키를 입력해주세요.", 'error');
 
             try {
-                const genAI = new GoogleGenerativeAI(userState.apiKey);
-                const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-                // [데이터 필터링 검증]
-                const now = Date.now();
-                const threeDaysAgo = now - (3 * 24 * 60 * 60 * 1000);
-                
-                log(`📉 3일치 데이터 필터링 시작... (기준: ${new Date(threeDaysAgo).toLocaleString()})`);
-                
-                const filteredHistory = userState.history.filter(m => {
-                    // 타임스탬프가 없으면(옛날 데이터) 포함, 있으면 3일 이내만 포함
-                    return !m.timestamp || m.timestamp > threeDaysAgo;
-                }).map(m => ({
-                    role: m.role,
-                    parts: [{ text: m.text }]
-                }));
-
-                log(`   - 필터링 전: ${userState.history.length}개`);
-                log(`   - 필터링 후: ${filteredHistory.length}개`, 'warn');
-
-                // 토큰 량 대략적 계산 (글자수)
-                const totalChars = JSON.stringify(filteredHistory).length;
-                log(`   - 전송 데이터 크기(예상): 약 ${totalChars}자`);
-
-                if (totalChars > 30000) {
-                    log(`🛑 [경고] 데이터가 너무 큽니다! 429 원인 가능성 높음.`, 'error');
-                }
-
-                // 실제 연결
-                log("📡 Google 서버로 startChat 요청 전송 중...");
-                chatInstance = model.startChat({ history: filteredHistory });
-                
-                // 테스트 호출 (빈 메시지 안 보냄, 연결만 확인)
-                log("✅ model.startChat 객체 생성 성공 (아직 429 아님)");
-                log("👉 이제 '테스트 메시지 전송' 버튼을 눌러보세요.");
-
+                await setDoc(doc(db, 'users', currentUser.uid), { apiKey: key }, { merge: true });
+                log("✅ API 키가 DB에 저장되었습니다.", 'success');
             } catch (e) {
-                log(`🛑 startChat 초기화 중 에러: ${e.message}`, 'error');
+                log(`🛑 저장 실패: ${e.message}`, 'error');
             }
         };
 
-        // 4. 메시지 전송 테스트
-        document.getElementById('send-test-btn').onclick = async () => {
-            if (!chatInstance) {
-                log("🛑 먼저 '채팅 시작'을 눌러 연결하세요.", 'error');
-                return;
+        // 대화량 확인 (429 원인 분석)
+        document.getElementById('check-history-btn').onclick = async () => {
+            if (!currentUser) return log("🛑 로그인 필요", 'error');
+            const snap = await getDoc(doc(db, 'users', currentUser.uid));
+            if (snap.exists()) {
+                const history = snap.data().chatHistory || [];
+                const jsonStr = JSON.stringify(history);
+                log(`📊 현재 저장된 대화 개수: ${history.length}개`);
+                log(`⚖️ 데이터 크기(글자수): 약 ${jsonStr.length}자`);
+                
+                if (jsonStr.length > 30000) {
+                    log(`🔥 [경고] 데이터가 너무 큽니다! 이것 때문에 429가 뜰 확률이 높습니다.`, 'error');
+                } else {
+                    log(`👍 데이터 크기는 적당합니다.`, 'success');
+                }
             }
-            
-            const msg = "안녕 디버그 테스트야";
-            log(`📤 메시지 전송 시도: "${msg}"`);
-            
+        };
+
+        // API 연결 테스트
+        document.getElementById('test-api-btn').onclick = async () => {
+            const key = document.getElementById('manual-api-key').value.trim();
+            if (!key) return log("🛑 입력창에 API 키가 없습니다.", 'error');
+
+            log("🚀 [테스트 시작] Google 서버에 '안녕'이라고 보내봅니다...");
+
             try {
-                const result = await chatInstance.sendMessage(msg);
-                const text = result.response.text();
-                log(`📥 응답 수신 성공: "${text.slice(0, 30)}..."`, 'info');
+                const genAI = new GoogleGenerativeAI(key);
+                const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+                
+                // 히스토리 없이 단발성 전송 테스트 (이게 되면 키는 정상)
+                const result = await model.generateContent("안녕? 짧게 대답해줘.");
+                const response = await result.response;
+                const text = response.text();
+                
+                log(`✅ [성공] 응답: ${text}`, 'success');
+                log(`👉 키는 정상입니다. 429가 뜬다면 '대화 내역(History)' 문제입니다.`, 'info');
+
             } catch (e) {
-                log(`🛑 [429 오류 발생 지점] 메시지 전송 실패:`, 'error');
+                log(`🛑 [실패] 오류 내용:`, 'error');
                 log(e.toString(), 'error');
                 if (e.message.includes('429')) {
-                    log("🚨 429 확인됨! 요청이 너무 많거나 데이터가 너무 큽니다.", 'error');
+                    log(`🚨 429 (Too Many Requests) 확인됨!`, 'error');
+                    log(`해결책: 'DB 초기화' 버튼을 눌러 과거 기록을 날려보세요.`, 'warn');
                 }
             }
         };
 
-        // 초기화
-        document.getElementById('reset-btn').onclick = async () => {
-            if(confirm("모든 데이터를 날립니다. 하시겠습니까?")) {
-                await setDoc(doc(db, 'users', userState.uid), { apiKey: '', chatHistory: [], persona: {} });
-                location.reload();
+        // DB 초기화
+        document.getElementById('reset-db-btn').onclick = async () => {
+            if (!currentUser) return;
+            if (confirm("정말 모든 대화 내용을 삭제하시겠습니까? (429 해결 직빵)")) {
+                await setDoc(doc(db, 'users', currentUser.uid), { chatHistory: [], visualHistory: [], apiKey: document.getElementById('manual-api-key').value }, { merge: true });
+                log("🗑️ 데이터가 초기화되었습니다. 다시 테스트해보세요.", 'success');
             }
-        }
+        };
     </script>
 </body>
 </html>
