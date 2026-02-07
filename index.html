@@ -1,90 +1,354 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="appTitle">AI Chat Companion</title>
-    <link rel="stylesheet" href="style.css">
+    <title>AI Chat</title>
+    <style>
+        :root {
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --border-radius-md: 8px;
+            --border-radius-lg: 16px;
+            --transition: 0.2s ease-out;
+
+            /* Light Theme */
+            --bg-primary: #fff;
+            --bg-secondary: #f0f2f5;
+            --text-primary: #1c1e21;
+            --text-secondary: #65676b;
+            --divider: #ddd;
+            --accent: #007bff;
+            --user-bubble: #007bff;
+            --partner-bubble: #e4e6eb;
+            --user-text: #fff;
+            --partner-text: #1c1e21;
+        }
+
+        .dark-mode {
+            --bg-primary: #1c1c1e;
+            --bg-secondary: #000;
+            --text-primary: #f5f5f7;
+            --text-secondary: #8d8d93;
+            --divider: #3a3a3c;
+            --accent: #0a84ff;
+            --user-bubble: #0a84ff;
+            --partner-bubble: #2c2c2e;
+            --user-text: #fff;
+            --partner-text: #f5f5f7;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-sans);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background-color var(--transition), color var(--transition);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: var(--bg-primary);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .screen {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+            padding: 1.5rem;
+            box-sizing: border-box;
+        }
+        #chat-screen { padding: 0; }
+
+        .setup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        #setup-screen h1 { font-size: 1.8rem; margin: 0; }
+        .controls { display: flex; gap: 1rem; }
+        .control-btn { background: none; border: 1px solid var(--divider); border-radius: var(--border-radius-md); padding: 8px; cursor: pointer; color: var(--text-secondary); }
+
+        .card { background-color: var(--bg-secondary); padding: 1.5rem; border-radius: var(--border-radius-lg); margin-bottom: 1.5rem; }
+        .card label { font-weight: 600; color: var(--text-secondary); margin-bottom: 0.75rem; display: block; }
+        .card input, .card textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--divider);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        .card textarea { resize: vertical; min-height: 50px; }
+        .card input:focus, .card textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent); }
+
+        .button { display: block; width: 100%; padding: 1rem; border: none; border-radius: var(--border-radius-md); font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; transition: background-color var(--transition), transform var(--transition); }
+        .button-primary { background-color: var(--accent); color: #fff; }
+        .button:hover { transform: translateY(-2px); }
+
+        .chat-header { display: flex; align-items: center; padding: 0.75rem 1rem; background-color: var(--bg-secondary); border-bottom: 1px solid var(--divider); flex-shrink: 0; }
+        .chat-header .avatar { width: 36px; height: 36px; border-radius: 50%; margin-left: 0.5rem; background-color: var(--divider); }
+        .chat-header-info { flex-grow: 1; text-align: center; }
+        .chat-header-info h2 { font-size: 1.1rem; margin: 0; }
+        .chat-header button { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; padding: 0.5rem; }
+        
+        #message-area { flex-grow: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+        .message-bubble { padding: 0.6rem 1rem; border-radius: 1.25rem; line-height: 1.5; max-width: 75%; word-wrap: break-word; }
+        .message-container { display: flex; }
+        .message-container.user { justify-content: flex-end; }
+        .message-container.partner { justify-content: flex-start; }
+        .message-container.user .message-bubble { background-color: var(--user-bubble); color: var(--user-text); }
+        .message-container.partner .message-bubble { background-color: var(--partner-bubble); color: var(--partner-text); }
+
+        .chat-footer { display: flex; align-items: center; padding: 0.75rem; border-top: 1px solid var(--divider); }
+        #message-input { flex-grow: 1; border: none; background-color: var(--bg-secondary); border-radius: 1.5rem; padding: 0.75rem 1.25rem; font-size: 1rem; color: var(--text-primary); margin-right: 0.75rem; }
+        #send-btn { background-color: var(--accent); color: #fff; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 1.5rem; line-height: 44px; text-align: center; cursor: pointer; transition: transform var(--transition); flex-shrink: 0; }
+        #send-btn:hover { transform: scale(1.1); }
+    </style>
 </head>
 <body>
     <div id="app">
         <!-- Setup Screen -->
-        <div id="setup-screen">
-            <div class="top-bar">
-                <div class="language-toggle">
-                    <button id="lang-ko">🇰🇷</button>
-                    <button id="lang-en">🇺🇸</button>
-                </div>
-                <div class="theme-toggle-container">
-                    <button id="theme-toggle">🌙</button>
+        <div id="setup-screen" class="screen">
+            <div class="setup-header">
+                <h1 data-i18n="appTitle">AI Chat</h1>
+                <div class="controls">
+                    <button id="lang-toggle" class="control-btn">🇺🇸</button>
+                    <button id="theme-toggle" class="control-btn">🌙</button>
                 </div>
             </div>
-            <h1 data-i18n="appTitle">AI Chat Companion</h1>
-            <div class="setup-section">
+            <div class="card">
                 <label for="api-key" data-i18n="apiKeyLabel">🔑 API Key</label>
                 <input type="password" id="api-key" data-i18n-placeholder="apiKeyPlaceholder">
-                <button id="get-api-key-btn" data-i18n="getApiKeyBtn">Get a free API key (1 min)</button>
             </div>
-            <div class="setup-section">
-                <label data-i18n="themeLabel">Messenger Theme</label>
-                <div class="theme-selection">
-                    <div class="theme-option" data-theme="theme-yellow">
-                        <div class="preview yellow"></div>
-                        <span data-i18n="yellowTalk">Yellow Talk</span>
-                    </div>
-                    <div class="theme-option" data-theme="theme-green">
-                        <div class="preview green"></div>
-                        <span data-i18n="greenChat">Green Chat</span>
-                    </div>
-                </div>
-            </div>
-            <div class="setup-section persona-setup">
+            <div class="card">
                 <label data-i18n="personaLabel">AI Persona</label>
                 <input type="text" id="persona-name" data-i18n-placeholder="personaNamePlaceholder">
-                <input type="text" id="persona-relationship" data-i18n-placeholder="personaRelationshipPlaceholder">
-                <input type="text" id="persona-mbti" data-i18n-placeholder="personaMbtiPlaceholder">
-                <textarea id="persona-tone" data-i18n-placeholder="personaTonePlaceholder"></textarea>
             </div>
-            <button id="start-chat-btn" data-i18n="startChatBtn">Start Chat</button>
-
-            <!-- API Key Modal -->
-            <div id="api-key-modal" class="modal" style="display: none;">
-                <div class="modal-content">
-                    <span class="close-btn">&times;</span>
-                    <h2 data-i18n="modalTitle">Get Your Free Google AI API Key</h2>
-                    <ol>
-                        <li data-i18n="modalStep1">Log in with your Google account.</li>
-                        <li data-i18n="modalStep2">Click "Create API Key".</li>
-                        <li data-i18n="modalStep3">Copy the key and paste it here.</li>
-                    </ol>
-                    <a href="https://aistudio.google.com/app/apikey" target="_blank" data-i18n="modalLink">Go to Google AI Studio</a>
-                </div>
-            </div>
+            <button id="start-chat-btn" class="button button-primary" data-i18n="startChatBtn">Start Chat</button>
         </div>
 
         <!-- Chat Screen -->
-        <div id="chat-screen" style="display: none;">
+        <div id="chat-screen" class="screen" style="display: none;">
             <header class="chat-header">
-                <button id="back-to-setup-btn">&lt;</button>
-                <img id="chat-persona-img" src="assets/default-avatar.png" alt="Avatar" class="avatar">
+                <button id="back-btn">&lt;</button>
                 <div class="chat-header-info">
                     <h2 id="chat-persona-name"></h2>
-                    <p id="chat-persona-status"></p>
                 </div>
-                <button id="reset-settings-btn">⚙️</button>
+                <button id="reset-btn">⚙️</button>
             </header>
             <main id="message-area"></main>
-            <div id="typing-indicator" style="display: none;">
-                <p>typing... <span></span><span></span><span></span></p>
-            </div>
             <footer class="chat-footer">
-                <input type="text" id="message-input" placeholder="Type a message...">
+                <input type="text" id="message-input" placeholder="Message...">
                 <button id="send-btn">➤</button>
             </footer>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://sdk.gemini.ai/v1.5/gemini-web.js"></script>
-    <script src="script.js"></script>
+    <script>
+        const app = {
+            elements: {},
+            state: {
+                apiKey: null,
+                language: 'ko',
+                isDarkMode: false,
+                personaName: '',
+                chat: null,
+                chatHistory: [],
+            },
+            i18n: {
+                en: {
+                    appTitle: 'AI Chat',
+                    apiKeyLabel: 'API Key',
+                    apiKeyPlaceholder: 'Enter your Google AI API Key',
+                    personaLabel: 'AI Persona Name',
+                    personaNamePlaceholder: 'e.g., Jisu',
+                    startChatBtn: 'Start Chat',
+                },
+                ko: {
+                    appTitle: 'AI 채팅',
+                    apiKeyLabel: 'API 키',
+                    apiKeyPlaceholder: 'Google AI API 키를 입력하세요',
+                    personaLabel: 'AI 이름',
+                    personaNamePlaceholder: '예: 지수',
+                    startChatBtn: '채팅 시작',
+                }
+            },
+            init() {
+                // --- Query Elements ---
+                const ids = ['app', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key', 'persona-name', 'start-chat-btn', 'back-btn', 'reset-btn', 'chat-persona-name', 'message-area', 'message-input', 'send-btn'];
+                ids.forEach(id => this.elements[id] = document.getElementById(id));
+                
+                if (!this.elements.app) {
+                    console.error('Fatal Error: App container not found. Exiting.');
+                    return;
+                }
+
+                // --- Load Settings & Set Initial State ---
+                this.loadSettings();
+                this.applyTheme();
+                this.updateUI();
+                this.addEventListeners();
+
+                // --- Determine Initial Screen ---
+                if (this.state.apiKey && this.state.personaName) {
+                    this.showScreen('chat-screen');
+                    this.startChat(true); // Start chat without saving settings again
+                } else {
+                    this.showScreen('setup-screen');
+                }
+            },
+            addEventListeners() {
+                this.elements.lang_toggle.addEventListener('click', () => this.toggleLanguage());
+                this.elements.theme_toggle.addEventListener('click', () => this.toggleTheme());
+                this.elements.start_chat_btn.addEventListener('click', () => this.startChat(false));
+                this.elements.back_btn.addEventListener('click', () => this.showScreen('setup-screen'));
+                this.elements.reset_btn.addEventListener('click', () => this.resetSettings());
+                this.elements.send_btn.addEventListener('click', () => this.sendMessage());
+                this.elements.message_input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+            },
+            showScreen(screenId) {
+                ['setup-screen', 'chat-screen'].forEach(id => {
+                    this.elements[id].style.display = (id === screenId) ? 'flex' : 'none';
+                });
+            },
+            // --- Language & Theme ---
+            toggleLanguage() {
+                this.state.language = this.state.language === 'ko' ? 'en' : 'ko';
+                this.updateUI();
+                this.saveSettings();
+            },
+            toggleTheme() {
+                this.state.isDarkMode = !this.state.isDarkMode;
+                this.applyTheme();
+                this.saveSettings();
+            },
+            applyTheme() {
+                document.body.classList.toggle('dark-mode', this.state.isDarkMode);
+                this.elements.theme_toggle.textContent = this.state.isDarkMode ? '☀️' : '🌙';
+            },
+            updateUI() {
+                const translations = this.i18n[this.state.language];
+                document.title = translations.appTitle;
+                this.elements.lang_toggle.textContent = this.state.language === 'ko' ? '🇺🇸' : '🇰🇷';
+                
+                Object.keys(translations).forEach(key => {
+                    const el = document.querySelector(`[data-i18n="${key}"]`);
+                    if (el) {
+                        if (el.placeholder !== undefined) el.placeholder = translations[key];
+                        else el.textContent = translations[key];
+                    }
+                });
+            },
+            // --- Settings & State ---
+            saveSettings() {
+                const settings = {
+                    apiKey: this.state.apiKey,
+                    personaName: this.state.personaName,
+                    language: this.state.language,
+                    isDarkMode: this.state.isDarkMode,
+                    chatHistory: this.state.chatHistory,
+                };
+                localStorage.setItem('aiChatSettings', JSON.stringify(settings));
+            },
+            loadSettings() {
+                const settings = JSON.parse(localStorage.getItem('aiChatSettings'));
+                if (settings) Object.assign(this.state, settings);
+                
+                this.elements.api_key.value = this.state.apiKey || '';
+                this.elements.persona_name.value = this.state.personaName || '';
+            },
+            resetSettings() {
+                if (confirm('Are you sure you want to reset all settings?')) {
+                    localStorage.removeItem('aiChatSettings');
+                    window.location.reload();
+                }
+            },
+            // --- Chat Logic ---
+            startChat(isAutoStart = false) {
+                if (!isAutoStart) {
+                    this.state.apiKey = this.elements.api_key.value;
+                    this.state.personaName = this.elements.persona_name.value;
+                    if (!this.state.apiKey || !this.state.personaName) {
+                        alert('Please provide an API Key and a name for the AI.');
+                        return;
+                    }
+                    this.saveSettings();
+                }
+
+                if (typeof GoogleGenerativeAI === 'undefined') {
+                    alert('Could not connect to Google AI. Check your internet and refresh.');
+                    return;
+                }
+                
+                this.elements.chat_persona_name.textContent = this.state.personaName;
+                this.elements.message_area.innerHTML = '';
+                this.state.chatHistory.forEach(msg => this.displayMessage(msg.role, msg.parts[0].text));
+
+                try {
+                    const genAI = new GoogleGenerativeAI(this.state.apiKey);
+                    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                    const systemPrompt = `You are ${this.state.personaName}. Please reply in ${this.state.language === 'ko' ? 'Korean' : 'English'}. Keep replies natural and conversational.`;
+                    this.state.chat = model.startChat({
+                        history: this.state.chatHistory,
+                        generationConfig: { maxOutputTokens: 200 },
+                        systemInstruction: systemPrompt,
+                    });
+                    this.showScreen('chat-screen');
+                } catch (error) {
+                    alert(`Error initializing chat: ${error.message}`);
+                    this.showScreen('setup-screen');
+                }
+            },
+            async sendMessage() {
+                const messageText = this.elements.message_input.value.trim();
+                if (!messageText || !this.state.chat) return;
+
+                this.elements.message_input.value = '';
+                this.displayMessage('user', messageText);
+                this.state.chatHistory.push({ role: 'user', parts: [{ text: messageText }] });
+
+                try {
+                    const result = await this.state.chat.sendMessage(messageText);
+                    const aiText = result.response.text();
+                    this.displayMessage('model', aiText);
+                    this.state.chatHistory.push({ role: 'model', parts: [{ text: aiText }] });
+                } catch (error) {
+                    this.displayMessage('model', `Sorry, an error occurred: ${error.message}`);
+                }
+                this.saveSettings();
+            },
+            displayMessage(role, text) {
+                const container = document.createElement('div');
+                container.classList.add('message-container', role === 'model' ? 'partner' : role);
+                const bubble = document.createElement('div');
+                bubble.classList.add('message-bubble');
+
+                if (window.marked) {
+                    bubble.innerHTML = marked.parse(text);
+                } else {
+                    bubble.textContent = text;
+                }
+                
+                container.appendChild(bubble);
+                this.elements.message_area.appendChild(container);
+                this.elements.message_area.scrollTop = this.elements.message_area.scrollHeight;
+            }
+        };
+
+        app.init();
+    </script>
 </body>
 </html>
