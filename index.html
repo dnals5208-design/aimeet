@@ -72,25 +72,32 @@
         </div>
 
         <div id="setup-screen" class="screen">
-            <header class="header"><h1 data-i18n="setupTitle"></h1></header>
+            <header class="header">
+                <h1 data-i18n="setupTitle"></h1>
+                <div class="controls">
+                    <button id="lang-toggle" class="control-btn">🇺🇸</button>
+                    <button id="theme-toggle" class="control-btn">🌙</button>
+                </div>
+            </header>
             <div class="screen-content">
                 <div class="card">
-                    <label data-i18n="personaLabel"></label>
-                    <img id="persona-avatar-preview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Avatar Preview" title="Click to upload image">
+                    <label for="persona-name-input" data-i18n="personaNameLabel"></label>
+                    <img id="persona-avatar-preview" alt="Avatar Preview" title="Click to upload image">
                     <input type="file" id="persona-avatar-upload" accept="image/*" style="display: none;">
                     <input type="text" id="persona-name-input" data-i18n-placeholder="personaNamePlaceholder" style="margin-top: 1rem;">
+                    <label for="chat-room-name-input" data-i18n="chatRoomNameLabel"></label>
                     <input type="text" id="chat-room-name-input" data-i18n-placeholder="chatRoomNamePlaceholder">
                 </div>
                 <div class="card">
-                    <label><span data-i18n="personaStyleLabel"></span> <span class="example" data-i18n="styleExample"></span></label>
+                    <label for="persona-style-input"><span data-i18n="personaStyleLabel"></span> <span class="example" data-i18n="styleExample"></span></label>
                     <input type="text" id="persona-style-input" >
-                    <label><span data-i18n="personaFrequencyLabel"></span> <span class="example" data-i18n="frequencyExample"></span></label>
+                    <label for="persona-frequency-input"><span data-i18n="personaFrequencyLabel"></span> <span class="example" data-i18n="frequencyExample"></span></label>
                     <input type="text" id="persona-frequency-input">
-                    <label><span data-i18n="personaTendencyLabel"></span> <span class="example" data-i18n="tendencyExample"></span></label>
+                    <label for="persona-tendency-input"><span data-i18n="personaTendencyLabel"></span> <span class="example" data-i18n="tendencyExample"></span></label>
                     <input type="text" id="persona-tendency-input">
-                    <label><span data-i18n="personaNicknameLabel"></span> <span class="example" data-i18n="nicknameExample"></span></label>
+                    <label for="persona-nickname-input"><span data-i18n="personaNicknameLabel"></span> <span class="example" data-i18n="nicknameExample"></span></label>
                     <input type="text" id="persona-nickname-input">
-                    <label><span data-i18n="personaAgeLabel"></span> <span class="example" data-i18n="ageExample"></span></label>
+                    <label for="persona-age-input"><span data-i18n="personaAgeLabel"></span> <span class="example" data-i18n="ageExample"></span></label>
                     <input type="text" id="persona-age-input">
                 </div>
                 <div class="card">
@@ -106,7 +113,7 @@
 
         <div id="chat-screen" class="screen">
             <header class="chat-header">
-                <img id="chat-header-avatar" class="chat-header-avatar" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="AI Avatar">
+                <img id="chat-header-avatar" class="chat-header-avatar" alt="AI Avatar">
                 <div class="chat-header-info">
                     <h2 id="chat-room-name-header"></h2>
                 </div>
@@ -138,7 +145,9 @@
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-storage.js";
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
         
-        // This IIFE pattern isolates the code to prevent global scope conflicts.
+        // Base64 Placeholder Image
+        const DEFAULT_AVATAR = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+
         (function() {
             const app = {
                 elements: {},
@@ -157,6 +166,8 @@
                         modalStep1: 'Log in to Google AI Studio.', modalStep2: 'Click "Create API Key".', modalStep3: 'Copy the key and paste it here.',
                         modalLink: 'Go to Google AI Studio', logoutBtn: 'Logout',
                         personaNameLabel: 'AI Name', personaNamePlaceholder: 'AI Name (e.g., Jisu)', chatRoomNamePlaceholder: 'Chat Room Name (e.g., My Sweetheart)',
+                        chatRoomNameLabel: 'Chat Room Name',
+                        personaStyleLabel: 'Style', personaFrequencyLabel: 'Contact Frequency', personaTendencyLabel: 'Tendency', personaNicknameLabel: 'Your Nickname', personaAgeLabel: 'AI Age'
                     },
                     ko: {
                         appTitle: '커넥트', appDescription: '익숙한 대화, 색다른 공감. 나만의 AI 파트너.', loginBtn: 'Google 계정으로 로그인',
@@ -167,9 +178,11 @@
                         modalStep1: 'Google AI Studio에 로그인하세요.', modalStep2: '"Create API Key"를 클릭하세요.', modalStep3: '생성된 키를 복사하여 앱에 붙여넣으세요.',
                         modalLink: 'Google AI Studio로 이동', logoutBtn: '로그아웃',
                         personaNameLabel: 'AI 이름', personaNamePlaceholder: 'AI 이름 (예: 지수)', chatRoomNamePlaceholder: '채팅방 이름 (예: 내 사랑)',
+                        chatRoomNameLabel: '채팅방 이름',
+                        personaStyleLabel: '성격 스타일', personaFrequencyLabel: '연락 빈도', personaTendencyLabel: '대화 성향', personaNicknameLabel: '나를 부를 애칭', personaAgeLabel: 'AI 나이'
                     }
                 },
-                init: async function() { // Made init async if it's going to call async functions directly
+                init: function() {
                     const firebaseConfig = {
                         apiKey: "AIzaSyDmO1wpZQJEiPEjNoq7xtFcq33akIzoGY8",
                         authDomain: "aimeet-c235c.firebaseapp.com",
@@ -183,6 +196,10 @@
                     const ids = ['app', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'start-chat-btn', 'chat-room-name-header', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'persona-avatar-upload', 'persona-avatar-preview', 'chat-header-avatar', 'logout-btn', 'login-btn'];
                     ids.forEach(id => { this.elements[id] = document.getElementById(id); });
                     
+                    // Set default images to prevent error
+                    if(this.elements['persona-avatar-preview']) this.elements['persona-avatar-preview'].src = DEFAULT_AVATAR;
+                    if(this.elements['chat-header-avatar']) this.elements['chat-header-avatar'].src = DEFAULT_AVATAR;
+
                     try {
                         const firebaseApp = initializeApp(firebaseConfig);
                         this.state.auth = getAuth(firebaseApp);
@@ -193,7 +210,7 @@
                         alert("Firebase 초기화 실패. 콘솔을 확인해주세요."); return;
                     }
                     
-                    this.loadSettings(); // This is the function in question
+                    this.loadSettings(); 
                     this.applyTheme();
                     this.addEventListeners();
                     this.updateUI(); 
@@ -208,7 +225,7 @@
                         }
                     });
                 },
-                addEventListeners: function() { // Use regular function for consistency, this needs to be bound or use elements from closure
+                addEventListeners: function() {
                     const elements = this.elements;
                     if (elements['login-btn']) elements['login-btn'].addEventListener('click', () => this.loginWithGoogle());
                     if (elements['logout-btn']) elements['logout-btn'].addEventListener('click', () => signOut(this.state.auth));
@@ -229,15 +246,33 @@
                     this.updateUI();
                 },
                 loadDataFromFirestore: async function() {
-                    if (!this.state.user) return;
                     const userRef = doc(this.state.db, 'users', this.state.user.uid);
                     try {
                         const docSnap = await getDoc(userRef);
+                        const defaultPersona = { name: '', avatarUrl: '', chatRoomName: '', style: '', frequency: '', tendency: '', nickname: '', age: '' };
+
                         if (docSnap.exists() && docSnap.data().apiKey) {
                             const data = docSnap.data();
-                            this.state = { ...this.state, ...data }; // Merge loaded state
+                            this.state.persona = { ...defaultPersona, ...(data.persona || {}) };
+                            this.state.apiKey = data.apiKey || '';
+                            this.state.chatHistory = data.chatHistory || [];
+                            
+                            if (this.elements['api-key-input']) this.elements['api-key-input'].value = this.state.apiKey;
+                            if (this.elements['persona-name-input']) this.elements['persona-name-input'].value = this.state.persona.name;
+                            if (this.elements['chat-room-name-input']) this.elements['chat-room-name-input'].value = this.state.persona.chatRoomName;
+                            if (this.elements['persona-style-input']) this.elements['persona-style-input'].value = this.state.persona.style;
+                            if (this.elements['persona-frequency-input']) this.elements['persona-frequency-input'].value = this.state.persona.frequency;
+                            if (this.elements['persona-tendency-input']) this.elements['persona-tendency-input'].value = this.state.persona.tendency;
+                            if (this.elements['persona-nickname-input']) this.elements['persona-nickname-input'].value = this.state.persona.nickname;
+                            if (this.elements['persona-age-input']) this.elements['persona-age-input'].value = this.state.persona.age;
+                            
+                            const avatarUrl = this.state.persona.avatarUrl || DEFAULT_AVATAR;
+                            if (this.elements['persona-avatar-preview']) this.elements['persona-avatar-preview'].src = avatarUrl;
+                            if (this.elements['chat-header-avatar']) this.elements['chat-header-avatar'].src = avatarUrl;
+
                             this.startChat(true);
                         } else {
+                            this.state.persona = { ...defaultPersona };
                             this.showScreen('setup-screen');
                         }
                     } catch (error) {
@@ -251,7 +286,11 @@
                 saveDataToFirestore: async function() {
                     if (!this.state.user) return;
                     const userRef = doc(this.state.db, 'users', this.state.user.uid);
-                    const { user, db, auth, storage, chat, ...dataToSave } = this.state; // Exclude non-serializable state
+                    
+                    // 'chat' 객체와 Firebase 인스턴스는 저장하면 안 되므로 제외
+                    const { user, db, auth, storage, chat, ...dataToSave } = this.state;
+                    
+                    dataToSave.persona = { ...this.state.persona };
                     await setDoc(userRef, dataToSave, { merge: true });
                 },
                 loginWithGoogle: function() {
@@ -260,7 +299,7 @@
                         console.error("Firebase 로그인 오류:", error);
                     });
                 },
-                loadSettings: function() { // THIS IS THE DEFINITION
+                loadSettings: function() {
                     this.state.language = localStorage.getItem('aiChatLanguage') || 'ko';
                     this.state.isDarkMode = localStorage.getItem('aiChatDarkMode') === 'true';
 
@@ -270,16 +309,31 @@
                 applyTheme: function() {
                     document.body.className = this.state.isDarkMode ? 'dark-mode' : '';
                 },
+                toggleLanguage: function() {
+                    this.state.language = this.state.language === 'ko' ? 'en' : 'ko';
+                    localStorage.setItem('aiChatLanguage', this.state.language);
+                    this.loadSettings();
+                    this.updateUI();
+                },
+                toggleTheme: function() {
+                    this.state.isDarkMode = !this.state.isDarkMode;
+                    localStorage.setItem('aiChatDarkMode', this.state.isDarkMode);
+                    this.loadSettings();
+                    this.applyTheme();
+                },
                 updateUI: function() {
                     const translations = this.i18n[this.state.language];
                     document.querySelectorAll('[data-i18n]').forEach(el => {
                         const key = el.dataset.i18n;
                         if(translations[key]) {
-                            if (el.placeholder !== undefined) el.placeholder = translations[key];
+                            if (el.placeholder !== undefined && el.tagName === 'INPUT') el.placeholder = translations[key];
                             else el.textContent = translations[key];
                         }
                     });
-                    if (this.elements['persona-avatar-preview']) this.elements['persona-avatar-preview'].title = translations.personaAvatarUploadTitle || 'Click to upload image';
+                    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                        const key = el.getAttribute('data-i18n-placeholder');
+                        if(translations[key]) el.placeholder = translations[key];
+                    });
                 },
                 previewAvatar: function(event) {
                     const file = event.target.files[0];
@@ -314,6 +368,7 @@
                     await this.saveDataToFirestore();
                     this.startChat(false);
                 },
+                // [FIXED] startChat Function
                 startChat: async function(isAutoStart) {
                     if (typeof GoogleGenerativeAI === 'undefined') {
                         alert('AI 서비스에 연결할 수 없습니다. 인터넷 연결을 확인하고 새로고침 해주세요.');
@@ -321,14 +376,33 @@
                     }
 
                     this.elements['chat-room-name-header'].textContent = this.state.persona.chatRoomName || this.state.persona.name;
-                    this.elements['chat-header-avatar'].src = this.state.persona.avatarUrl || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="';
+                    this.elements['chat-header-avatar'].src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
                     this.elements['message-area'].innerHTML = '';
                     
+                    // Load existing history to UI
+                    if (this.state.chatHistory && this.state.chatHistory.length > 0) {
+                        this.state.chatHistory.forEach(msg => {
+                            // Gemini API parts structure: [{text: "..."}]
+                            if(msg.parts && msg.parts[0] && msg.parts[0].text) {
+                                this.displayMessage(msg.role, msg.parts[0].text);
+                            }
+                        });
+                    }
+
                     try {
                         const genAI = new GoogleGenerativeAI(this.state.apiKey);
-                        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                         const systemPrompt = `You are my AI partner. Your name is '${this.state.persona.name}'. My pet name for you is '${this.state.persona.nickname}'. You are ${this.state.persona.age} years old. Your overall style is '${this.state.persona.style}'. You tend to '${this.state.persona.tendency}' in conversation. You contact me '${this.state.persona.frequency}'. Please reply in ${this.state.language === 'ko' ? 'Korean' : 'English'}. Keep replies natural and conversational.`;
-                        this.state.chat = model.startChat({ history: this.state.chatHistory, generationConfig: { maxOutputTokens: 200 }, systemInstruction: systemPrompt });
+                        
+                        // [CRITICAL FIX] Define systemInstruction here
+                        const model = genAI.getGenerativeModel({ 
+                            model: "gemini-1.5-flash",
+                            systemInstruction: systemPrompt 
+                        });
+                        
+                        this.state.chat = model.startChat({ 
+                            history: this.state.chatHistory, 
+                            generationConfig: { maxOutputTokens: 200 }
+                        });
                         
                         this.showScreen('chat-screen');
 
@@ -343,17 +417,37 @@
                 },
                 sendInitialGreeting: async function() {
                     const greetingPrompt = "You are starting a conversation with me for the first time. Greet me warmly based on your persona.";
-                    this.displayMessage('model', '...'); // Show typing indicator
+                    this.displayMessage('model', '...');
                     try {
                         const result = await this.state.chat.sendMessage(greetingPrompt);
                         const aiText = result.response.text();
-                        this.elements['message-area'].removeChild(this.elements['message-area'].lastChild); // Remove typing indicator
+                        
+                        // Remove loading indicator
+                        if(this.elements['message-area'].lastChild.textContent === '...') {
+                            this.elements['message-area'].removeChild(this.elements['message-area'].lastChild);
+                        }
+                        
                         this.displayMessage('model', aiText);
+                        // History is automatically updated in the chat object, but we need to sync our local state for Firestore
+                        // However, manually adding prompts to history for 'sendMessage' isn't always needed for the chat object itself, 
+                        // but we do it to save to Firestore.
+                        
+                        // Note: Gemini's sendMessage automatically appends to the internal history.
+                        // We just need to update our local state array to save it.
+                        // For the greeting, we don't necessarily want to save the "You are starting..." prompt as a user message in UI,
+                        // but for consistency with API history, we should. 
+                        // To make it cleaner for the user, we won't show the prompt in UI (already handled), but we save it.
+                        
+                        // Re-fetching history from the chat object is safer if available, but manual push is standard for simple apps.
                         this.state.chatHistory.push({ role: 'user', parts: [{ text: greetingPrompt }] });
                         this.state.chatHistory.push({ role: 'model', parts: [{ text: aiText }] });
+                        
                         this.saveDataToFirestore();
                     } catch (error) {
-                        this.displayMessage('model', `(인사 메시지를 생성하는 데 실패했습니다: ${error.message})`);
+                        if(this.elements['message-area'].lastChild.textContent === '...') {
+                            this.elements['message-area'].removeChild(this.elements['message-area'].lastChild);
+                        }
+                        this.displayMessage('model', `(인사 메시지 생성 실패: ${error.message})`);
                     }
                 },
                 sendMessage: async function() {
@@ -362,23 +456,33 @@
                     
                     this.displayMessage('user', messageText);
                     this.elements['message-input'].value = '';
-                    this.state.chatHistory.push({ role: 'user', parts: [{ text: messageText }] });
                     
-                    this.displayMessage('model', '...'); // Show typing indicator
+                    this.displayMessage('model', '...'); 
                     try {
                         const result = await this.state.chat.sendMessage(messageText);
                         const aiText = result.response.text();
-                        this.elements['message-area'].removeChild(this.elements['message-area'].lastChild); // Remove typing indicator
+                        
+                        // Remove loading
+                        if(this.elements['message-area'].lastChild.textContent === '...') {
+                            this.elements['message-area'].removeChild(this.elements['message-area'].lastChild);
+                        }
+
                         this.displayMessage('model', aiText);
+                        
+                        // Update History & Save
+                        this.state.chatHistory.push({ role: 'user', parts: [{ text: messageText }] });
                         this.state.chatHistory.push({ role: 'model', parts: [{ text: aiText }] });
                         this.saveDataToFirestore();
                     } catch (error) {
-                        this.displayMessage('model', `죄송합니다, 오류가 발생했습니다: ${error.message}`);
+                         if(this.elements['message-area'].lastChild.textContent === '...') {
+                            this.elements['message-area'].removeChild(this.elements['message-area'].lastChild);
+                        }
+                        this.displayMessage('model', `오류 발생: ${error.message}`);
                     }
                 },
                 displayMessage: function(role, text) {
                     const container = document.createElement('div');
-                    container.className = `message-container ${role}`;
+                    container.className = `message-container ${role === 'user' ? 'user' : 'partner'}`;
                     const bubble = document.createElement('div');
                     bubble.className = 'message-bubble';
                     bubble.textContent = text;
@@ -390,7 +494,7 @@
             document.addEventListener('DOMContentLoaded', () => {
                 app.init();
             });
-        })(); // IIFE wrapper
+        })();
     </script>
 </body>
 </html>
