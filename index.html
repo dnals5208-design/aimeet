@@ -28,7 +28,7 @@
 
         .screen { display: none; flex-direction: column; height: 100%; }
         .screen.active { display: flex; }
-        .screen-content { flex-grow: 1; overflow-y: auto; padding: 1rem; padding-bottom: 80px; }
+        .screen-content { flex-grow: 1; overflow-y: auto; padding: 1rem; padding-bottom: 90px; }
         
         .header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid var(--divider); background: var(--bg-primary); z-index: 10; }
         .header h1 { font-size: 1.3rem; margin: 0; font-weight: 700; }
@@ -38,37 +38,38 @@
         .card { background-color: var(--bg-primary); padding: 1rem; border-radius: 12px; margin-bottom: 0.8rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .card label { font-weight: 600; color: var(--text-secondary); margin-bottom: 0.3rem; display: block; font-size: 0.85rem; }
         .card label .example { font-weight: 400; opacity: 0.7; margin-left: 0.3rem; font-size: 0.75rem;}
-        .card input, .card select { width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 0.9rem; box-sizing: border-box; margin-bottom: 0.6rem;}
+        .card input, .card select { width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 0.95rem; box-sizing: border-box; margin-bottom: 0.6rem;}
         
-        .hint-block { background-color: rgba(138, 43, 226, 0.1); padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; }
+        .hint-block { background-color: rgba(138, 43, 226, 0.08); padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; border: 1px solid rgba(138, 43, 226, 0.2); }
         .hint-text-main { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
 
         .ai-prompt-area { display: flex; gap: 5px; margin-bottom: 8px; }
         .ai-prompt-area input { margin-bottom: 0; flex-grow: 1; font-size: 0.85rem; border: 1px solid var(--accent); }
         
-        /* 버튼 밀림 방지 수정 */
-        .avatar-controls { display: flex; gap: 6px; justify-content: space-between; margin-bottom: 1rem; }
-        .btn-cta-small { padding: 8px 4px; font-size: 0.85rem; border-radius: 8px; border: 1px solid var(--divider); cursor: pointer; background: var(--bg-secondary); color: var(--text-primary); font-weight: 600; transition: 0.2s; flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .avatar-controls { display: flex; gap: 8px; justify-content: space-between; margin-bottom: 1rem; }
+        .btn-cta-small { padding: 10px 0; font-size: 0.9rem; border-radius: 8px; border: 1px solid var(--divider); cursor: pointer; background: var(--bg-secondary); color: var(--text-primary); font-weight: 600; transition: 0.2s; flex: 1; text-align: center; white-space: nowrap; }
         .btn-ai-style { background-color: var(--btn-ai); color: white; border: none; }
         .btn-ai-style:hover { opacity: 0.9; }
 
-        .button { display: block; width: 100%; padding: 0.9rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; }
+        .button { display: block; width: 100%; padding: 1rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; }
         .button-primary { background-color: var(--accent); color: #fff; }
         .button-danger { background-color: var(--danger); color: white; margin-top: 0.5rem; }
-        .button-secondary { background-color: transparent; border: 1px solid var(--divider); color: var(--text-primary); margin-top: 0.3rem; padding: 0.6rem; font-size: 0.85rem;}
+        
+        .help-link-btn { background: none; border: none; color: var(--text-secondary); text-decoration: underline; font-size: 0.85rem; cursor: pointer; display: block; margin-top: 5px; text-align: left; padding: 0;}
 
-        .modal { position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; }
+        /* 모달: 기본적으로 숨김 */
+        .modal { position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; }
         .modal-content { background-color: var(--modal-bg); padding: 20px; border-radius: 12px; width: 85%; max-width: 350px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; max-height: 80vh; }
         .modal-body { overflow-y: auto; flex-grow: 1; margin-bottom: 10px; }
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
         .modal-content h2 { margin-top: 0; font-size: 1.1rem; }
-        .modal-content ol { padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
+        .modal-content ol { padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0; }
         
         .chat-header { display: flex; align-items: center; padding: 0.7rem 1rem; background-color: var(--bg-primary); border-bottom: 1px solid var(--divider); flex-shrink: 0; }
         .whatsapp-mode .chat-header { background-color: var(--header-bg); color: #fff; border: none; }
-        .chat-header-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; margin-right: 0.6rem; background-color: #ddd; }
+        .chat-header-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 0.8rem; background-color: #ddd; }
         .chat-header-info { flex-grow: 1; }
-        .chat-header-info h2 { font-size: 1rem; margin: 0; font-weight: 600; }
+        .chat-header-info h2 { font-size: 1.05rem; margin: 0; font-weight: 600; }
         
         #message-area { flex-grow: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; background-color: var(--bg-secondary); }
         .whatsapp-mode #message-area { background-color: transparent; }
@@ -79,7 +80,6 @@
         .message-container.user .message-bubble { background-color: var(--user-bubble); color: var(--user-text); border-bottom-right-radius: 0; }
         .message-container.partner .message-bubble { background-color: var(--partner-bubble); color: var(--partner-text); border-bottom-left-radius: 0; }
         
-        /* 타이핑 애니메이션 */
         .typing-bubble { background-color: var(--partner-bubble); padding: 0.8rem 1rem; border-radius: 1rem; border-bottom-left-radius: 0; width: fit-content; display: none; }
         .typing-dots { display: flex; gap: 4px; }
         .typing-dot { width: 6px; height: 6px; background-color: #b0b0b0; border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; }
@@ -88,27 +88,37 @@
         @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
         .chat-footer { display: flex; align-items: center; padding: 0.5rem; border-top: 1px solid var(--divider); background-color: var(--bg-primary); gap: 0.5rem; }
-        #message-input { flex-grow: 1; border: none; background-color: var(--bg-secondary); border-radius: 20px; padding: 0.6rem 1rem; font-size: 0.95rem; }
+        #message-input { flex-grow: 1; border: none; background-color: var(--bg-secondary); border-radius: 20px; padding: 0.7rem 1rem; font-size: 0.95rem; }
         .whatsapp-mode #message-input { background-color: #fff; }
-        #send-btn { background-color: var(--accent); color: #fff; border: none; border-radius: 50%; width: 38px; height: 38px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: 0.2s;}
+        #send-btn { background-color: var(--accent); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: 0.2s;}
         #send-btn:active { transform: scale(0.9); }
-        #attach-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-secondary); padding: 0 5px; }
+        #attach-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary); padding: 0 5px; }
 
-        #persona-avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--divider); margin: 0 auto 0.5rem; display: block; transition: 0.3s; }
+        #persona-avatar-preview { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--divider); margin: 0 auto 0.8rem; display: block; transition: 0.3s; }
         #persona-avatar-preview.loading { opacity: 0.5; filter: blur(2px); }
         
         .image-preview-container { display: none; padding: 8px; background: var(--bg-secondary); border-top: 1px solid var(--divider); text-align: center; }
         .image-preview-container img { max-height: 80px; border-radius: 6px; }
         .image-preview-container.active { display: block; }
+
+        /* 로딩 스피너 (초기 로딩용) */
+        #loading-screen { justify-content: center; align-items: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--divider); border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <div id="app">
-        <div id="login-screen" class="screen active">
-            <div class="screen-content" style="display: flex; flex-direction: column; justify-content: center; text-align: center;">
-                <h1 data-i18n="appTitle"></h1>
-                <p data-i18n="appDescription" style="margin-bottom: 2rem; opacity: 0.7;"></p>
-                <button id="login-btn" class="button button-primary" data-i18n="loginBtn"></button>
+        <div id="loading-screen" class="screen active">
+            <div class="spinner"></div>
+            <h2 style="color: var(--accent); font-weight: 700;">Connect</h2>
+        </div>
+
+        <div id="login-screen" class="screen">
+            <div class="screen-content" style="display: flex; flex-direction: column; justify-content: center; text-align: center; padding-bottom: 0;">
+                <h1 data-i18n="appTitle" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Connect</h1>
+                <p data-i18n="appDescription" style="margin-bottom: 3rem; font-size: 1.1rem; color: #666;">Familiar conversations.<br>Your own AI Partner.</p>
+                <button id="login-btn" class="button button-primary" data-i18n="loginBtn" style="padding: 1.2rem;">구글 계정으로 시작하기</button>
             </div>
         </div>
 
@@ -170,7 +180,7 @@
                 </div>
                 <div class="card">
                     <label for="api-key-input" data-i18n="apiKeyLabel"></label><input type="password" id="api-key-input" data-i18n-placeholder="apiKeyPlaceholder">
-                    <button id="get-api-key-btn" class="button button-secondary" data-i18n="getApiKeyBtn"></button>
+                    <button id="get-api-key-btn" class="help-link-btn" data-i18n="getApiKeyBtn">API 키 발급 방법</button>
                 </div>
             </div>
             <footer style="padding: 1rem; border-top: 1px solid var(--divider); background-color: var(--bg-primary); position: absolute; bottom: 0; width: 100%; box-sizing: border-box;">
@@ -233,19 +243,19 @@
                 },
                 i18n: {
                     en: {
-                        appTitle: 'Connect', appDescription: 'Your own Partner.', loginBtn: 'Login with Google',
+                        appTitle: 'Connect', appDescription: 'Your own Partner.', loginBtn: 'Start with Google',
                         setupTitle: 'Profile', profileImageLabel: 'Profile Photo', aiCreateBtn: 'AI Gen', uploadPhotoBtn: 'Upload',
                         personaNameLabel: 'Partner Name', personaNamePlaceholder: 'Name (e.g., Jisu)',
                         specificHint: '* More details make it better! Describe each field.', chatRoomNameLabel: 'Chat Title', chatRoomNamePlaceholder: 'e.g., My Love',
                         personaStyleLabel: 'Style', styleExample: '(e.g., Cute)', 
                         personaFrequencyLabel: 'Frequency', frequencyExample: '(e.g., Often)',
                         personaTendencyLabel: 'Tendency', tendencyExample: '(e.g., Warm)',
-                        personaNicknameLabel: 'Your Nickname', nicknameExample: '(e.g., Honey)', personaAgeLabel: 'Age', ageExample: '(e.g., 24)',
-                        apiKeyLabel: 'API Key', apiKeyPlaceholder: 'Enter API Key', getApiKeyBtn: 'How to get API Key', startChatBtn: 'Start', resetBtn: 'Reset', logoutBtn: 'Logout', messagePlaceholder: 'Type a message...',
+                        personaNicknameLabel: 'Your Nickname', nicknameExample: '(e.g., Honey)', personaAgeLabel: 'Age', ageExample: '(e.g., 24, Younger)',
+                        apiKeyLabel: 'API Key', apiKeyPlaceholder: 'Enter API Key', getApiKeyBtn: 'How to get API Key', startChatBtn: 'Start Chat', resetBtn: 'Reset Data', logoutBtn: 'Logout', messagePlaceholder: 'Type a message...',
                         modalTitle: 'Get Free API Key', modalStep1: 'Login to AI Studio.', modalStep2: 'Click "Create API Key".', modalStep3: 'Copy & Paste here.', modalLink: 'Go to AI Studio'
                     },
                     ko: {
-                        appTitle: '커넥트', appDescription: '나만의 소중한 파트너.', loginBtn: 'Google 계정으로 로그인',
+                        appTitle: '커넥트', appDescription: '나만의 소중한 파트너.', loginBtn: '구글 계정으로 시작하기',
                         setupTitle: '프로필 설정', profileImageLabel: '상대방 프로필 사진', aiCreateBtn: 'AI 생성', uploadPhotoBtn: '사진 업로드',
                         personaNameLabel: '상대방 이름', personaNamePlaceholder: '이름 (예: 지수)',
                         specificHint: '* 구체적으로 적으면 더 실감나요! 각 항목을 자세히 적어주세요.', chatRoomNameLabel: '채팅방 이름', chatRoomNamePlaceholder: '예: 내 사랑♡',
@@ -265,7 +275,7 @@
                         appId: "1:732324287861:web:15d894068755c627842f3c"
                     };
                     
-                    const ids = ['app', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'persona-avatar-upload', 'persona-avatar-preview', 'upload-trigger-btn', 'ai-create-btn', 'ai-prompt-input', 'start-chat-btn', 'reset-btn-setup', 'reset-btn-chat', 'chat-header-avatar', 'chat-room-name-header', 'logout-btn', 'login-btn', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'attach-btn', 'chat-image-input', 'image-preview-area', 'image-preview-img', 'cancel-image-btn', 'timezone-select', 'speed-select'];
+                    const ids = ['app', 'loading-screen', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'persona-avatar-upload', 'persona-avatar-preview', 'upload-trigger-btn', 'ai-create-btn', 'ai-prompt-input', 'start-chat-btn', 'reset-btn-setup', 'reset-btn-chat', 'chat-header-avatar', 'chat-room-name-header', 'logout-btn', 'login-btn', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'attach-btn', 'chat-image-input', 'image-preview-area', 'image-preview-img', 'cancel-image-btn', 'timezone-select', 'speed-select'];
                     ids.forEach(id => { this.elements[id] = document.getElementById(id); });
                     if(this.elements['persona-avatar-preview']) this.elements['persona-avatar-preview'].src = DEFAULT_AVATAR;
 
@@ -274,9 +284,15 @@
                     this.state.db = getFirestore(firebaseApp);
 
                     this.loadSettings(); this.addEventListeners(); this.updateUI();
+                    
+                    // 인증 상태 감지 (자동 라우팅)
                     onAuthStateChanged(this.state.auth, (user) => {
-                        if (user) { this.state.user = user; this.loadDataFromFirestore(); }
-                        else { this.showScreen('login-screen'); }
+                        if (user) { 
+                            this.state.user = user; 
+                            this.loadDataFromFirestore(); 
+                        } else {
+                            this.showScreen('login-screen');
+                        }
                     });
                 },
                 addEventListeners: function() {
@@ -290,14 +306,18 @@
                     el['reset-btn-setup'].addEventListener('click', () => this.resetUserData());
                     el['reset-btn-chat'].addEventListener('click', () => this.resetUserData());
                     el['send-btn'].addEventListener('click', () => this.handleUserMessage());
-                    el['message-input'].addEventListener('keydown', e => { 
-                        if (e.key === 'Enter') this.handleUserMessage(); 
-                    });
+                    el['message-input'].addEventListener('keydown', e => { if (e.key === 'Enter') this.handleUserMessage(); });
                     el['attach-btn'].addEventListener('click', () => el['chat-image-input'].click());
                     el['chat-image-input'].addEventListener('change', e => this.handleChatImage(e));
                     el['cancel-image-btn'].addEventListener('click', () => this.cancelImage());
-                    el['get-api-key-btn'].addEventListener('click', () => el['api-key-modal'].style.display = 'flex');
+                    
+                    // 모달 수동 제어
+                    el['get-api-key-btn'].addEventListener('click', (e) => {
+                        e.preventDefault();
+                        el['api-key-modal'].style.display = 'flex';
+                    });
                     el['close-modal-btn'].addEventListener('click', () => el['api-key-modal'].style.display = 'none');
+                    
                     el['lang-toggle'].addEventListener('click', () => this.toggleLanguage());
                     el['theme-toggle'].addEventListener('click', () => this.toggleTheme());
                 },
@@ -363,26 +383,45 @@
                         location.reload();
                     }
                 },
+                // [화면 전환 로직 수정] 로딩 화면 처리
                 showScreen: function(id) {
-                    ['login-screen', 'setup-screen', 'chat-screen'].forEach(s => this.elements[s].classList.toggle('active', s === id));
+                    ['loading-screen', 'login-screen', 'setup-screen', 'chat-screen'].forEach(s => {
+                        const el = this.elements[s];
+                        if (el) el.classList.toggle('active', s === id);
+                    });
                 },
                 loadDataFromFirestore: async function() {
-                    const snap = await getDoc(doc(this.state.db, 'users', this.state.user.uid));
-                    if (snap.exists() && snap.data().apiKey) {
-                        const data = snap.data();
-                        this.state.apiKey = data.apiKey;
-                        this.state.persona = data.persona || {};
-                        this.state.chatHistory = data.chatHistory || [];
-                        ['api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input'].forEach(k => {
-                            const field = k.replace('-input', '').split('-').pop();
-                            this.elements[k].value = this.state.persona[field] || '';
-                        });
-                        if (this.elements['timezone-select']) this.elements['timezone-select'].value = this.state.persona.timezone || 'Asia/Seoul';
-                        if (this.elements['speed-select']) this.elements['speed-select'].value = this.state.persona.speed || 'normal';
-
-                        this.elements['persona-avatar-preview'].src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
-                        this.startChat(true);
-                    } else { this.showScreen('setup-screen'); }
+                    try {
+                        const snap = await getDoc(doc(this.state.db, 'users', this.state.user.uid));
+                        if (snap.exists()) {
+                            const data = snap.data();
+                            
+                            // API 키와 이름이 있으면 채팅방으로 직행
+                            if (data.apiKey && data.persona && data.persona.name) {
+                                this.state.apiKey = data.apiKey;
+                                this.state.persona = data.persona;
+                                this.state.chatHistory = data.chatHistory || [];
+                                
+                                // UI 동기화
+                                ['api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input'].forEach(k => {
+                                    const field = k.replace('-input', '').split('-').pop();
+                                    this.elements[k].value = this.state.persona[field] || '';
+                                });
+                                if (this.elements['timezone-select']) this.elements['timezone-select'].value = this.state.persona.timezone || 'Asia/Seoul';
+                                if (this.elements['speed-select']) this.elements['speed-select'].value = this.state.persona.speed || 'normal';
+                                this.elements['persona-avatar-preview'].src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
+                                
+                                this.startChat(true); // 채팅방으로 직행
+                            } else {
+                                this.showScreen('setup-screen'); // 정보 부족 시 설정 화면
+                            }
+                        } else {
+                            this.showScreen('setup-screen'); // 신규 유저
+                        }
+                    } catch (error) {
+                        console.error("Data Load Error:", error);
+                        this.showScreen('setup-screen');
+                    }
                     this.updateUI();
                 },
                 saveAndStartChat: async function() {
@@ -475,7 +514,7 @@
                         for (const fragment of splitResponses) {
                             if (!fragment) continue;
                             this.displayMessage('model', fragment);
-                            // [수정된 딜레이] 0.7초 ~ 1.5초 사이 랜덤
+                            // [최종 딜레이] 0.7초 ~ 1.5초
                             await this.wait(Math.random() * 800 + 700); 
                         }
 
@@ -529,13 +568,14 @@
                         
                         const model = genAI.getGenerativeModel({ model: MODEL_NAME, systemInstruction: prompt });
                         this.state.chat = model.startChat({ history: this.state.chatHistory });
+                        
                         this.showScreen('chat-screen');
-                        // [수정] 초기 자동 인사는 오류 발생 시 조용히 무시 (alert 금지)
+                        
                         if (!isAuto && this.state.chatHistory.length === 0) {
                             try {
                                 const res = await this.state.chat.sendMessage("안녕!");
                                 this.displayMessage('model', res.response.text());
-                            } catch(e) { console.log("Initial greeting skipped due to error"); }
+                            } catch(e) { console.log("Initial greeting skipped"); }
                         }
                     } catch(e) {
                         this.showScreen('setup-screen'); 
