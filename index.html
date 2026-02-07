@@ -4,18 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="appTitle">AI Chat Companion</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
         <!-- Setup Screen -->
         <div id="setup-screen">
-            <div class="language-toggle">
-                <button id="lang-ko">🇰🇷</button>
-                <button id="lang-en" class="active">🇺🇸</button>
-            </div>
-            <div class="theme-toggle-container">
-                <label for="theme-toggle" data-i18n="darkMode">Dark Mode</label>
-                <button id="theme-toggle">🌙</button>
+            <div class="top-bar">
+                <div class="language-toggle">
+                    <button id="lang-ko">🇰🇷</button>
+                    <button id="lang-en">🇺🇸</button>
+                </div>
+                <div class="theme-toggle-container">
+                    <button id="theme-toggle">🌙</button>
+                </div>
             </div>
             <h1 data-i18n="appTitle">AI Chat Companion</h1>
             <div class="setup-section">
@@ -73,16 +75,16 @@
             </header>
             <main id="message-area"></main>
             <div id="typing-indicator" style="display: none;">
-                <p>typing...</p>
+                <p>typing... <span></span><span></span><span></span></p>
             </div>
             <footer class="chat-footer">
                 <input type="text" id="message-input" placeholder="Type a message...">
-                <button id="send-btn">Send</button>
+                <button id="send-btn">➤</button>
             </footer>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://sdk.gemini.ai/v1.5/gemini-web.js"></script>
-    <script src="script.js" defer></script>
+    <script src="script.js"></script>
 </body>
 </html>
