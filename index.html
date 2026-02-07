@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Connect</title>
     <style>
-        /* 기본 변수 (변경 없음) */
+        /* 변수 설정 (기존 유지) */
         :root {
             --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             --bg-primary: #fff; --bg-secondary: #f0f2f5; --text-primary: #1c1e21; --text-secondary: #65676b; --divider: #e4e6eb;
@@ -34,11 +34,15 @@
         }
         .whatsapp-mode #app { background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay; background-color: #efe7dd; }
 
-        /* 화면 관리 (로그인창 겹침 방지 유지) */
-        .screen { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: var(--bg-primary); }
-        .screen.active { display: flex; z-index: 100; }
+        /* [핵심 수정] 모든 화면 숨김 처리 -> active만 표시 */
+        .screen { display: none !important; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: var(--bg-primary); }
+        .screen.active { display: flex !important; z-index: 100; }
         
-        /* 헤더 스타일 (얇게 유지) */
+        /* 로딩 화면 (초기 잠깐용) */
+        #loading-screen { justify-content: center; align-items: center; }
+        /* 만약 로딩 화면도 싫으시면 아래 active를 지우면 되지만, 인증 체크 찰나의 순간을 위해 둡니다. */
+        
+        /* 헤더 */
         .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 1rem; border-bottom: 1px solid var(--divider); background: var(--bg-primary); z-index: 10; min-height: 50px; }
         .header h1 { font-size: 1.1rem; margin: 0; font-weight: 700; }
         
@@ -85,7 +89,7 @@
         .modal-content h2 { margin-top: 0; font-size: 1.1rem; margin-bottom: 10px; }
         .modal-content ol { padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0; }
         
-        /* 메시지 영역 */
+        /* 메시지 */
         #message-area { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; background-color: var(--bg-secondary); }
         .whatsapp-mode #message-area { background-color: transparent; }
         
@@ -383,16 +387,20 @@
                         location.reload();
                     }
                 },
+                
                 // [화면 전환 로직 핵심 수정] active 클래스만 제어하여 겹침 방지
                 showScreen: function(id) {
+                    // 모든 화면의 active 클래스 제거
                     ['login-screen', 'setup-screen', 'chat-screen'].forEach(s => {
                         const el = this.elements[s];
-                        if (el) {
-                            if (s === id) el.classList.add('active');
-                            else el.classList.remove('active');
-                        }
+                        if (el) el.classList.remove('active');
                     });
+                    // 대상 화면만 active 추가
+                    if (this.elements[id]) {
+                        this.elements[id].classList.add('active');
+                    }
                 },
+                
                 // 스크롤 최하단 이동 함수
                 scrollToBottom: function() {
                     const area = this.elements['message-area'];
@@ -498,9 +506,11 @@
                 // [강력 필터링] 속마음 제거
                 cleanAiThought: function(text) {
                     if (!text) return "";
+                    // 영문 문단, THOUGHT, 대괄호 등 제거
                     let clean = text.replace(/THOUGHT[\s\S]*?(\n\n|$)/gi, "");
                     clean = clean.replace(/^(I should|The user|Analysis|Step|Note|I need).*/gim, "");
                     clean = clean.replace(/\[.*?\]/g, "");
+                    // 한글이 하나도 없고 영어만 있는 긴 문장 제거
                     if (!/[가-힣]/.test(clean) && /[a-zA-Z]/.test(clean)) return ""; 
                     return clean.trim();
                 },
@@ -509,7 +519,6 @@
                     if (!this.state.chat || !this.state.messageQueue.length) return;
 
                     const combinedParts = this.state.messageQueue.flat();
-                    // 재시도가 아닐 때만 큐 비우기 (재시도 중엔 큐 유지해야 함)
                     if (retryCount === 0) this.state.messageQueue = []; 
 
                     const speed = this.state.persona.speed || 'normal';
@@ -558,7 +567,6 @@
                             const delay = Math.pow(2, retryCount + 1) * 1000; // 2s, 4s, 8s
                             console.log(`429 Error. Retrying in ${delay}ms...`);
                             await this.wait(delay);
-                            // 큐 복구 및 재시도
                             this.state.messageQueue.push(combinedParts); 
                             this.processAiResponse(retryCount + 1);
                         }
@@ -583,7 +591,6 @@
                         // [중요] 입장 시 스크롤 최하단
                         setTimeout(() => this.scrollToBottom(), 100);
                         
-                        // 선톡 체크
                         const lastMsg = historyToRender[historyToRender.length - 1];
                         if (lastMsg && lastMsg.role === 'user' && lastMsg.timestamp) {
                             const hoursPassed = (Date.now() - lastMsg.timestamp) / (1000 * 60 * 60);
