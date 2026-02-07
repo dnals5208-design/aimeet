@@ -10,11 +10,35 @@
             --border-radius-md: 8px;
             --border-radius-lg: 16px;
             --transition: 0.2s ease-out;
-            --bg-primary: #fff; --bg-secondary: #f0f2f5; --text-primary: #1c1e21; --text-secondary: #65676b; --divider: #e4e6eb;
-            --accent: #8A2BE2; --user-bubble: #8A2BE2; --partner-bubble: #e4e6eb; --user-text: #fff; --partner-text: #1c1e21; --modal-bg: #fff;
+
+            /* Light Theme with Light Purple Accent */
+            --bg-primary: #fff;
+            --bg-secondary: #f0f2f5;
+            --text-primary: #1c1e21;
+            --text-secondary: #65676b;
+            --divider: #e4e6eb;
+            --accent: #8A2BE2; /* Bluish Purple */
+            --user-bubble: #8A2BE2; /* User bubble color matches accent */
+            --partner-bubble: #e4e6eb;
+            --user-text: #fff;
+            --partner-text: #1c1e21;
+            --modal-bg: #fff;
         }
-        .dark-mode { --bg-primary: #1c1c1e; --bg-secondary: #000; --text-primary: #f5f5f7; --text-secondary: #8d8d93; --divider: #3a3a3c; --accent: #BB86FC; --user-bubble: #BB86FC; --partner-bubble: #2c2c2e; --user-text: #1c1c1e; --partner-text: #f5f5f7; --modal-bg: #2c2c2e; }
-        body { margin: 0; font-family: var(--font-sans); background-color: var(--bg-secondary); color: var(--text-primary); }
+        .dark-mode {
+            --bg-primary: #1c1c1e;
+            --bg-secondary: #000;
+            --text-primary: #f5f5f7;
+            --text-secondary: #8d8d93;
+            --divider: #3a3a3c;
+            --accent: #BB86FC; /* Lighter purple for dark mode accent */
+            --user-bubble: #BB86FC;
+            --partner-bubble: #2c2c2e;
+            --user-text: #1c1c1e; /* Darker text for light bubble on dark background */
+            --partner-text: #f5f5f7;
+            --modal-bg: #2c2c2e;
+        }
+
+        body { margin: 0; font-family: var(--font-sans); background-color: var(--bg-secondary); color: var(--text-primary); transition: background-color var(--transition), color var(--transition); }
         #app { display: flex; flex-direction: column; height: 100vh; max-width: 600px; margin: 0 auto; background-color: var(--bg-primary); box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); }
         .screen { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding: 1.5rem; box-sizing: border-box; }
         .screen.active { display: flex; }
@@ -29,15 +53,20 @@
         .card input, .card textarea { width: 100%; padding: 0.75rem 1rem; border-radius: var(--border-radius-md); border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 1rem; box-sizing: border-box; margin-bottom: 0.5rem;}
         .card textarea { resize: vertical; min-height: 40px; }
         .card input:focus, .card textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent); }
+        .theme-selection { display: flex; gap: 1rem; }
+        .theme-option { padding: 0.5rem 1rem; border: 2px solid var(--divider); border-radius: var(--border-radius-md); cursor: pointer; transition: border-color var(--transition); display: flex; align-items: center; gap: 0.5rem;}
+        .theme-option .preview { width: 20px; height: 20px; border-radius: 50%; }
+        .preview.purple { background-color: #8A2BE2; }
+        .theme-option.active { border-color: var(--accent); } /* Active state for single theme should highlight if user needs to click to confirm */
         .button { display: block; width: 100%; padding: 1rem; border: none; border-radius: var(--border-radius-md); font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; transition: background-color var(--transition), transform var(--transition); }
         .button-primary { background-color: var(--accent); color: #fff; }
-        .dark-mode .button-primary { color: var(--text-primary); }
+        .dark-mode .button-primary { color: var(--text-primary); } /* Adjust text color for dark mode accent */
         .button-secondary { background-color: transparent; border: 1px solid var(--divider); color: var(--text-primary); margin-top: 0.5rem;}
         .button:hover { transform: translateY(-2px); }
         .modal { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; }
         .modal-content { background-color: var(--modal-bg); padding: 24px; border-radius: var(--border-radius-lg); width: 90%; max-width: 500px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
         .modal-content h2 { margin-top: 0; }
-        .modal-content a.button { margin-top: 1rem; }
+        .modal-content a.button { margin-top: 1rem; white-space: normal; word-break: break-word; } /* Ensure button text wraps */
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; color: var(--text-secondary); cursor: pointer; }
         .chat-header { display: flex; align-items: center; padding: 0.75rem 1rem; background-color: var(--bg-primary); border-bottom: 1px solid var(--divider); flex-shrink: 0; }
         .chat-header-info { flex-grow: 1; text-align: center; }
@@ -55,6 +84,10 @@
         #send-btn { background-color: var(--accent); color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 1.2rem; line-height: 36px; text-align: center; cursor: pointer; transition: transform var(--transition); flex-shrink: 0; }
         .dark-mode .button-primary { color: #1c1c1e; }
         #send-btn:hover { transform: scale(1.1); }
+
+        /* Specific styles for additional text */
+        .info-text { font-size: 0.8rem; color: var(--text-secondary); opacity: 0.7; margin-top: -0.5rem; margin-bottom: 1rem; text-align: center;}
+        
     </style>
 </head>
 <body>
@@ -68,26 +101,30 @@
                 </div>
             </header>
             <main style="text-align: center; margin-top: 2rem;">
-                <p data-i18n="appDescription"></p>
+                <p data-i18n="appDescription" style="margin-bottom: 2rem;"></p>
                 <button id="go-to-persona-btn" class="button button-primary" data-i18n="welcomeStartBtn"></button>
             </main>
         </div>
 
         <div id="persona-screen" class="screen">
-            <header class="header"><h1 data-i18n="personaTitle"></h1></header>
+            <header class="header">
+                <button id="back-to-welcome-btn" class="control-btn">&lt;</button>
+                <h1 data-i18n="personaTitle" style="flex-grow: 1;"></h1>
+            </header>
             <main>
                 <p data-i18n="personaDescription" style="text-align: center;"></p>
+                <p class="info-text" data-i18n="personaDetailInfo"></p>
                 <div class="card">
                     <label data-i18n="personaStyleLabel"></label>
-                    <input type="text" id="persona-style" data-i18n-placeholder="personaStylePlaceholder">
+                    <input type="text" id="persona-style-input" data-i18n-placeholder="personaStylePlaceholder">
                     <label data-i18n="personaFrequencyLabel"></label>
-                    <input type="text" id="persona-frequency" data-i18n-placeholder="personaFrequencyPlaceholder">
+                    <input type="text" id="persona-frequency-input" data-i18n-placeholder="personaFrequencyPlaceholder">
                     <label data-i18n="personaTendencyLabel"></label>
-                    <input type="text" id="persona-tendency" data-i18n-placeholder="personaTendencyPlaceholder">
+                    <input type="text" id="persona-tendency-input" data-i18n-placeholder="personaTendencyPlaceholder">
                     <label data-i18n="personaNicknameLabel"></label>
-                    <input type="text" id="persona-nickname" data-i18n-placeholder="personaNicknamePlaceholder">
+                    <input type="text" id="persona-nickname-input" data-i18n-placeholder="personaNicknamePlaceholder">
                     <label data-i18n="personaAgeLabel"></label>
-                    <input type="text" id="persona-age" data-i18n-placeholder="personaAgePlaceholder">
+                    <input type="text" id="persona-age-input" data-i18n-placeholder="personaAgePlaceholder">
                 </div>
             </main>
             <footer>
@@ -96,7 +133,10 @@
         </div>
 
         <div id="api-key-screen" class="screen">
-            <header class="header"><h1 data-i18n="apiKeyTitle"></h1></header>
+            <header class="header">
+                <button id="back-to-persona-btn" class="control-btn">&lt;</button>
+                <h1 data-i18n="apiKeyTitle" style="flex-grow: 1;"></h1>
+            </header>
             <main>
                 <div class="card">
                     <label for="api-key" data-i18n="apiKeyLabel"></label>
@@ -111,7 +151,7 @@
 
         <div id="chat-screen" class="screen">
             <header class="chat-header">
-                <button id="back-btn">&lt;</button>
+                <button id="back-to-api-setup-btn" class="control-btn">&lt;</button>
                 <div class="chat-header-info"><h2 id="chat-persona-name"></h2></div>
             </header>
             <main id="message-area"></main>
@@ -135,6 +175,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://sdk.gemini.ai/v1.5/gemini-web.js"></script>
+    <!-- Firebase v8 Compatibility SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const app = {
@@ -142,12 +186,12 @@
             state: {
                 apiKey: null, language: 'ko', isDarkMode: false,
                 persona: { style: '', frequency: '', tendency: '', nickname: '', age: '' },
-                chat: null, chatHistory: []
+                chat: null, chatHistory: [], db: null, auth: null, user: null // Added user for clarity
             },
             i18n: {
                 en: {
                     appTitle: 'Connect', appDescription: 'Familiar conversations, a new kind of empathy. Your own AI partner.', welcomeStartBtn: 'Start',
-                    personaTitle: 'Preferred Contact Style', personaDescription: 'Please describe the conversation style and concept of your ideal partner.',
+                    personaTitle: 'Preferred Contact Style', personaDescription: 'Please describe the conversation style and concept of your ideal partner.', personaDetailInfo: 'The more specific you are, the better the AI will understand.',
                     personaStyleLabel: 'Style', personaStylePlaceholder: 'e.g., Cute, friendly, chic',
                     personaFrequencyLabel: 'Contact Frequency', personaFrequencyPlaceholder: 'e.g., Often, only when I contact first',
                     personaTendencyLabel: 'Conversation Tendency', personaTendencyPlaceholder: 'e.g., Leads the conversation, mostly listens',
@@ -161,12 +205,12 @@
                 },
                 ko: {
                     appTitle: '커넥트', appDescription: '익숙한 대화, 색다른 공감. 나만의 AI 파트너', welcomeStartBtn: '시작하기',
-                    personaTitle: '선호하는 연락 스타일', personaDescription: '선호하는 이성의 대화 성향과 컨셉을 적어주세요.',
-                    personaStyleLabel: '스타일', personaStylePlaceholder: '예: 애교있게, 친구처럼, 시크하게',
-                    personaFrequencyLabel: '연락 주기', personaFrequencyPlaceholder: '예: 자주, 내가 먼저 연락할 때만',
-                    personaTendencyLabel: '대화 성향', personaTendencyPlaceholder: '예: 대화를 주도하는 편, 주로 들어주는 편',
-                    personaNicknameLabel: '애칭', personaNicknamePlaceholder: '예: 자기야, 애기야',
-                    personaAgeLabel: '나이', personaAgePlaceholder: '예: 24',
+                    personaTitle: '선호하는 연락 스타일', personaDescription: '선호하는 이성의 대화 성향과 컨셉을 적어주세요.', personaDetailInfo: '구체적으로 적어주시면 더욱 좋습니다.',
+                    personaStyleLabel: '스타일', personaStylePlaceholder: '예: 귀여운 성향',
+                    personaFrequencyLabel: '연락 주기', personaFrequencyPlaceholder: '예: 드문드문',
+                    personaTendencyLabel: '대화 성향', personaTendencyPlaceholder: '예: 애교많은',
+                    personaNicknameLabel: '애칭', personaNicknamePlaceholder: '예: 자기야',
+                    personaAgeLabel: '나이', personaAgePlaceholder: '예: 연하',
                     nextBtn: '다음',
                     apiKeyTitle: 'API 키 설정', apiKeyLabel: 'API 키', apiKeyPlaceholder: 'Google AI API 키를 입력하세요', getApiKeyBtn: 'API 키 발급 방법',
                     startChatBtn: '채팅 시작', messagePlaceholder: '메시지를 입력하세요...', modalTitle: '무료 Google AI API 키 발급받기',
@@ -175,37 +219,71 @@
                 }
             },
             init() {
-                const ids = ['app', 'welcome-screen', 'persona-screen', 'api-key-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key', 'persona-style', 'persona-frequency', 'persona-tendency', 'persona-nickname', 'persona-age', 'go-to-persona-btn', 'go-to-api-btn', 'start-chat-btn', 'back-btn', 'chat-persona-name', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn'];
+                const firebaseConfig = {
+                    apiKey: "AIzaSyDmO1wpZQJEiPEjNoq7xtFcq33akIzoGY8",
+                    authDomain: "aimeet-c235c.firebaseapp.com",
+                    projectId: "aimeet-c235c",
+                    storageBucket: "aimeet-c235c.firebasestorage.app",
+                    messagingSenderId: "732324287861",
+                    appId: "1:732324287861:web:15d894068755c627842f3c",
+                    measurementId: "G-CD2L6WFJN9"
+                };
+
+                const ids = ['app', 'welcome-screen', 'persona-screen', 'api-key-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'go-to-persona-btn', 'go-to-api-btn', 'start-chat-btn', 'back-btn', 'back-to-welcome-btn', 'back-to-persona-btn', 'chat-persona-name', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn'];
                 ids.forEach(id => this.elements[id] = document.getElementById(id));
+                
+                try {
+                    firebase.initializeApp(firebaseConfig);
+                    this.state.auth = firebase.auth();
+                    this.state.db = firebase.firestore();
+                } catch (e) {
+                    alert("Firebase 초기화 실패. 콘솔을 확인해주세요."); return;
+                }
                 
                 this.loadSettings();
                 this.applyTheme();
                 this.updateUI();
                 this.addEventListeners();
+                
+                // Show welcome screen initially, unless settings are complete
+                if (this.state.apiKey && this.state.persona.style) { // Basic check for completed setup
+                     // If logged in, go to chat, else show login within welcome screen (which is already active)
+                     this.state.auth.onAuthStateChanged(user => {
+                        if (user) { this.state.user = user; this.startChat(true); } 
+                        else { this.showScreen('welcome-screen'); }
+                    });
+                } else {
+                    this.showScreen('welcome-screen');
+                }
             },
             addEventListeners() {
                 this.elements['lang-toggle'].addEventListener('click', () => this.toggleLanguage());
                 this.elements['theme-toggle'].addEventListener('click', () => this.toggleTheme());
                 this.elements['go-to-persona-btn'].addEventListener('click', () => this.showScreen('persona-screen'));
-                this.elements['go-to-api-btn'].addEventListener('click', () => this.showScreen('api-key-screen'));
+                this.elements['go-to-api-btn'].addEventListener('click', () => this.savePersonaSettings() && this.showScreen('api-key-screen'));
                 this.elements['get-api-key-btn'].addEventListener('click', () => this.elements['api-key-modal'].style.display = 'flex');
                 this.elements['close-modal-btn'].addEventListener('click', () => this.elements['api-key-modal'].style.display = 'none');
                 this.elements['start-chat-btn'].addEventListener('click', () => this.startChat());
-                this.elements['back-btn'].addEventListener('click', () => this.showScreen('api-key-screen'));
+                this.elements['back-btn'].addEventListener('click', () => this.showScreen('api-key-screen')); // In chat screen
                 this.elements['send-btn'].addEventListener('click', () => this.sendMessage());
                 this.elements['message-input'].addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); }
                 });
+
+                // Back buttons for multi-step setup
+                this.elements['back-to-welcome-btn'].addEventListener('click', () => this.showScreen('welcome-screen'));
+                this.elements['back-to-persona-btn'].addEventListener('click', () => this.showScreen('persona-screen'));
             },
             showScreen(screenId) {
                 ['welcome-screen', 'persona-screen', 'api-key-screen', 'chat-screen'].forEach(id => {
                     this.elements[id].classList.toggle('active', id === screenId);
                 });
+                this.updateUI(); // Update UI on screen change
             },
             toggleLanguage() { this.state.language = this.state.language === 'ko' ? 'en' : 'ko'; this.updateUI(); this.saveSettings(); },
             toggleTheme() { this.state.isDarkMode = !this.state.isDarkMode; this.applyTheme(); this.saveSettings(); },
             applyTheme() {
-                document.body.className = '';
+                document.body.className = ''; // Clear existing theme classes
                 if(this.state.isDarkMode) document.body.classList.add('dark-mode');
                 this.elements['theme-toggle'].textContent = this.state.isDarkMode ? '☀️' : '🌙';
             },
@@ -227,28 +305,44 @@
             loadSettings() {
                 const settings = JSON.parse(localStorage.getItem('aiChatSettings'));
                 if (settings) Object.assign(this.state, settings);
+                // Pre-fill fields if data exists
+                if (this.elements['api-key']) this.elements['api-key'].value = this.state.apiKey || '';
+                if (this.elements['persona-style-input']) this.elements['persona-style-input'].value = this.state.persona.style || '';
+                if (this.elements['persona-frequency-input']) this.elements['persona-frequency-input'].value = this.state.persona.frequency || '';
+                if (this.elements['persona-tendency-input']) this.elements['persona-tendency-input'].value = this.state.persona.tendency || '';
+                if (this.elements['persona-nickname-input']) this.elements['persona-nickname-input'].value = this.state.persona.nickname || '';
+                if (this.elements['persona-age-input']) this.elements['persona-age-input'].value = this.state.persona.age || '';
             },
-            startChat() {
-                this.state.apiKey = this.elements['api-key'].value.trim();
-                Object.keys(this.state.persona).forEach(key => {
-                    this.state.persona[key] = this.elements[`persona-${key}`].value.trim();
-                });
-
-                if (!this.state.apiKey) { alert('API 키를 입력해주세요.'); return; }
+            savePersonaSettings() { // New function to save persona inputs before moving to next screen
+                this.state.persona.style = this.elements['persona-style-input'].value.trim();
+                this.state.persona.frequency = this.elements['persona-frequency-input'].value.trim();
+                this.state.persona.tendency = this.elements['persona-tendency-input'].value.trim();
+                this.state.persona.nickname = this.elements['persona-nickname-input'].value.trim();
+                this.state.persona.age = this.elements['persona-age-input'].value.trim();
                 this.saveSettings();
+                return true; // Indicate success for chaining
+            },
+            startChat(isAutoStart = false) {
+                // If not auto-start (i.e., user clicked Start Chat button)
+                if (!isAutoStart) {
+                    this.state.apiKey = this.elements['api-key'].value.trim();
+                    if (!this.state.apiKey) { alert('API 키를 입력해주세요.'); return; }
+                    this.saveSettings();
+                }
 
                 if (typeof window.GoogleGenerativeAI === 'undefined') {
-                    alert('AI 서비스에 연결할 수 없습니다. 인터넷 연결을 확인하고 새로고침 해주세요.'); return;
+                    alert('AI 서비스에 연결할 수 없습니다. 인터넷 연결을 확인하고 새로고침 해주세요.');
+                    this.showScreen('api-key-screen'); return; // Go back to API key screen
                 }
                 
-                this.elements['chat-persona-name'].textContent = this.state.persona.nickname || 'AI';
+                this.elements['chat-persona-name'].textContent = this.state.persona.nickname || 'AI'; // Use nickname in chat header
                 this.elements['message-area'].innerHTML = '';
                 (this.state.chatHistory || []).forEach(msg => this.displayMessage(msg.role, msg.text));
 
                 try {
                     const genAI = new window.GoogleGenerativeAI(this.state.apiKey);
                     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                    const systemPrompt = `You are my AI partner. Your pet name for me is '${this.state.persona.nickname}'. You are ${this.state.persona.age} years old. Your overall style is '${this.state.persona.style}'. You tend to '${this.state.persona.tendency}' in conversation. You contact me '${this.state.persona.frequency}'. Please reply in ${this.state.language === 'ko' ? 'Korean' : 'English'}. Keep replies natural and conversational.`;
+                    const systemPrompt = `You are my AI partner. You are named '${this.state.persona.nickname}'. You are ${this.state.persona.age} years old. Your overall style is '${this.state.persona.style}'. You tend to '${this.state.persona.tendency}' in conversation. You contact me '${this.state.persona.frequency}'. Please reply in ${this.state.language === 'ko' ? 'Korean' : 'English'}. Keep replies natural and conversational.`;
                     this.state.chat = model.startChat({
                         history: (this.state.chatHistory || []).map(m => ({role: m.role, parts: [{text: m.text}]})),
                         generationConfig: { maxOutputTokens: 200 },
