@@ -34,10 +34,11 @@
         }
         .whatsapp-mode #app { background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay; background-color: #efe7dd; }
 
-        /* 화면 관리 */
-        .screen { display: none; flex-direction: column; height: 100%; }
-        #login-screen { display: flex; } 
-        .screen.active { display: flex; }
+        /* [핵심 수정] 모든 화면은 기본적으로 숨김 (display: none) */
+        .screen { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: var(--bg-primary); }
+        
+        /* 오직 .active 클래스가 붙은 화면만 보임 */
+        .screen.active { display: flex; z-index: 100; }
         
         /* 헤더 */
         .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 1rem; border-bottom: 1px solid var(--divider); background: var(--bg-primary); z-index: 10; min-height: 50px; }
@@ -53,13 +54,13 @@
             height: 50px;
         }
         .chat-header-left { display: flex; align-items: center; }
-        /* 헤더 아바타 클릭 가능하게 변경 */
         .chat-header-avatar { width: 35px; height: 35px; border-radius: 40%; object-fit: cover; margin-right: 10px; background-color: #ddd; cursor: pointer; }
         .chat-header-info h2 { font-size: 1rem; margin: 0; font-weight: 600; }
 
         .controls { display: flex; gap: 0.5rem; align-items: center; }
         .control-btn { background: none; border: 1px solid var(--divider); border-radius: 6px; padding: 4px 8px; cursor: pointer; color: var(--text-secondary); font-size: 0.8rem; height: 28px; display: flex; align-items: center;}
 
+        /* 콘텐츠 영역 (스크롤 가능) */
         .screen-content { flex: 1; overflow-y: auto; padding: 1rem; -webkit-overflow-scrolling: touch; }
         
         .card { background-color: var(--bg-primary); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
@@ -70,7 +71,6 @@
         .hint-block { background-color: rgba(138, 43, 226, 0.08); padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; border: 1px solid rgba(138, 43, 226, 0.2); }
         .hint-text-main { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
 
-        /* AI 생성 버튼 제거로 인한 수정 */
         .avatar-controls { display: flex; justify-content: center; margin-bottom: 1rem; }
         .btn-cta-small { padding: 10px 0; font-size: 0.9rem; border-radius: 8px; border: 1px solid var(--divider); cursor: pointer; background: var(--bg-secondary); color: var(--text-primary); font-weight: 600; transition: 0.2s; width: 100%; text-align: center; }
 
@@ -79,7 +79,7 @@
         .button-danger { background-color: var(--danger); color: white; }
         .help-link-btn { background: none; border: none; color: var(--text-secondary); text-decoration: underline; font-size: 0.85rem; cursor: pointer; display: block; margin-top: 5px; text-align: left; padding: 0;}
 
-        /* 모달 */
+        /* 모달 스타일 */
         .modal { position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; }
         .modal-content { background-color: var(--modal-bg); padding: 20px; border-radius: 12px; width: 90%; max-width: 350px; max-height: 80vh; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .modal-body { overflow-y: auto; flex: 1; padding-right: 5px; margin-bottom: 15px; }
@@ -126,7 +126,7 @@
 </head>
 <body>
     <div id="app">
-        <div id="login-screen" class="screen">
+        <div id="login-screen" class="screen active">
             <header class="header" style="background: transparent; border: none; justify-content: flex-end;">
                  <div class="controls"><button id="lang-toggle-login" class="control-btn">🇺🇸</button><button id="theme-toggle-login" class="control-btn">🌙</button></div>
             </header>
@@ -255,7 +255,7 @@
                 state: { 
                     apiKey: null, language: 'ko', isDarkMode: false, persona: {}, chat: null, 
                     chatHistory: [], // Gemini Context
-                    visualHistory: [], // UI Display (Bubbles)
+                    visualHistory: [], // UI Display (분리 저장)
                     db: null, auth: null, user: null, pendingImage: null,
                     debounceTimer: null, messageQueue: []
                 },
@@ -369,9 +369,8 @@
                     if (type === 'avatar') {
                         const base64 = await this.compressImage(file, 300, 0.7);
                         this.elements['persona-avatar-preview'].src = base64;
-                        this.elements['chat-header-avatar'].src = base64; // 즉시 반영
+                        this.elements['chat-header-avatar'].src = base64; 
                         this.state.persona.avatarUrl = base64;
-                        // 채팅방에서 바꿀 경우 즉시 저장
                         if(this.state.user) {
                             await setDoc(doc(this.state.db, 'users', this.state.user.uid), { persona: this.state.persona }, { merge: true });
                         }
@@ -395,6 +394,7 @@
                         location.reload();
                     }
                 },
+                // [화면 전환 로직 수정] active 클래스만 제어하여 겹침 방지
                 showScreen: function(id) {
                     ['login-screen', 'setup-screen', 'chat-screen'].forEach(s => {
                         const el = this.elements[s];
@@ -417,6 +417,7 @@
                                 const retentionMs = 7 * 24 * 60 * 60 * 1000;
                                 
                                 this.state.chatHistory = (data.chatHistory || []).filter(msg => !msg.timestamp || (now - msg.timestamp < retentionMs));
+                                // [중요] 말풍선 분리된 visualHistory 우선 로드
                                 this.state.visualHistory = (data.visualHistory || []).filter(msg => !msg.timestamp || (now - msg.timestamp < retentionMs));
 
                                 ['api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input'].forEach(k => {
@@ -478,7 +479,7 @@
                     const userMsgObj = { role: 'user', text: txt, img: imgBase64, timestamp: Date.now() };
                     
                     this.displayMessage(userMsgObj.role, userMsgObj.text, userMsgObj.img);
-                    this.state.visualHistory.push(userMsgObj);
+                    this.state.visualHistory.push(userMsgObj); // 분리 저장
 
                     this.elements['message-input'].value = '';
                     this.cancelImage();
@@ -500,14 +501,12 @@
                     }, 1500);
                 },
 
-                // [강력 필터링 2.0] 속마음 차단
+                // [강력 필터링 3.0] 속마음 제거
                 cleanAiThought: function(text) {
                     if (!text) return "";
-                    // 영문 문단, THOUGHT, 대괄호 등 제거
                     let clean = text.replace(/THOUGHT[\s\S]*?(\n\n|$)/gi, "");
                     clean = clean.replace(/^(I should|The user|Analysis|Step|Note|I need).*/gim, "");
                     clean = clean.replace(/\[.*?\]/g, "");
-                    // 한글이 하나도 없고 영어만 있는 긴 문장 제거
                     if (!/[가-힣]/.test(clean) && /[a-zA-Z]/.test(clean)) return ""; 
                     return clean.trim();
                 },
@@ -539,6 +538,7 @@
                         const splitResponses = fullResponse.split(/(?<=[.?!])\s+/).filter(s => s.trim().length > 0);
                         const now = Date.now();
 
+                        // Gemini용 합친 내역
                         const userTxt = combinedParts.map(p => p.text || "[사진]").join(" ");
                         this.state.chatHistory.push({ role: 'user', parts: [{ text: userTxt }], timestamp: now });
                         this.state.chatHistory.push({ role: 'model', parts: [{ text: fullResponse }], timestamp: now });
@@ -546,11 +546,15 @@
                         for (const fragment of splitResponses) {
                             if (!fragment) continue;
                             this.displayMessage('model', fragment);
+                            
+                            // UI용 분리 내역 저장
                             this.state.visualHistory.push({ role: 'model', text: fragment, timestamp: now });
+                            
                             const typingDelay = Math.min(fragment.length * 50 + 500, 3000);
                             await this.wait(typingDelay); 
                         }
 
+                        // DB 저장 (분리된 내역 포함)
                         await setDoc(doc(this.state.db, 'users', this.state.user.uid), { 
                             chatHistory: this.state.chatHistory,
                             visualHistory: this.state.visualHistory 
@@ -570,6 +574,7 @@
                     this.elements['chat-header-avatar'].src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
                     this.elements['message-area'].innerHTML = '';
                     
+                    // [중요] 분리된 말풍선 내역 로드
                     const historyToRender = (this.state.visualHistory && this.state.visualHistory.length > 0) 
                         ? this.state.visualHistory 
                         : this.state.chatHistory;
@@ -581,6 +586,7 @@
                             this.displayMessage(m.role, text, m.img || null); 
                         });
                         
+                        // 선톡 체크 (2~4시간)
                         const lastMsg = historyToRender[historyToRender.length - 1];
                         if (lastMsg && lastMsg.role === 'user' && lastMsg.timestamp) {
                             const hoursPassed = (Date.now() - lastMsg.timestamp) / (1000 * 60 * 60);
@@ -615,7 +621,6 @@
                         1. Speak like a real Korean on KakaoTalk.
                         2. NEVER output internal thoughts (THOUGHT, I should...). ONLY the message.
                         3. Split long messages. Use text + emoji mix naturally.
-                        4. Emoji usage: Moderate (30%).
                         `;
                         
                         const model = genAI.getGenerativeModel({ model: MODEL_NAME, systemInstruction: prompt });
@@ -666,44 +671,40 @@
                     row.appendChild(bubble);
                     this.elements['message-area'].appendChild(row);
                     this.elements['message-area'].scrollTop = this.elements['message-area'].scrollHeight;
+                },
+                loadSettings: function() {
+                    this.state.language = localStorage.getItem('lang') || 'ko';
+                    this.state.isDarkMode = localStorage.getItem('dark') === 'true';
+                    this.applyTheme();
+                },
+                toggleLanguage: function() {
+                    this.state.language = this.state.language === 'ko' ? 'en' : 'ko';
+                    localStorage.setItem('lang', this.state.language);
+                    this.applyTheme(); this.updateUI();
+                },
+                toggleTheme: function() {
+                    this.state.isDarkMode = !this.state.isDarkMode;
+                    localStorage.setItem('dark', this.state.isDarkMode);
+                    this.applyTheme();
+                },
+                applyTheme: function() {
+                    document.body.className = (this.state.isDarkMode ? 'dark-mode' : '') + (this.state.language === 'en' ? ' whatsapp-mode' : '');
+                    ['login', 'setup'].forEach(scr => {
+                        if(this.elements[`lang-toggle-${scr}`]) this.elements[`lang-toggle-${scr}`].textContent = this.state.language === 'ko' ? '🇺🇸' : '🇰🇷';
+                        if(this.elements[`theme-toggle-${scr}`]) this.elements[`theme-toggle-${scr}`].textContent = this.state.isDarkMode ? '☀️' : '🌙';
+                    });
+                    if(this.elements['theme-toggle-chat']) this.elements['theme-toggle-chat'].textContent = this.state.isDarkMode ? '☀️' : '🌙';
+                },
+                updateUI: function() {
+                    const t = this.i18n[this.state.language];
+                    document.querySelectorAll('[data-i18n]').forEach(el => {
+                        if (t[el.dataset.i18n]) el.innerHTML = t[el.dataset.i18n];
+                    });
+                    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                        if (t[el.dataset.i18nPlaceholder]) el.placeholder = t[el.dataset.i18nPlaceholder];
+                    });
                 }
-                // ... loadSettings, toggleTheme 등 나머지 함수는 동일
             };
-            
-            // 나머지 보조 함수들 (loadSettings, toggleLanguage 등) 복원
-            app.loadSettings = function() {
-                this.state.language = localStorage.getItem('lang') || 'ko';
-                this.state.isDarkMode = localStorage.getItem('dark') === 'true';
-                this.applyTheme();
-            };
-            app.toggleLanguage = function() {
-                this.state.language = this.state.language === 'ko' ? 'en' : 'ko';
-                localStorage.setItem('lang', this.state.language);
-                this.applyTheme(); this.updateUI();
-            };
-            app.toggleTheme = function() {
-                this.state.isDarkMode = !this.state.isDarkMode;
-                localStorage.setItem('dark', this.state.isDarkMode);
-                this.applyTheme();
-            };
-            app.applyTheme = function() {
-                document.body.className = (this.state.isDarkMode ? 'dark-mode' : '') + (this.state.language === 'en' ? ' whatsapp-mode' : '');
-                ['login', 'setup'].forEach(scr => {
-                    if(this.elements[`lang-toggle-${scr}`]) this.elements[`lang-toggle-${scr}`].textContent = this.state.language === 'ko' ? '🇺🇸' : '🇰🇷';
-                    if(this.elements[`theme-toggle-${scr}`]) this.elements[`theme-toggle-${scr}`].textContent = this.state.isDarkMode ? '☀️' : '🌙';
-                });
-                if(this.elements['theme-toggle-chat']) this.elements['theme-toggle-chat'].textContent = this.state.isDarkMode ? '☀️' : '🌙';
-            };
-            app.updateUI = function() {
-                const t = this.i18n[this.state.language];
-                document.querySelectorAll('[data-i18n]').forEach(el => {
-                    if (t[el.dataset.i18n]) el.innerHTML = t[el.dataset.i18n];
-                });
-                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                    if (t[el.dataset.i18nPlaceholder]) el.placeholder = t[el.dataset.i18nPlaceholder];
-                });
-            };
-
             document.addEventListener('DOMContentLoaded', () => app.init());
         })();
     </script>
