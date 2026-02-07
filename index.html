@@ -35,13 +35,15 @@
         .controls { display: flex; gap: 0.5rem; }
         .control-btn { background: none; border: 1px solid var(--divider); border-radius: 8px; padding: 6px; cursor: pointer; color: var(--text-secondary); min-width: 36px; font-size: 0.9rem;}
         
-        /* 카드 디자인 최적화 (버튼 밀림 방지) */
         .card { background-color: var(--bg-primary); padding: 1rem; border-radius: 12px; margin-bottom: 0.8rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .card label { font-weight: 600; color: var(--text-secondary); margin-bottom: 0.3rem; display: block; font-size: 0.85rem; }
         .card label .example { font-weight: 400; opacity: 0.7; margin-left: 0.3rem; font-size: 0.75rem;}
-        .card input { width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 0.9rem; box-sizing: border-box; margin-bottom: 0.6rem;}
+        .card input, .card select { width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 0.9rem; box-sizing: border-box; margin-bottom: 0.6rem;}
         
-        /* AI 생성 컨트롤 */
+        /* 힌트 텍스트 강조 및 위치 변경 */
+        .hint-block { background-color: rgba(138, 43, 226, 0.1); padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; }
+        .hint-text-main { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
+
         .ai-prompt-area { display: flex; gap: 5px; margin-bottom: 8px; }
         .ai-prompt-area input { margin-bottom: 0; flex-grow: 1; font-size: 0.85rem; border: 1px solid var(--accent); }
         .avatar-controls { display: flex; gap: 8px; justify-content: space-between; margin-bottom: 1rem; }
@@ -49,19 +51,19 @@
         .btn-ai-style { background-color: var(--btn-ai); color: white; border: none; }
         .btn-ai-style:hover { opacity: 0.9; }
 
-        .hint-text { font-size: 0.75rem; color: var(--accent); margin-top: -0.4rem; margin-bottom: 0.6rem; display: block; }
-        
         .button { display: block; width: 100%; padding: 0.9rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; }
         .button-primary { background-color: var(--accent); color: #fff; }
         .button-danger { background-color: var(--danger); color: white; margin-top: 0.5rem; }
         .button-secondary { background-color: transparent; border: 1px solid var(--divider); color: var(--text-primary); margin-top: 0.3rem; padding: 0.6rem; font-size: 0.85rem;}
 
-        /* 모달 스타일 수정 */
-        .modal { position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; }
-        .modal-content { background-color: var(--modal-bg); padding: 20px; border-radius: 12px; width: 85%; max-width: 400px; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        /* 모달 잘림 완벽 해결 */
+        .modal { position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; }
+        .modal-content { background-color: var(--modal-bg); padding: 20px; border-radius: 12px; width: 85%; max-width: 350px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; max-height: 80vh; }
+        /* 스크롤 영역 별도 지정 */
+        .modal-body { overflow-y: auto; flex-grow: 1; margin-bottom: 10px; }
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
         .modal-content h2 { margin-top: 0; font-size: 1.1rem; }
-        .modal-content ol { padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+        .modal-content ol { padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
         
         .chat-header { display: flex; align-items: center; padding: 0.7rem 1rem; background-color: var(--bg-primary); border-bottom: 1px solid var(--divider); flex-shrink: 0; }
         .whatsapp-mode .chat-header { background-color: var(--header-bg); color: #fff; border: none; }
@@ -78,9 +80,13 @@
         .message-container.user .message-bubble { background-color: var(--user-bubble); color: var(--user-text); border-bottom-right-radius: 0; }
         .message-container.partner .message-bubble { background-color: var(--partner-bubble); color: var(--partner-text); border-bottom-left-radius: 0; }
         
-        /* 타이핑 인디케이터 */
-        .typing-indicator { font-size: 0.8rem; color: var(--text-secondary); margin-left: 10px; font-style: italic; display: none; }
-        .typing-indicator.active { display: block; }
+        /* 진짜 카톡 같은 타이핑 버블 */
+        .typing-bubble { background-color: var(--partner-bubble); padding: 0.8rem 1rem; border-radius: 1rem; border-bottom-left-radius: 0; width: fit-content; display: none; }
+        .typing-dots { display: flex; gap: 4px; }
+        .typing-dot { width: 6px; height: 6px; background-color: #b0b0b0; border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
         .chat-footer { display: flex; align-items: center; padding: 0.5rem; border-top: 1px solid var(--divider); background-color: var(--bg-primary); gap: 0.5rem; }
         #message-input { flex-grow: 1; border: none; background-color: var(--bg-secondary); border-radius: 20px; padding: 0.6rem 1rem; font-size: 0.95rem; }
@@ -115,7 +121,6 @@
                 <div class="card">
                     <label style="text-align: center;" data-i18n="profileImageLabel"></label>
                     <img id="persona-avatar-preview">
-                    
                     <div class="ai-prompt-area">
                         <input type="text" id="ai-prompt-input" placeholder="예: 청순한 긴머리 여자, 실사 느낌">
                     </div>
@@ -128,10 +133,29 @@
                     <label for="persona-name-input" data-i18n="personaNameLabel"></label><input type="text" id="persona-name-input" data-i18n-placeholder="personaNamePlaceholder">
                     <label for="chat-room-name-input" data-i18n="chatRoomNameLabel"></label><input type="text" id="chat-room-name-input" data-i18n-placeholder="chatRoomNamePlaceholder">
                 </div>
+
+                <div class="hint-block">
+                    <span class="hint-text-main" data-i18n="specificHint"></span>
+                </div>
+
                 <div class="card">
+                    <label>내 시간대 (국가/도시)</label>
+                    <select id="timezone-select">
+                        <option value="Asia/Seoul">한국 (서울)</option>
+                        <option value="America/New_York">미국 (뉴욕)</option>
+                        <option value="Europe/London">영국 (런던)</option>
+                        <option value="Asia/Tokyo">일본 (도쿄)</option>
+                    </select>
+
+                    <label>답장 속도</label>
+                    <select id="speed-select">
+                        <option value="normal">👤 보통 (사람 같음)</option>
+                        <option value="fast">⚡️ 칼답 (즉시)</option>
+                        <option value="slow">🐢 느림 (가끔 늦게)</option>
+                    </select>
+
                     <label for="persona-style-input"><span data-i18n="personaStyleLabel"></span> <span class="example" data-i18n="styleExample"></span></label>
                     <input type="text" id="persona-style-input">
-                    <span class="hint-text" data-i18n="specificHint"></span>
                     
                     <label for="persona-frequency-input"><span data-i18n="personaFrequencyLabel"></span> <span class="example" data-i18n="frequencyExample"></span></label>
                     <input type="text" id="persona-frequency-input">
@@ -163,7 +187,7 @@
                 <div class="controls"><button id="reset-btn-chat" class="control-btn" title="Reset">↻</button><button id="logout-btn" class="control-btn" data-i18n="logoutBtn"></button></div>
             </header>
             <main id="message-area"></main>
-            <div id="typing-indicator" class="typing-indicator">상대방이 입력 중...</div>
+            
             <div id="image-preview-area" class="image-preview-container">
                 <img id="image-preview-img" src="">
                 <button id="cancel-image-btn" style="display:block; margin: 5px auto; background:none; border:1px solid #ccc; padding:2px 8px; border-radius:4px;">취소</button>
@@ -179,8 +203,14 @@
         <div id="api-key-modal" class="modal">
             <div class="modal-content">
                 <span id="close-modal-btn" class="close-btn">&times;</span>
-                <h2 data-i18n="modalTitle"></h2>
-                <ol><li data-i18n="modalStep1"></li><li data-i18n="modalStep2"></li><li data-i18n="modalStep3"></li></ol>
+                <h2>무료 API 키 발급</h2>
+                <div class="modal-body">
+                    <ol>
+                        <li data-i18n="modalStep1"></li>
+                        <li data-i18n="modalStep2"></li>
+                        <li data-i18n="modalStep3"></li>
+                    </ol>
+                </div>
                 <a href="https://aistudio.google.com/app/apikey" target="_blank" class="button button-primary" data-i18n="modalLink"></a>
             </div>
         </div>
@@ -193,25 +223,25 @@
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
         
         const DEFAULT_AVATAR = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
-        const MODEL_NAME = "gemini-2.5-flash"; // 사용자 요청대로 2.5 유지
+        const MODEL_NAME = "gemini-2.5-flash"; 
 
         (function() {
             const app = {
                 elements: {},
                 state: { 
                     apiKey: null, language: 'ko', isDarkMode: false, persona: {}, chat: null, chatHistory: [], db: null, auth: null, user: null, pendingImage: null,
-                    debounceTimer: null // 사용자 입력 대기 타이머
+                    debounceTimer: null, messageQueue: []
                 },
                 i18n: {
                     en: {
                         appTitle: 'Connect', appDescription: 'Your own Partner.', loginBtn: 'Login with Google',
                         setupTitle: 'Profile', profileImageLabel: 'Profile Photo', aiCreateBtn: 'AI Gen', uploadPhotoBtn: 'Upload',
                         personaNameLabel: 'Partner Name', personaNamePlaceholder: 'Name (e.g., Jisu)',
-                        specificHint: 'More details make it better!', chatRoomNameLabel: 'Chat Title', chatRoomNamePlaceholder: 'e.g., My Love',
+                        specificHint: '* More details make it better! Please describe each field in detail.', chatRoomNameLabel: 'Chat Title', chatRoomNamePlaceholder: 'e.g., My Love',
                         personaStyleLabel: 'Style', styleExample: '(e.g., Cute)', 
                         personaFrequencyLabel: 'Frequency', frequencyExample: '(e.g., Often)',
                         personaTendencyLabel: 'Tendency', tendencyExample: '(e.g., Warm)',
-                        personaNicknameLabel: 'Your Nickname', nicknameExample: '(e.g., Honey)', personaAgeLabel: 'Age', ageExample: '(e.g., 24)',
+                        personaNicknameLabel: 'Your Nickname', nicknameExample: '(e.g., Honey)', personaAgeLabel: 'Age', ageExample: '(e.g., 24, Younger)',
                         apiKeyLabel: 'API Key', apiKeyPlaceholder: 'Enter API Key', getApiKeyBtn: 'How to get API Key', startChatBtn: 'Start', resetBtn: 'Reset', logoutBtn: 'Logout', messagePlaceholder: 'Type a message...',
                         modalTitle: 'Get Free API Key', modalStep1: 'Login to AI Studio.', modalStep2: 'Click "Create API Key".', modalStep3: 'Copy & Paste here.', modalLink: 'Go to AI Studio'
                     },
@@ -219,11 +249,11 @@
                         appTitle: '커넥트', appDescription: '나만의 소중한 파트너.', loginBtn: 'Google 계정으로 로그인',
                         setupTitle: '프로필 설정', profileImageLabel: '상대방 프로필 사진', aiCreateBtn: 'AI 생성', uploadPhotoBtn: '사진 업로드',
                         personaNameLabel: '상대방 이름', personaNamePlaceholder: '이름 (예: 지수)',
-                        specificHint: '* 구체적으로 적으면 더 실감나요!', chatRoomNameLabel: '채팅방 이름', chatRoomNamePlaceholder: '예: 내 사랑♡',
+                        specificHint: '* 구체적으로 적으면 더 실감나요! 각 항목을 자세히 적어주세요.', chatRoomNameLabel: '채팅방 이름', chatRoomNamePlaceholder: '예: 내 사랑♡',
                         personaStyleLabel: '성격 스타일', styleExample: '(예: 귀여운 성향)', 
                         personaFrequencyLabel: '연락 빈도', frequencyExample: '(예: 칼답, 자주)',
                         personaTendencyLabel: '대화 성향', tendencyExample: '(예: 애교많은)',
-                        personaNicknameLabel: '나를 부를 애칭', nicknameExample: '(예: 자기야)', personaAgeLabel: '나이', ageExample: '(예: 24살)',
+                        personaNicknameLabel: '나를 부를 애칭', nicknameExample: '(예: 자기야)', personaAgeLabel: '나이', ageExample: '(예: 24살, 연하)',
                         apiKeyLabel: 'API 키', apiKeyPlaceholder: 'API 키 입력', getApiKeyBtn: 'API 키 발급 방법', startChatBtn: '대화 시작하기', resetBtn: '초기화', logoutBtn: '로그아웃', messagePlaceholder: '메시지를 입력하세요...',
                         modalTitle: '무료 API 키 발급', modalStep1: 'AI Studio 로그인.', modalStep2: '"Create API Key" 클릭.', modalStep3: '키 복사 후 붙여넣기.', modalLink: '이동하기'
                     }
@@ -236,7 +266,7 @@
                         appId: "1:732324287861:web:15d894068755c627842f3c"
                     };
                     
-                    const ids = ['app', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'persona-avatar-upload', 'persona-avatar-preview', 'upload-trigger-btn', 'ai-create-btn', 'ai-prompt-input', 'start-chat-btn', 'reset-btn-setup', 'reset-btn-chat', 'chat-header-avatar', 'chat-room-name-header', 'logout-btn', 'login-btn', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'attach-btn', 'chat-image-input', 'image-preview-area', 'image-preview-img', 'cancel-image-btn', 'typing-indicator'];
+                    const ids = ['app', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'persona-avatar-upload', 'persona-avatar-preview', 'upload-trigger-btn', 'ai-create-btn', 'ai-prompt-input', 'start-chat-btn', 'reset-btn-setup', 'reset-btn-chat', 'chat-header-avatar', 'chat-room-name-header', 'logout-btn', 'login-btn', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'attach-btn', 'chat-image-input', 'image-preview-area', 'image-preview-img', 'cancel-image-btn', 'timezone-select', 'speed-select'];
                     ids.forEach(id => { this.elements[id] = document.getElementById(id); });
                     if(this.elements['persona-avatar-preview']) this.elements['persona-avatar-preview'].src = DEFAULT_AVATAR;
 
@@ -261,7 +291,7 @@
                     el['reset-btn-setup'].addEventListener('click', () => this.resetUserData());
                     el['reset-btn-chat'].addEventListener('click', () => this.resetUserData());
                     
-                    // [중요] 메시지 전송 로직 변경 (Debounce 적용)
+                    // Debounce 적용 전송
                     el['send-btn'].addEventListener('click', () => this.handleUserMessage());
                     el['message-input'].addEventListener('keydown', e => { 
                         if (e.key === 'Enter') this.handleUserMessage(); 
@@ -314,17 +344,15 @@
                     this.state.pendingImage = null;
                     this.elements['image-preview-area'].classList.remove('active');
                 },
-                // [기능 개선] Pollinations AI 사용 (고퀄리티/프롬프트 지원)
                 generateAIAvatar: function() {
                     const imgEl = this.elements['persona-avatar-preview'];
-                    imgEl.classList.add('loading'); // 로딩 효과
+                    imgEl.classList.add('loading');
                     
                     const userInput = this.elements['ai-prompt-input'].value.trim();
                     const prompt = userInput ? encodeURIComponent(userInput + ", masterpiece, best quality, photorealistic, 8k") : "beautiful woman, korean kpop style, photorealistic, high quality";
                     
                     const url = `https://image.pollinations.ai/prompt/${prompt}?width=300&height=300&model=flux&seed=${Math.floor(Math.random() * 1000)}&nologo=true`;
                     
-                    // 이미지 로드 완료 시 로딩 제거
                     imgEl.onload = () => imgEl.classList.remove('loading');
                     imgEl.src = url;
                     this.state.persona.avatarUrl = url; 
@@ -349,6 +377,10 @@
                             const field = k.replace('-input', '').split('-').pop();
                             this.elements[k].value = this.state.persona[field] || '';
                         });
+                        // 새 필드 로드
+                        if (this.elements['timezone-select']) this.elements['timezone-select'].value = this.state.persona.timezone || 'Asia/Seoul';
+                        if (this.elements['speed-select']) this.elements['speed-select'].value = this.state.persona.speed || 'normal';
+
                         this.elements['persona-avatar-preview'].src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
                         this.startChat(true);
                     } else { this.showScreen('setup-screen'); }
@@ -365,96 +397,43 @@
                     p.nickname = this.elements['persona-nickname-input'].value;
                     p.age = this.elements['persona-age-input'].value;
                     
+                    // 새 설정 저장
+                    p.timezone = this.elements['timezone-select'].value;
+                    p.speed = this.elements['speed-select'].value;
+                    
                     await setDoc(doc(this.state.db, 'users', this.state.user.uid), { apiKey: this.state.apiKey, persona: p }, { merge: true });
                     this.startChat(false);
                 },
                 wait: function(ms) { return new Promise(resolve => setTimeout(resolve, ms)); },
                 
-                // [핵심 로직] 사용자 메시지를 묶어서 처리 (Debounce)
-                handleUserMessage: function() {
-                    const txt = this.elements['message-input'].value.trim();
-                    const imgBase64 = this.state.pendingImage;
-                    if (!txt && !imgBase64) return;
-
-                    // 화면엔 즉시 표시
-                    this.displayMessage('user', txt, imgBase64);
-                    this.elements['message-input'].value = '';
-                    this.cancelImage();
-
-                    // 기존 타이머 취소 (연속 입력 감지)
-                    if (this.state.debounceTimer) clearTimeout(this.state.debounceTimer);
-
-                    // 1.5초 동안 추가 입력 없으면 AI에게 전송
-                    this.state.debounceTimer = setTimeout(() => {
-                        this.sendToAI(); 
-                    }, 1500); 
+                // 말풍선 타이핑 애니메이션 표시
+                displayTypingBubble: function() {
+                    const c = document.createElement('div');
+                    c.className = 'message-container partner typing-container';
+                    c.id = 'temp-typing-bubble';
+                    const b = document.createElement('div');
+                    b.className = 'message-bubble typing-bubble';
+                    b.style.display = 'block';
+                    b.innerHTML = '<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+                    c.appendChild(b);
+                    this.elements['message-area'].appendChild(c);
+                    this.elements['message-area'].scrollTop = this.elements['message-area'].scrollHeight;
+                },
+                removeTypingBubble: function() {
+                    const bubble = document.getElementById('temp-typing-bubble');
+                    if (bubble) bubble.remove();
                 },
 
-                // 실제 AI 전송 로직
-                sendToAI: async function() {
-                    if (!this.state.chat) return;
-                    
-                    // 최근 사용자 메시지들을 묶어서 보낼 수도 있지만, 
-                    // 여기서는 가장 최근 컨텍스트가 히스토리에 있으므로 바로 트리거.
-                    // 실제로는 화면에 표시된 내용을 AI가 '읽은' 척 해야 함.
-                    
-                    // 랜덤 딜레이 (3초 ~ 10초) 후 답장 시작 (읽씹 구현)
-                    const randomDelay = Math.floor(Math.random() * 7000) + 3000;
-                    
-                    // 타이핑 인디케이터는 딜레이 후에 뜸
-                    setTimeout(() => {
-                        this.elements['typing-indicator'].classList.add('active');
-                    }, randomDelay - 1500);
-
-                    await this.wait(randomDelay);
-
-                    try {
-                        // 마지막 사용자 메시지 내용을 다시 가져오거나, 
-                        // 단순히 대화를 이어가라는 신호를 보낼 수 있음.
-                        // 여기선 가장 최근 사용자 발화가 히스토리에 있다고 가정하고 
-                        // (displayMessage에서 히스토리 저장을 안 했다면 여기서 처리)
-                        
-                        // 사용자가 방금 보낸 내용을 히스토리에 추가해야 함.
-                        // (handleUserMessage에서는 UI만 그렸음)
-                        // 주의: displayMessage에서 text를 받아왔지만, 여기선 text가 비어있음.
-                        // 따라서, handleUserMessage에서 state에 임시 저장하거나,
-                        // 단순하게: Gemini는 history 기반이므로, sendToAI 호출 시 
-                        // 가장 최근에 보낸 텍스트를 인자로 넘겨야 함. 
-                        
-                        // 수정: handleUserMessage 구조상 텍스트를 저장해둬야 함.
-                        // 편의상 여기서 꼼수: 그냥 "답장해줘" 느낌으로 마지막 컨텍스트를 보냄
-                        // 하지만 정확성을 위해 handleUserMessage에서 chat.sendMessage를 호출하되
-                        // await를 여기서 처리하는 게 맞음.
-                        
-                        // [구조 변경] sendToAI는 복잡하니, 그냥 sendMessage를 수정해서 쓰되
-                        // "사용자 입력 -> UI 표시 -> (대기) -> AI 요청 -> (대기) -> AI 응답 표시" 순서로 감.
-                        
-                        // 아까 handleUserMessage에서 이미 UI는 그렸음.
-                        // 이제 AI에게 보낼 차례. (마지막 내용을 chat history에 넣어서 보냄)
-                        // Gemini SDK는 sendMessage(msg)를 해야 히스토리에 들어감.
-                        // 그래서 handleUserMessage에서 sendMessage를 호출하지 않고, 여기서 호출함.
-                        // 다만, 아까 텍스트가 날아갔으니... 
-                        // **재수정**: handleUserMessage에서 텍스트를 어딘가(this.state.pendingText)에 저장해둬야 함.
-                    } catch(e) {}
-                    
-                    // 로직 단순화를 위해 sendToAI 대신 processAIResponse를 새로 만듦
-                    // 위 handleUserMessage 로직을 폐기하고 아래와 같이 통합함.
-                },
-
-                // [최종 수정된 전송 로직] 
-                // 1. 사용자 입력 즉시 표시 -> 2. 타이머 작동 -> 3. 타이머 끝나면 AI 요청
                 handleUserMessage: async function() {
                     const txt = this.elements['message-input'].value.trim();
                     const imgBase64 = this.state.pendingImage;
                     
                     if (!txt && !imgBase64) return;
 
-                    // 1. 내 말풍선 즉시 표시
                     this.displayMessage('user', txt, imgBase64);
                     this.elements['message-input'].value = '';
                     this.cancelImage();
 
-                    // 2. 전송 큐에 쌓기 (연속 입력 대응)
                     if (!this.state.messageQueue) this.state.messageQueue = [];
                     
                     let parts = [];
@@ -466,69 +445,56 @@
                     
                     this.state.messageQueue.push(parts);
 
-                    // 3. 디바운스 (말 끝날 때까지 대기)
                     if (this.state.debounceTimer) clearTimeout(this.state.debounceTimer);
                     
                     this.state.debounceTimer = setTimeout(() => {
-                        this.processAiResponse(); // 1.5초 뒤 AI 응답 트리거
+                        this.processAiResponse(); 
                     }, 1500);
                 },
 
                 processAiResponse: async function() {
                     if (!this.state.chat || !this.state.messageQueue.length) return;
 
-                    // 큐에 있는 모든 메시지를 합쳐서 하나로 보냄 (Gemini는 배열을 받음)
-                    // 하지만 SDK 구조상 한번에 하나씩 보내는게 안전하므로,
-                    // 사용자 메시지는 이미 UI에 떴고, 히스토리에는 '마지막 메시지'만 보내거나
-                    // 큐를 합쳐서 보냄. 여기선 큐의 마지막 내용만 보내는 식으로 처리하거나
-                    // 큐를 순회하며 sendMessage를 하되 응답은 마지막에만 받음.
-                    
-                    // 간단히: 큐의 모든 내용을 텍스트로 합쳐서 보냄 (이미지는 첫번째꺼만)
-                    // 복잡하니, 가장 쉬운 방법: 마지막 메시지 파트만 AI에게 전달 (컨텍스트는 유지되므로)
-                    
                     const combinedParts = this.state.messageQueue.flat();
-                    this.state.messageQueue = []; // 큐 비우기
+                    this.state.messageQueue = []; 
 
-                    // 4. 읽고 씹는 시간 (랜덤 딜레이)
-                    const thinkingTime = Math.floor(Math.random() * 5000) + 2000; // 2~7초
+                    // 속도 설정에 따른 딜레이 계산
+                    const speed = this.state.persona.speed || 'normal';
+                    let minDelay = 2000, maxDelay = 6000;
                     
-                    // 타이핑 효과 시작
-                    setTimeout(() => this.elements['typing-indicator'].classList.add('active'), thinkingTime - 1000);
+                    if (speed === 'fast') { minDelay = 500; maxDelay = 2000; }
+                    else if (speed === 'slow') { minDelay = 10000; maxDelay = 30000; }
+
+                    const thinkingTime = Math.floor(Math.random() * (maxDelay - minDelay)) + minDelay;
+                    
+                    // 타이핑 버블 표시
+                    setTimeout(() => this.displayTypingBubble(), thinkingTime - 1000 > 0 ? thinkingTime - 1000 : 0);
                     
                     await this.wait(thinkingTime);
 
                     try {
                         const res = await this.state.chat.sendMessage(combinedParts);
-                        this.elements['typing-indicator'].classList.remove('active');
+                        this.removeTypingBubble();
                         
                         const fullResponse = res.response.text();
-                        
-                        // 5. AI 응답 나눠서 보내기 (문장 단위 스플릿)
-                        // 온점, 물음표, 느낌표 뒤에 줄바꿈이 없으면 추가해서 나눔
                         const splitResponses = fullResponse.split(/(?<=[.?!])\s+/).filter(s => s.trim().length > 0);
                         
                         for (const fragment of splitResponses) {
                             if (!fragment) continue;
                             this.displayMessage('model', fragment);
-                            
-                            // 메시지 사이사이 딜레이 (사람처럼)
-                            await this.wait(fragment.length * 50 + 500); 
+                            await this.wait(fragment.length * 30 + 300); 
                         }
 
-                        // 히스토리 저장 (단순화: 전체 텍스트로 저장)
-                        // 실제로는 combinedParts를 저장해야 하지만, 여기선 텍스트만 저장
                         const userTxt = combinedParts.map(p => p.text || "[사진]").join(" ");
                         this.state.chatHistory.push({ role: 'user', parts: [{ text: userTxt }] });
                         this.state.chatHistory.push({ role: 'model', parts: [{ text: fullResponse }] });
                         await setDoc(doc(this.state.db, 'users', this.state.user.uid), { chatHistory: this.state.chatHistory }, { merge: true });
 
                     } catch(e) {
-                        this.elements['typing-indicator'].classList.remove('active');
+                        this.removeTypingBubble();
                         if (e.message.includes("429")) {
-                            // 429 자동 재시도 (3초 후)
-                            console.log("429 감지, 재시도...");
                             await this.wait(3000);
-                            this.processAiResponse(); // 재귀 호출
+                            this.processAiResponse();
                         }
                     }
                 },
@@ -548,7 +514,10 @@
 
                     try {
                         const genAI = new GoogleGenerativeAI(this.state.apiKey);
-                        // [프롬프트 강화] 과한 이모지 금지, 짧게 말하기, 질문하기
+                        
+                        // [현재 시간 및 위치 정보 주입]
+                        const now = new Date().toLocaleString('en-US', { timeZone: this.state.persona.timezone || 'Asia/Seoul' });
+                        
                         const prompt = `
                         You are a real person named '${this.state.persona.name}'.
                         Your nickname is '${this.state.persona.nickname}'. 
@@ -556,14 +525,14 @@
                         Frequency: ${this.state.persona.frequency}. Tendency: ${this.state.persona.tendency}.
                         Language: ${this.state.language === 'ko' ? 'Korean' : 'English'}.
                         
+                        [CURRENT CONTEXT]
+                        Current Time at your location: ${now}
+                        
                         [CRITICAL INSTRUCTIONS]
-                        1. Act like a REAL person using a chat app.
-                        2. NEVER use Kaomoji like (*^^*), (T.T). It is forbidden.
-                        3. Use standard emojis (😊, ㅋ) very sparingly. Don't use them in every sentence.
-                        4. Split your thoughts into short, separate sentences. Don't write long paragraphs.
-                        5. Ask questions to the user to keep the conversation going.
-                        6. Speak casually and naturally.
-                        7. Sometimes act busy or delayed.
+                        1. Act completely naturally like a human partner.
+                        2. Check the current time before asking about meals or sleep.
+                        3. Don't use Kaomoji. Use emojis sparingly.
+                        4. Split long thoughts into short messages.
                         `;
                         
                         const model = genAI.getGenerativeModel({ model: MODEL_NAME, systemInstruction: prompt });
