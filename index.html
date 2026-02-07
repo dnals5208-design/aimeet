@@ -39,9 +39,9 @@
         .screen { display: none; flex-direction: column; height: 100%; }
         .screen.active { display: flex; }
         
-        /* 헤더 (고정) */
-        .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid var(--divider); background: var(--bg-primary); z-index: 10; }
-        .header h1 { font-size: 1.2rem; margin: 0; font-weight: 700; }
+        /* 헤더 (고정) - UI 복구 */
+        .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1rem; border-bottom: 1px solid var(--divider); background: var(--bg-primary); z-index: 10; }
+        .header h1 { font-size: 1.1rem; margin: 0; font-weight: 700; }
         .controls { display: flex; gap: 0.5rem; }
         .control-btn { background: none; border: 1px solid var(--divider); border-radius: 8px; padding: 6px; cursor: pointer; color: var(--text-secondary); min-width: 36px; font-size: 0.9rem;}
 
@@ -108,6 +108,13 @@
         .image-preview-container { display: none; padding: 8px; background: var(--bg-secondary); border-top: 1px solid var(--divider); text-align: center; }
         .image-preview-container img { max-height: 80px; border-radius: 6px; }
         .image-preview-container.active { display: block; }
+
+        /* 채팅방 헤더 (UI 복구) */
+        .chat-header { display: flex; align-items: center; padding: 0.7rem 1rem; background-color: var(--bg-primary); border-bottom: 1px solid var(--divider); flex-shrink: 0; }
+        .whatsapp-mode .chat-header { background-color: var(--header-bg); color: #fff; border: none; }
+        .chat-header-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 0.8rem; background-color: #ddd; }
+        .chat-header-info { flex-grow: 1; }
+        .chat-header-info h2 { font-size: 1.05rem; margin: 0; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -285,7 +292,6 @@
 
                     this.loadSettings(); this.addEventListeners(); this.updateUI();
                     
-                    // 인증 상태 감지 (자동 라우팅)
                     onAuthStateChanged(this.state.auth, (user) => {
                         if (user) { 
                             this.state.user = user; 
@@ -367,12 +373,13 @@
                     
                     const userInput = this.elements['ai-prompt-input'].value.trim();
                     const prompt = userInput ? encodeURIComponent(userInput) : "beautiful woman, k-pop style";
-                    const url = `https://image.pollinations.ai/prompt/${prompt}?width=300&height=300&model=flux&nologo=true&seed=${Math.floor(Math.random()*1000)}`;
+                    // AI 이미지 생성 URL (타임스탬프 추가로 매번 새로운 이미지 요청)
+                    const url = `https://image.pollinations.ai/prompt/${prompt}?width=300&height=300&model=flux&nologo=true&seed=${new Date().getTime()}`;
                     
                     imgEl.onload = () => imgEl.classList.remove('loading');
                     imgEl.onerror = () => { 
                         imgEl.classList.remove('loading'); 
-                        // 조용히 처리 (Alert 삭제)
+                        // 조용히 실패 처리 (Alert 없음)
                     };
                     imgEl.src = url;
                     this.state.persona.avatarUrl = url; 
@@ -507,6 +514,7 @@
                         for (const fragment of splitResponses) {
                             if (!fragment) continue;
                             this.displayMessage('model', fragment);
+                            // 0.7~1.5초 딜레이
                             await this.wait(Math.random() * 800 + 700); 
                         }
 
