@@ -34,16 +34,18 @@
         }
         .whatsapp-mode #app { background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay; background-color: #efe7dd; }
 
-        /* [중요 수정] 모든 화면은 기본적으로 숨김 */
-        .screen { display: none; flex-direction: column; height: 100%; }
-        /* .active 클래스가 붙은 화면만 보임 */
-        .screen.active { display: flex; }
+        /* 화면 관리 (겹침 방지) */
+        .screen { display: none !important; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: var(--bg-primary); }
+        .screen.active { display: flex !important; z-index: 100; }
+        
+        /* 로딩 화면 (초기 잠깐용) */
+        #loading-screen { justify-content: center; align-items: center; }
         
         /* 헤더 */
         .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 1rem; border-bottom: 1px solid var(--divider); background: var(--bg-primary); z-index: 10; min-height: 50px; }
         .header h1 { font-size: 1.1rem; margin: 0; font-weight: 700; }
         
-        /* 채팅방 헤더 (슬림 & 카톡 스타일) */
+        /* 채팅방 헤더 */
         .chat-header {
             flex-shrink: 0;
             display: flex; justify-content: space-between; align-items: center;
@@ -53,7 +55,7 @@
             height: 50px;
         }
         .chat-header-left { display: flex; align-items: center; }
-        .chat-header-avatar { width: 35px; height: 35px; border-radius: 40%; object-fit: cover; margin-right: 10px; background-color: #ddd; }
+        .chat-header-avatar { width: 35px; height: 35px; border-radius: 40%; object-fit: cover; margin-right: 10px; background-color: #ddd; cursor: pointer; }
         .chat-header-info h2 { font-size: 1rem; margin: 0; font-weight: 600; }
 
         .controls { display: flex; gap: 0.5rem; align-items: center; }
@@ -70,12 +72,8 @@
         .hint-block { background-color: rgba(138, 43, 226, 0.08); padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; border: 1px solid rgba(138, 43, 226, 0.2); }
         .hint-text-main { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
 
-        .ai-prompt-area { display: flex; gap: 5px; margin-bottom: 8px; }
-        .ai-prompt-area input { margin-bottom: 0; flex-grow: 1; font-size: 0.85rem; border: 1px solid var(--accent); }
-        .avatar-controls { display: flex; gap: 8px; justify-content: space-between; margin-bottom: 1rem; }
-        .btn-cta-small { padding: 10px 0; font-size: 0.9rem; border-radius: 8px; border: 1px solid var(--divider); cursor: pointer; background: var(--bg-secondary); color: var(--text-primary); font-weight: 600; transition: 0.2s; flex: 1; text-align: center; white-space: nowrap; }
-        .btn-ai-style { background-color: var(--btn-ai); color: white; border: none; }
-        .btn-ai-style:hover { opacity: 0.9; }
+        .avatar-controls { display: flex; justify-content: center; margin-bottom: 1rem; }
+        .btn-cta-small { padding: 10px 0; font-size: 0.9rem; border-radius: 8px; border: 1px solid var(--divider); cursor: pointer; background: var(--bg-secondary); color: var(--text-primary); font-weight: 600; transition: 0.2s; width: 100%; text-align: center; }
 
         .button { display: block; width: 100%; padding: 1rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; margin-bottom: 0.5rem; }
         .button-primary { background-color: var(--accent); color: #fff; }
@@ -90,7 +88,7 @@
         .modal-content h2 { margin-top: 0; font-size: 1.1rem; margin-bottom: 10px; }
         .modal-content ol { padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0; }
         
-        /* 메시지 스타일 */
+        /* 메시지 */
         #message-area { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; background-color: var(--bg-secondary); }
         .whatsapp-mode #message-area { background-color: transparent; }
         
@@ -121,15 +119,23 @@
         #attach-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary); padding: 0 5px; }
 
         #persona-avatar-preview { width: 90px; height: 90px; border-radius: 40%; object-fit: cover; border: 3px solid var(--divider); margin: 0 auto 0.8rem; display: block; transition: 0.3s; }
-        #persona-avatar-preview.loading { opacity: 0.3; }
         
         .image-preview-container { display: none; padding: 8px; background: var(--bg-secondary); border-top: 1px solid var(--divider); text-align: center; }
         .image-preview-container img { max-height: 80px; border-radius: 6px; }
         .image-preview-container.active { display: block; }
+        
+        #loading-screen { justify-content: center; align-items: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--divider); border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <div id="app">
+        <div id="loading-screen" class="screen active">
+            <div class="spinner"></div>
+            <h2 style="color: var(--accent); font-weight: 700;">Connect</h2>
+        </div>
+
         <div id="login-screen" class="screen">
             <header class="header" style="background: transparent; border: none; justify-content: flex-end;">
                  <div class="controls"><button id="lang-toggle-login" class="control-btn">🇺🇸</button><button id="theme-toggle-login" class="control-btn">🌙</button></div>
@@ -153,7 +159,6 @@
                         <input type="text" id="ai-prompt-input" placeholder="예: 청순한 긴머리 여자, 실사 느낌">
                     </div>
                     <div class="avatar-controls">
-                        <button id="ai-create-btn" class="btn-cta-small btn-ai-style" data-i18n="aiCreateBtn">AI 생성</button>
                         <button id="upload-trigger-btn" class="btn-cta-small" data-i18n="uploadPhotoBtn">사진 업로드</button>
                     </div>
                     <input type="file" id="persona-avatar-upload" accept="image/*" style="display: none;">
@@ -209,7 +214,7 @@
         <div id="chat-screen" class="screen">
             <header class="chat-header">
                 <div class="chat-header-left">
-                    <img id="chat-header-avatar" class="chat-header-avatar">
+                    <img id="chat-header-avatar" class="chat-header-avatar" title="사진 변경">
                     <div class="chat-header-info"><h2 id="chat-room-name-header"></h2></div>
                 </div>
                 <div class="controls">
@@ -262,15 +267,15 @@
                 elements: {},
                 state: { 
                     apiKey: null, language: 'ko', isDarkMode: false, persona: {}, chat: null, 
-                    chatHistory: [], // Gemini용
-                    visualHistory: [], // 화면 표시용 (말풍선 분리)
+                    chatHistory: [], // Gemini Context (token limited)
+                    visualHistory: [], // UI Display (full separated bubbles)
                     db: null, auth: null, user: null, pendingImage: null,
                     debounceTimer: null, messageQueue: []
                 },
                 i18n: {
                     en: {
                         appTitle: 'Connect', appDescription: 'Familiar conversations,\nYour own AI Partner.', loginBtn: 'Start with Google',
-                        setupTitle: 'Profile', profileImageLabel: 'Profile Photo', aiCreateBtn: 'AI Gen', uploadPhotoBtn: 'Upload',
+                        setupTitle: 'Profile', profileImageLabel: 'Profile Photo', aiCreateBtn: 'AI Gen', uploadPhotoBtn: 'Upload Photo',
                         personaNameLabel: 'Partner Name', personaNamePlaceholder: 'Name (e.g., Jisu)',
                         specificHint: '* More details make it better! Describe each field.', chatRoomNameLabel: 'Chat Title', chatRoomNamePlaceholder: 'e.g., My Love',
                         personaStyleLabel: 'Style', styleExample: '(e.g., Cute)', 
@@ -301,7 +306,7 @@
                         appId: "1:732324287861:web:15d894068755c627842f3c"
                     };
                     
-                    const ids = ['app', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle-login', 'theme-toggle-login', 'lang-toggle-setup', 'theme-toggle-setup', 'theme-toggle-chat', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'persona-avatar-upload', 'persona-avatar-preview', 'upload-trigger-btn', 'ai-create-btn', 'ai-prompt-input', 'start-chat-btn', 'reset-btn-setup', 'reset-btn-chat', 'chat-header-avatar', 'chat-room-name-header', 'logout-btn', 'login-btn', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'attach-btn', 'chat-image-input', 'image-preview-area', 'image-preview-img', 'cancel-image-btn', 'timezone-select', 'speed-select'];
+                    const ids = ['app', 'loading-screen', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle-login', 'theme-toggle-login', 'lang-toggle-setup', 'theme-toggle-setup', 'theme-toggle-chat', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'persona-avatar-upload', 'persona-avatar-preview', 'upload-trigger-btn', 'start-chat-btn', 'reset-btn-setup', 'reset-btn-chat', 'chat-header-avatar', 'chat-room-name-header', 'logout-btn', 'login-btn', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'attach-btn', 'chat-image-input', 'image-preview-area', 'image-preview-img', 'cancel-image-btn', 'timezone-select', 'speed-select'];
                     ids.forEach(id => { this.elements[id] = document.getElementById(id); });
                     if(this.elements['persona-avatar-preview']) this.elements['persona-avatar-preview'].src = DEFAULT_AVATAR;
 
@@ -325,7 +330,6 @@
                     el['login-btn'].addEventListener('click', () => signInWithPopup(this.state.auth, new GoogleAuthProvider()));
                     el['logout-btn'].addEventListener('click', () => signOut(this.state.auth));
                     el['upload-trigger-btn'].addEventListener('click', () => el['persona-avatar-upload'].click());
-                    el['ai-create-btn'].addEventListener('click', () => this.generateAIAvatar());
                     el['persona-avatar-upload'].addEventListener('change', e => this.processImage(e.target.files[0], 'avatar'));
                     el['start-chat-btn'].addEventListener('click', () => this.saveAndStartChat());
                     el['reset-btn-setup'].addEventListener('click', () => this.resetUserData());
@@ -336,6 +340,14 @@
                     el['chat-image-input'].addEventListener('change', e => this.handleChatImage(e));
                     el['cancel-image-btn'].addEventListener('click', () => this.cancelImage());
                     
+                    if(el['chat-header-avatar']) {
+                        el['chat-header-avatar'].addEventListener('click', () => {
+                            if(confirm("프로필 사진을 변경하시겠습니까?")) {
+                                el['persona-avatar-upload'].click();
+                            }
+                        });
+                    }
+
                     el['get-api-key-btn'].addEventListener('click', (e) => { e.preventDefault(); el['api-key-modal'].style.display = 'flex'; });
                     el['close-modal-btn'].addEventListener('click', () => el['api-key-modal'].style.display = 'none');
                     
@@ -369,7 +381,11 @@
                     if (type === 'avatar') {
                         const base64 = await this.compressImage(file, 300, 0.7);
                         this.elements['persona-avatar-preview'].src = base64;
+                        this.elements['chat-header-avatar'].src = base64; 
                         this.state.persona.avatarUrl = base64;
+                        if(this.state.user) {
+                            await setDoc(doc(this.state.db, 'users', this.state.user.uid), { persona: this.state.persona }, { merge: true });
+                        }
                     }
                 },
                 handleChatImage: async function(e) {
@@ -384,17 +400,6 @@
                     this.state.pendingImage = null;
                     this.elements['image-preview-area'].classList.remove('active');
                 },
-                generateAIAvatar: function() {
-                    const imgEl = this.elements['persona-avatar-preview'];
-                    imgEl.classList.add('loading');
-                    const userInput = this.elements['ai-prompt-input'].value.trim();
-                    const prompt = userInput ? encodeURIComponent(userInput) : "beautiful woman, k-pop style";
-                    const url = `https://image.pollinations.ai/prompt/${prompt}?width=300&height=300&model=flux&nologo=true&seed=${Math.floor(Math.random()*1000)}`;
-                    imgEl.onload = () => imgEl.classList.remove('loading');
-                    imgEl.onerror = () => { imgEl.classList.remove('loading'); };
-                    imgEl.src = url;
-                    this.state.persona.avatarUrl = url; 
-                },
                 resetUserData: async function() {
                     if (confirm("초기화하시겠습니까?")) {
                         await setDoc(doc(this.state.db, 'users', this.state.user.uid), { apiKey: '', chatHistory: [], visualHistory: [], persona: {} });
@@ -402,16 +407,20 @@
                     }
                 },
                 
-                // [화면 전환 로직 핵심 수정]
+                // [화면 전환] display: none !important 처리로 겹침 방지
                 showScreen: function(id) {
-                    // 모든 화면 숨김 (classList 사용)
-                    ['login-screen', 'setup-screen', 'chat-screen'].forEach(s => {
+                    ['loading-screen', 'login-screen', 'setup-screen', 'chat-screen'].forEach(s => {
                         const el = this.elements[s];
                         if (el) {
                             if (s === id) el.classList.add('active');
                             else el.classList.remove('active');
                         }
                     });
+                },
+                
+                scrollToBottom: function() {
+                    const area = this.elements['message-area'];
+                    if(area) area.scrollTop = area.scrollHeight;
                 },
                 
                 loadDataFromFirestore: async function() {
@@ -472,7 +481,7 @@
                     c.id = 'temp-typing-bubble';
                     c.innerHTML = '<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
                     this.elements['message-area'].appendChild(c);
-                    this.elements['message-area'].scrollTop = this.elements['message-area'].scrollHeight;
+                    this.scrollToBottom(); 
                 },
                 removeTypingBubble: function() {
                     const bubble = document.getElementById('temp-typing-bubble');
@@ -510,19 +519,21 @@
                     }, 1500);
                 },
 
+                // [강력 필터링 3.0]
                 cleanAiThought: function(text) {
                     if (!text) return "";
                     let clean = text.replace(/THOUGHT[\s\S]*?(\n\n|$)/gi, "");
                     clean = clean.replace(/^(I should|The user|Analysis|Step|Note|I need).*/gim, "");
                     clean = clean.replace(/\[.*?\]/g, "");
+                    if (!/[가-힣]/.test(clean) && /[a-zA-Z]/.test(clean)) return ""; 
                     return clean.trim();
                 },
 
-                processAiResponse: async function() {
+                processAiResponse: async function(retryCount = 0) {
                     if (!this.state.chat || !this.state.messageQueue.length) return;
 
                     const combinedParts = this.state.messageQueue.flat();
-                    this.state.messageQueue = []; 
+                    if (retryCount === 0) this.state.messageQueue = []; 
 
                     const speed = this.state.persona.speed || 'normal';
                     let baseDelay = 1000;
@@ -546,15 +557,15 @@
                         const now = Date.now();
 
                         const userTxt = combinedParts.map(p => p.text || "[사진]").join(" ");
+                        
+                        // [최적화] API History에는 합쳐서, Visual History에는 나눠서
                         this.state.chatHistory.push({ role: 'user', parts: [{ text: userTxt }], timestamp: now });
                         this.state.chatHistory.push({ role: 'model', parts: [{ text: fullResponse }], timestamp: now });
 
                         for (const fragment of splitResponses) {
                             if (!fragment) continue;
                             this.displayMessage('model', fragment);
-                            
                             this.state.visualHistory.push({ role: 'model', text: fragment, timestamp: now });
-                            
                             const typingDelay = Math.min(fragment.length * 50 + 500, 3000);
                             await this.wait(typingDelay); 
                         }
@@ -566,9 +577,13 @@
 
                     } catch(e) {
                         this.removeTypingBubble();
-                        if (e.message.includes("429")) {
-                            await this.wait(3000);
-                            this.processAiResponse();
+                        // 429 오류 재시도 (최적화)
+                        if (e.message.includes("429") && retryCount < 3) {
+                            const delay = Math.pow(2, retryCount + 1) * 1000; 
+                            console.log(`429 Error. Retrying in ${delay}ms...`);
+                            await this.wait(delay);
+                            this.state.messageQueue.push(combinedParts); 
+                            this.processAiResponse(retryCount + 1);
                         }
                     }
                 },
@@ -588,6 +603,7 @@
                             if (!text && m.parts) m.parts.forEach(p => { if(p.text) text = p.text; });
                             this.displayMessage(m.role, text, m.img || null); 
                         });
+                        setTimeout(() => this.scrollToBottom(), 100);
                         
                         const lastMsg = historyToRender[historyToRender.length - 1];
                         if (lastMsg && lastMsg.role === 'user' && lastMsg.timestamp) {
@@ -598,13 +614,13 @@
                                 try {
                                     const res = await this.state.chat.sendMessage("System: User hasn't replied for a few hours. Send a short, natural 'Are you busy?' or 'What are you doing?' message.");
                                     let safeText = this.cleanAiThought(res.response.text());
-                                    this.displayMessage('model', safeText);
-                                    
-                                    const now = Date.now();
-                                    this.state.visualHistory.push({ role: 'model', text: safeText, timestamp: now });
-                                    this.state.chatHistory.push({ role: 'model', parts: [{text: safeText}], timestamp: now });
-                                    
-                                    await setDoc(doc(this.state.db, 'users', this.state.user.uid), { chatHistory: this.state.chatHistory, visualHistory: this.state.visualHistory }, { merge: true });
+                                    if(safeText) {
+                                        this.displayMessage('model', safeText);
+                                        const now = Date.now();
+                                        this.state.visualHistory.push({ role: 'model', text: safeText, timestamp: now });
+                                        this.state.chatHistory.push({ role: 'model', parts: [{text: safeText}], timestamp: now });
+                                        await setDoc(doc(this.state.db, 'users', this.state.user.uid), { chatHistory: this.state.chatHistory, visualHistory: this.state.visualHistory }, { merge: true });
+                                    }
                                 } catch(e) {}
                             }
                         }
@@ -613,6 +629,9 @@
                     try {
                         const genAI = new GoogleGenerativeAI(this.state.apiKey);
                         const now = new Date().toLocaleString('en-US', { timeZone: this.state.persona.timezone || 'Asia/Seoul' });
+                        
+                        // [최적화] 대화 맥락 30개로 제한하여 429 방지
+                        const apiHistory = this.state.chatHistory.slice(-30).map(h => ({ role: h.role, parts: h.parts }));
                         
                         const prompt = `
                         You are '${this.state.persona.name}'.
@@ -623,10 +642,10 @@
                         1. Speak like a real Korean on KakaoTalk.
                         2. NEVER output internal thoughts (THOUGHT, I should...). ONLY the message.
                         3. Split long messages. Use text + emoji mix naturally.
+                        4. EMOJI RULE: Use VERY FEW emojis. Max 0-1 per message.
                         `;
                         
                         const model = genAI.getGenerativeModel({ model: MODEL_NAME, systemInstruction: prompt });
-                        const apiHistory = this.state.chatHistory.map(h => ({ role: h.role, parts: h.parts }));
                         this.state.chat = model.startChat({ history: apiHistory });
                         
                         this.showScreen('chat-screen');
@@ -672,7 +691,7 @@
                     
                     row.appendChild(bubble);
                     this.elements['message-area'].appendChild(row);
-                    this.elements['message-area'].scrollTop = this.elements['message-area'].scrollHeight;
+                    this.scrollToBottom(); 
                 },
                 loadSettings: function() {
                     this.state.language = localStorage.getItem('lang') || 'ko';
