@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Connect</title>
     <style>
         :root {
@@ -22,19 +22,27 @@
             --header-bg: #008069; --header-text: #fff;
         }
 
-        body { margin: 0; font-family: var(--font-sans); background-color: var(--bg-secondary); color: var(--text-primary); transition: 0.2s; overflow: hidden; }
-        #app { display: flex; flex-direction: column; height: 100vh; max-width: 600px; margin: 0 auto; background-color: var(--bg-primary); box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative;}
+        body { margin: 0; font-family: var(--font-sans); background-color: var(--bg-secondary); color: var(--text-primary); transition: 0.2s; overflow: hidden; height: 100vh; }
+        #app { display: flex; flex-direction: column; height: 100%; max-width: 600px; margin: 0 auto; background-color: var(--bg-primary); box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative;}
         .whatsapp-mode #app { background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay; background-color: #efe7dd; }
 
+        /* 화면 레이아웃 (Flexbox 구조로 변경하여 짤림 방지) */
         .screen { display: none; flex-direction: column; height: 100%; }
+        #login-screen { display: flex; } 
         .screen.active { display: flex; }
-        .screen-content { flex-grow: 1; overflow-y: auto; padding: 1rem; padding-bottom: 90px; }
         
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid var(--divider); background: var(--bg-primary); z-index: 10; }
-        .header h1 { font-size: 1.3rem; margin: 0; font-weight: 700; }
+        .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid var(--divider); background: var(--bg-primary); z-index: 10; }
+        .header h1 { font-size: 1.2rem; margin: 0; font-weight: 700; }
         .controls { display: flex; gap: 0.5rem; }
         .control-btn { background: none; border: 1px solid var(--divider); border-radius: 8px; padding: 6px; cursor: pointer; color: var(--text-secondary); min-width: 36px; font-size: 0.9rem;}
+
+        /* 콘텐츠 영역 (스크롤 가능) */
+        .screen-content { flex: 1; overflow-y: auto; padding: 1rem; -webkit-overflow-scrolling: touch; }
         
+        /* 푸터 (고정 아님, 필요시 스크롤 영역 밖 하단 배치) */
+        .setup-footer { flex-shrink: 0; padding: 1rem; border-top: 1px solid var(--divider); background-color: var(--bg-primary); }
+        .chat-footer { flex-shrink: 0; display: flex; align-items: center; padding: 0.5rem; border-top: 1px solid var(--divider); background-color: var(--bg-primary); gap: 0.5rem; }
+
         .card { background-color: var(--bg-primary); padding: 1rem; border-radius: 12px; margin-bottom: 0.8rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .card label { font-weight: 600; color: var(--text-secondary); margin-bottom: 0.3rem; display: block; font-size: 0.85rem; }
         .card label .example { font-weight: 400; opacity: 0.7; margin-left: 0.3rem; font-size: 0.75rem;}
@@ -54,24 +62,18 @@
         .button { display: block; width: 100%; padding: 1rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; }
         .button-primary { background-color: var(--accent); color: #fff; }
         .button-danger { background-color: var(--danger); color: white; margin-top: 0.5rem; }
-        
         .help-link-btn { background: none; border: none; color: var(--text-secondary); text-decoration: underline; font-size: 0.85rem; cursor: pointer; display: block; margin-top: 5px; text-align: left; padding: 0;}
 
-        /* 모달: 기본적으로 숨김 */
+        /* 모달 스타일 개선 (스크롤 포함) */
         .modal { position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; }
-        .modal-content { background-color: var(--modal-bg); padding: 20px; border-radius: 12px; width: 85%; max-width: 350px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; max-height: 80vh; }
-        .modal-body { overflow-y: auto; flex-grow: 1; margin-bottom: 10px; }
-        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
-        .modal-content h2 { margin-top: 0; font-size: 1.1rem; }
+        .modal-content { background-color: var(--modal-bg); padding: 20px; border-radius: 12px; width: 90%; max-width: 350px; max-height: 80vh; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        /* 모달 내부 스크롤 영역 */
+        .modal-body { overflow-y: auto; flex: 1; padding-right: 5px; margin-bottom: 15px; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--text-secondary); z-index: 10; }
+        .modal-content h2 { margin-top: 0; font-size: 1.1rem; margin-bottom: 10px; }
         .modal-content ol { padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0; }
         
-        .chat-header { display: flex; align-items: center; padding: 0.7rem 1rem; background-color: var(--bg-primary); border-bottom: 1px solid var(--divider); flex-shrink: 0; }
-        .whatsapp-mode .chat-header { background-color: var(--header-bg); color: #fff; border: none; }
-        .chat-header-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 0.8rem; background-color: #ddd; }
-        .chat-header-info { flex-grow: 1; }
-        .chat-header-info h2 { font-size: 1.05rem; margin: 0; font-weight: 600; }
-        
-        #message-area { flex-grow: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; background-color: var(--bg-secondary); }
+        #message-area { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; background-color: var(--bg-secondary); }
         .whatsapp-mode #message-area { background-color: transparent; }
         .message-bubble { padding: 0.6rem 0.9rem; border-radius: 1rem; line-height: 1.4; max-width: 75%; box-shadow: 0 1px 1px rgba(0,0,0,0.05); word-wrap: break-word; font-size: 0.95rem; }
         .message-bubble img { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
@@ -80,28 +82,26 @@
         .message-container.user .message-bubble { background-color: var(--user-bubble); color: var(--user-text); border-bottom-right-radius: 0; }
         .message-container.partner .message-bubble { background-color: var(--partner-bubble); color: var(--partner-text); border-bottom-left-radius: 0; }
         
-        .typing-bubble { background-color: var(--partner-bubble); padding: 0.8rem 1rem; border-radius: 1rem; border-bottom-left-radius: 0; width: fit-content; display: none; }
+        .typing-bubble { background-color: var(--partner-bubble); padding: 0.8rem 1rem; border-radius: 1rem; border-bottom-left-radius: 0; width: fit-content; display: none; margin-bottom: 0.5rem;}
         .typing-dots { display: flex; gap: 4px; }
         .typing-dot { width: 6px; height: 6px; background-color: #b0b0b0; border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; }
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-        .chat-footer { display: flex; align-items: center; padding: 0.5rem; border-top: 1px solid var(--divider); background-color: var(--bg-primary); gap: 0.5rem; }
         #message-input { flex-grow: 1; border: none; background-color: var(--bg-secondary); border-radius: 20px; padding: 0.7rem 1rem; font-size: 0.95rem; }
         .whatsapp-mode #message-input { background-color: #fff; }
-        #send-btn { background-color: var(--accent); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: 0.2s;}
+        #send-btn { background-color: var(--accent); color: #fff; border: none; border-radius: 50%; width: 38px; height: 38px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: 0.2s;}
         #send-btn:active { transform: scale(0.9); }
         #attach-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary); padding: 0 5px; }
 
         #persona-avatar-preview { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--divider); margin: 0 auto 0.8rem; display: block; transition: 0.3s; }
-        #persona-avatar-preview.loading { opacity: 0.5; filter: blur(2px); }
+        #persona-avatar-preview.loading { opacity: 0.3; }
         
         .image-preview-container { display: none; padding: 8px; background: var(--bg-secondary); border-top: 1px solid var(--divider); text-align: center; }
         .image-preview-container img { max-height: 80px; border-radius: 6px; }
         .image-preview-container.active { display: block; }
 
-        /* 로딩 스피너 (초기 로딩용) */
         #loading-screen { justify-content: center; align-items: center; }
         .spinner { width: 40px; height: 40px; border: 4px solid var(--divider); border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -115,7 +115,7 @@
         </div>
 
         <div id="login-screen" class="screen">
-            <div class="screen-content" style="display: flex; flex-direction: column; justify-content: center; text-align: center; padding-bottom: 0;">
+            <div class="screen-content" style="display: flex; flex-direction: column; justify-content: center; text-align: center;">
                 <h1 data-i18n="appTitle" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Connect</h1>
                 <p data-i18n="appDescription" style="margin-bottom: 3rem; font-size: 1.1rem; color: #666;">Familiar conversations.<br>Your own AI Partner.</p>
                 <button id="login-btn" class="button button-primary" data-i18n="loginBtn" style="padding: 1.2rem;">구글 계정으로 시작하기</button>
@@ -183,7 +183,7 @@
                     <button id="get-api-key-btn" class="help-link-btn" data-i18n="getApiKeyBtn">API 키 발급 방법</button>
                 </div>
             </div>
-            <footer style="padding: 1rem; border-top: 1px solid var(--divider); background-color: var(--bg-primary); position: absolute; bottom: 0; width: 100%; box-sizing: border-box;">
+            <footer class="setup-footer">
                 <button id="start-chat-btn" class="button button-primary" data-i18n="startChatBtn"></button>
                 <button id="reset-btn-setup" class="button button-danger" data-i18n="resetBtn"></button>
             </footer>
@@ -285,7 +285,6 @@
 
                     this.loadSettings(); this.addEventListeners(); this.updateUI();
                     
-                    // 인증 상태 감지 (자동 라우팅)
                     onAuthStateChanged(this.state.auth, (user) => {
                         if (user) { 
                             this.state.user = user; 
@@ -306,12 +305,13 @@
                     el['reset-btn-setup'].addEventListener('click', () => this.resetUserData());
                     el['reset-btn-chat'].addEventListener('click', () => this.resetUserData());
                     el['send-btn'].addEventListener('click', () => this.handleUserMessage());
-                    el['message-input'].addEventListener('keydown', e => { if (e.key === 'Enter') this.handleUserMessage(); });
+                    el['message-input'].addEventListener('keydown', e => { 
+                        if (e.key === 'Enter') this.handleUserMessage(); 
+                    });
                     el['attach-btn'].addEventListener('click', () => el['chat-image-input'].click());
                     el['chat-image-input'].addEventListener('change', e => this.handleChatImage(e));
                     el['cancel-image-btn'].addEventListener('click', () => this.cancelImage());
                     
-                    // 모달 수동 제어
                     el['get-api-key-btn'].addEventListener('click', (e) => {
                         e.preventDefault();
                         el['api-key-modal'].style.display = 'flex';
@@ -370,9 +370,8 @@
                     
                     imgEl.onload = () => imgEl.classList.remove('loading');
                     imgEl.onerror = () => { 
+                        // 에러 시 로딩 끄고 조용히 기존 이미지 유지 (alert 금지)
                         imgEl.classList.remove('loading'); 
-                        imgEl.src = DEFAULT_AVATAR; 
-                        alert("이미지 생성 실패. 다시 시도해주세요."); 
                     };
                     imgEl.src = url;
                     this.state.persona.avatarUrl = url; 
@@ -383,7 +382,6 @@
                         location.reload();
                     }
                 },
-                // [화면 전환 로직 수정] 로딩 화면 처리
                 showScreen: function(id) {
                     ['loading-screen', 'login-screen', 'setup-screen', 'chat-screen'].forEach(s => {
                         const el = this.elements[s];
@@ -395,14 +393,10 @@
                         const snap = await getDoc(doc(this.state.db, 'users', this.state.user.uid));
                         if (snap.exists()) {
                             const data = snap.data();
-                            
-                            // API 키와 이름이 있으면 채팅방으로 직행
                             if (data.apiKey && data.persona && data.persona.name) {
                                 this.state.apiKey = data.apiKey;
                                 this.state.persona = data.persona;
                                 this.state.chatHistory = data.chatHistory || [];
-                                
-                                // UI 동기화
                                 ['api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input'].forEach(k => {
                                     const field = k.replace('-input', '').split('-').pop();
                                     this.elements[k].value = this.state.persona[field] || '';
@@ -410,16 +404,14 @@
                                 if (this.elements['timezone-select']) this.elements['timezone-select'].value = this.state.persona.timezone || 'Asia/Seoul';
                                 if (this.elements['speed-select']) this.elements['speed-select'].value = this.state.persona.speed || 'normal';
                                 this.elements['persona-avatar-preview'].src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
-                                
-                                this.startChat(true); // 채팅방으로 직행
+                                this.startChat(true); 
                             } else {
-                                this.showScreen('setup-screen'); // 정보 부족 시 설정 화면
+                                this.showScreen('setup-screen'); 
                             }
                         } else {
-                            this.showScreen('setup-screen'); // 신규 유저
+                            this.showScreen('setup-screen'); 
                         }
                     } catch (error) {
-                        console.error("Data Load Error:", error);
                         this.showScreen('setup-screen');
                     }
                     this.updateUI();
@@ -514,7 +506,7 @@
                         for (const fragment of splitResponses) {
                             if (!fragment) continue;
                             this.displayMessage('model', fragment);
-                            // [최종 딜레이] 0.7초 ~ 1.5초
+                            // [최종 딜레이] 0.7초 ~ 1.5초 사이 랜덤
                             await this.wait(Math.random() * 800 + 700); 
                         }
 
