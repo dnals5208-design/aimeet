@@ -3,19 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>내 AI 친구</title>
+    <title>Connect</title>
     <style>
         :root {
             --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             --border-radius-md: 8px;
             --border-radius-lg: 16px;
             --transition: 0.2s ease-out;
-            --bg-primary: #fff; --bg-secondary: #f0f2f5; --text-primary: #1c1e21; --text-secondary: #65676b; --divider: #e4e6eb; --partner-bubble: #e4e6eb; --partner-text: #1c1e21; --modal-bg: #fff;
+
+            /* Light Theme with Light Purple Accent */
+            --bg-primary: #fff;
+            --bg-secondary: #f0f2f5;
+            --text-primary: #1c1e21;
+            --text-secondary: #65676b;
+            --divider: #e4e6eb;
+            --accent: #8A2BE2; /* Bluish Purple */
+            --user-bubble: #8A2BE2; /* User bubble color matches accent */
+            --partner-bubble: #e4e6eb;
+            --user-text: #fff;
+            --partner-text: #1c1e21;
+            --modal-bg: #fff;
         }
-        .dark-mode { --bg-primary: #1c1c1e; --bg-secondary: #000; --text-primary: #f5f5f7; --text-secondary: #8d8d93; --divider: #3a3a3c; --partner-bubble: #2c2c2e; --partner-text: #f5f5f7; --modal-bg: #2c2c2e; }
-        .theme-yellow { --accent: #f9e000; --user-bubble: #f9e000; --user-text: #1c1e21; }
-        .theme-green { --accent: #008069; --user-bubble: #d9fdd3; --user-text: #1c1e21; }
-        .dark-mode.theme-green { --accent: #00a884; --user-bubble: #005c4b; --user-text: #f5f5f7; }
+        .dark-mode {
+            --bg-primary: #1c1c1e;
+            --bg-secondary: #000;
+            --text-primary: #f5f5f7;
+            --text-secondary: #8d8d93;
+            --divider: #3a3a3c;
+            --accent: #BB86FC; /* Lighter purple for dark mode accent */
+            --user-bubble: #BB86FC;
+            --partner-bubble: #2c2c2e;
+            --user-text: #1c1c1e; /* Darker text for light bubble on dark background */
+            --partner-text: #f5f5f7;
+            --modal-bg: #2c2c2e;
+        }
+
         body { margin: 0; font-family: var(--font-sans); background-color: var(--bg-secondary); color: var(--text-primary); transition: background-color var(--transition), color var(--transition); }
         #app { display: flex; flex-direction: column; height: 100vh; max-width: 600px; margin: 0 auto; background-color: var(--bg-primary); box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); }
         .screen { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding: 1.5rem; box-sizing: border-box; }
@@ -33,16 +55,15 @@
         .theme-selection { display: flex; gap: 1rem; }
         .theme-option { padding: 0.5rem 1rem; border: 2px solid var(--divider); border-radius: var(--border-radius-md); cursor: pointer; transition: border-color var(--transition); display: flex; align-items: center; gap: 0.5rem;}
         .theme-option .preview { width: 20px; height: 20px; border-radius: 50%; }
-        .preview.yellow { background-color: #f9e000; }
-        .preview.green { background-color: #008069; }
-        .theme-option.active { border-color: var(--accent); }
+        .preview.purple { background-color: #8A2BE2; }
+        .theme-option.active { border-color: var(--accent); } /* Active state for single theme should highlight if user needs to click to confirm */
         .button { display: block; width: 100%; padding: 1rem; border: none; border-radius: var(--border-radius-md); font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; transition: background-color var(--transition), transform var(--transition); }
         .button-primary { background-color: var(--accent); color: #fff; }
-        .dark-mode .theme-yellow .button-primary { color: #000; }
+        .dark-mode .button-primary { color: var(--text-primary); } /* Adjust text color for dark mode accent */
         .button-secondary { background-color: transparent; border: 1px solid var(--divider); color: var(--text-primary); margin-top: 0.5rem;}
         .button:hover { transform: translateY(-2px); }
         .modal { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; }
-        .modal-content { background-color: var(--modal-bg); padding: 24px; border-radius: var(--border-radius-lg); width: 90%; max-width: 500px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .modal-content { background-color: var(--bg-primary); padding: 24px; border-radius: var(--border-radius-lg); width: 90%; max-width: 500px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
         .modal-content h2 { margin-top: 0; }
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; color: var(--text-secondary); cursor: pointer; }
         .chat-header { display: flex; align-items: center; padding: 0.75rem 1rem; background-color: var(--bg-primary); border-bottom: 1px solid var(--divider); flex-shrink: 0; }
@@ -59,7 +80,7 @@
         .chat-footer { display: flex; align-items: center; padding: 0.75rem; border-top: 1px solid var(--divider); background-color: var(--bg-primary); }
         #message-input { flex-grow: 1; border: none; background-color: var(--bg-secondary); border-radius: 1.5rem; padding: 0.75rem 1.25rem; font-size: 1rem; color: var(--text-primary); margin-right: 0.75rem; }
         #send-btn { background-color: var(--accent); color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 1.2rem; line-height: 36px; text-align: center; cursor: pointer; transition: transform var(--transition); flex-shrink: 0; }
-        .dark-mode .theme-yellow #send-btn { color: #000; }
+        .dark-mode .theme-yellow #send-btn { color: var(--text-primary); }
         #send-btn:hover { transform: scale(1.1); }
     </style>
 </head>
@@ -92,13 +113,7 @@
                         <input type="text" id="persona-relation" data-i18n-placeholder="personaRelationPlaceholder">
                         <textarea id="persona-style" data-i18n-placeholder="personaStylePlaceholder"></textarea>
                     </div>
-                    <div class="card">
-                        <label data-i18n="accentThemeLabel"></label>
-                        <div class="theme-selection">
-                            <div class="theme-option" data-theme="theme-green"><div class="preview green"></div><span data-i18n="greenChat"></span></div>
-                            <div class="theme-option" data-theme="theme-yellow"><div class="preview yellow"></div><span data-i18n="yellowChat"></span></div>
-                        </div>
-                    </div>
+                    <!-- Simplified: removed accent theme selection -->
                     <button id="start-chat-btn" class="button button-primary" data-i18n="startChatBtn"></button>
                 </div>
             </main>
@@ -131,6 +146,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://sdk.gemini.ai/v1.5/gemini-web.js"></script>
+    <!-- Firebase v8 Compatibility SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -140,22 +156,22 @@
             elements: {},
             state: {
                 user: null, apiKey: null, language: 'ko', isDarkMode: false,
-                accentTheme: 'theme-green', persona: { name: '', relation: '', style: '' },
+                persona: { name: '', relation: '', style: '' },
                 chat: null, chatHistory: [], db: null, auth: null,
             },
             i18n: {
                 en: {
-                    appTitle: 'My AI Pal',
+                    appTitle: 'Connect',
                     loginPrompt: 'To continue the conversation, please log in.', loginBtn: 'Login with Google', setupTitle: 'Settings',
                     apiKeyLabel: 'API Key', apiKeyPlaceholder: 'Enter your Google AI API Key', getApiKeyBtn: 'How to get an API Key',
                     personaLabel: 'AI Persona', personaNamePlaceholder: 'Name (e.g., Jisu)', personaRelationPlaceholder: 'Relationship (e.g., Friend)',
                     personaStylePlaceholder: 'Personality & Tone (e.g., Cheerful, uses emojis 💕)', accentThemeLabel: 'Accent Color', greenChat: 'Green', yellowChat: 'Yellow',
                     startChatBtn: 'Save & Start Chat', messagePlaceholder: 'Type a message...', modalTitle: 'Get Your Free Google AI API Key',
-                    modalStep1: 'Log in to Google AI Studio.', modalStep2: 'Click "Create API Key".', modalStep3: 'Copy the key and paste it in the app.',
+                    modalStep1: 'Log in to Google AI Studio.', modalStep2: 'Click "Create API Key".', modalStep3: 'Copy the key and paste it here.',
                     modalLink: 'Go to Google AI Studio',
                 },
                 ko: {
-                    appTitle: '내 AI 친구',
+                    appTitle: '커넥트',
                     loginPrompt: '대화를 이어가고 싶다면 로그인하세요.', loginBtn: 'Google 계정으로 로그인', setupTitle: '채팅 설정',
                     apiKeyLabel: 'API 키', apiKeyPlaceholder: 'Google AI API 키를 입력하세요', getApiKeyBtn: 'API 키 발급 방법',
                     personaLabel: 'AI 페르소나', personaNamePlaceholder: '이름 (예: 지수)', personaRelationPlaceholder: '관계 (예: 친구)',
@@ -176,16 +192,18 @@
                     measurementId: "G-CD2L6WFJN9"
                 };
 
-                const ids = ['app', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key', 'persona-name', 'persona-relation', 'persona-style', 'start-chat-btn', 'back-btn', 'logout-btn', 'chat-persona-name', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'login-btn', 'logged-out-view', 'logged-in-view'];
+                const ids = ['app', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key', 'persona-name', 'persona-relation', 'persona-style', 'start-chat-btn', 'back-btn', 'logout-btn', 'chat-persona-name', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'login-btn', 'logged-out-view', 'logged-in-view'];
                 ids.forEach(id => this.elements[id] = document.getElementById(id));
-                this.elements.themeOptions = document.querySelectorAll('.theme-option');
+                // Remove themeOptions as it's no longer used
+                // this.elements.themeOptions = document.querySelectorAll('.theme-option');
 
                 try {
                     firebase.initializeApp(firebaseConfig);
                     this.state.auth = firebase.auth();
                     this.state.db = firebase.firestore();
                 } catch (e) {
-                    alert("Could not initialize Firebase."); return;
+                    alert("Could not initialize Firebase. Please check your console for details.");
+                    return;
                 }
                 
                 this.loadLocalSettings();
@@ -195,7 +213,7 @@
                 
                 this.state.auth.onAuthStateChanged(user => {
                     if (user) { this.state.user = user; this.loadDataFromFirestore(); } 
-                    else { this.state.user = null; this.showView('logged-out-view'); this.showScreen('setup-screen');}
+                    else { this.state.user = null; this.showView('logged-out-view'); }
                 });
             },
             addEventListeners() {
@@ -211,14 +229,16 @@
                 this.elements['message-input'].addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); }
                 });
-                this.elements.themeOptions.forEach(option => {
-                    option.addEventListener('click', () => this.setAccentTheme(option.dataset.theme));
-                });
+                // Theme options removed
+                // this.elements.themeOptions.forEach(option => {
+                //     option.addEventListener('click', () => this.setAccentTheme(option.dataset.theme));
+                // });
             },
             showScreen(screenId) {
                 ['setup-screen', 'chat-screen'].forEach(id => {
                     this.elements[id].classList.toggle('active', id === screenId);
                 });
+                this.updateUI(); // Ensure UI is updated on screen change
             },
             showView(viewId) {
                 ['logged-out-view', 'logged-in-view'].forEach(id => {
@@ -230,18 +250,18 @@
                 const doc = await userRef.get();
                 if (doc.exists) {
                     const data = doc.data();
-                    Object.assign(this.state, data);
+                    Object.assign(this.state, data); // Load all data
                     this.elements['api-key'].value = this.state.apiKey || '';
                     this.elements['persona-name'].value = this.state.persona.name || '';
                     this.elements['persona-relation'].value = this.state.persona.relation || '';
                     this.elements['persona-style'].value = this.state.persona.style || '';
                     this.startChat(true);
                 } else {
-                    this.showView('logged-in-view');
+                    this.showView('logged-in-view'); // Show settings for new user
                     this.showScreen('setup-screen');
                 }
-                this.applyTheme();
-                this.updateUI();
+                this.applyTheme(); // Re-apply theme after loading
+                this.updateUI(); // Re-update UI after loading
             },
             async saveDataToFirestore() {
                 if (!this.state.user) return;
@@ -251,19 +271,18 @@
             },
             loginWithGoogle() {
                 const provider = new firebase.auth.GoogleAuthProvider();
-                this.state.auth.signInWithPopup(provider).catch(error => alert(`Login Failed: ${error.message}`));
-            },
-            toggleLanguage() { this.state.language = this.state.language === 'ko' ? 'en' : 'ko'; this.updateUI(); if(this.state.user) this.saveDataToFirestore(); },
-            toggleTheme() { this.state.isDarkMode = !this.state.isDarkMode; this.applyTheme(); if(this.state.user) this.saveDataToFirestore(); },
-            setAccentTheme(theme) { this.state.accentTheme = theme; this.applyTheme(); if(this.state.user) this.saveDataToFirestore(); },
-            applyTheme() {
-                document.body.className = '';
-                if(this.state.isDarkMode) document.body.classList.add('dark-mode');
-                document.body.classList.add(this.state.accentTheme);
-                this.elements['theme-toggle'].textContent = this.state.isDarkMode ? '☀️' : '🌙';
-                this.elements.themeOptions.forEach(opt => {
-                    opt.classList.toggle('active', opt.dataset.theme === this.state.accentTheme);
+                this.state.auth.signInWithPopup(provider).catch(error => {
+                    alert(`Login Failed: ${error.message}`);
                 });
+            },
+            toggleLanguage() { this.state.language = this.state.language === 'ko' ? 'en' : 'ko'; this.updateUI(); if(this.state.user) this.saveDataToFirestore(); else this.saveLocalSettings(); },
+            toggleTheme() { this.state.isDarkMode = !this.state.isDarkMode; this.applyTheme(); if(this.state.user) this.saveDataToFirestore(); else this.saveLocalSettings(); },
+            // setAccentTheme function removed as it's no longer needed
+            applyTheme() {
+                document.body.className = ''; // Clear existing theme classes
+                if(this.state.isDarkMode) document.body.classList.add('dark-mode');
+                // The accent theme is now hardcoded to a purple scheme via :root vars
+                this.elements['theme-toggle'].textContent = this.state.isDarkMode ? '☀️' : '🌙';
             },
             updateUI() {
                 const translations = this.i18n[this.state.language];
@@ -276,13 +295,13 @@
                     else el.textContent = translations[key];
                 });
             },
-            loadLocalSettings() {
+            loadLocalSettings() { // For pre-login language/theme persistence
                 const lang = localStorage.getItem('aiChatLanguage');
                 const darkMode = localStorage.getItem('aiChatDarkMode');
                 if(lang) this.state.language = lang;
                 if(darkMode) this.state.isDarkMode = (darkMode === 'true');
             },
-            saveLocalSettings() {
+            saveLocalSettings() { // For pre-login language/theme persistence
                 localStorage.setItem('aiChatLanguage', this.state.language);
                 localStorage.setItem('aiChatDarkMode', this.state.isDarkMode);
             },
@@ -303,7 +322,7 @@
 
                 if (typeof window.GoogleGenerativeAI === 'undefined') {
                     alert('AI 서비스에 연결할 수 없습니다. 인터넷 연결을 확인하고 새로고침 해주세요.');
-                    return;
+                    this.showScreen('setup-screen'); return;
                 }
                 
                 this.elements['chat-persona-name'].textContent = this.state.persona.name;
@@ -313,10 +332,10 @@
                 try {
                     const genAI = new window.GoogleGenerativeAI(this.state.apiKey);
                     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                    const history = (this.state.chatHistory || []).map(m => ({role: m.role, parts: [{text: m.text}]}));
                     const systemPrompt = `You are ${this.state.persona.name}, my ${this.state.persona.relation}. Your personality and tone of voice is: ${this.state.persona.style}. Please reply in ${this.state.language === 'ko' ? 'Korean' : 'English'}. Keep replies natural and conversational.`;
                     this.state.chat = model.startChat({
-                        history: (this.state.chatHistory || []).map(m => ({role: m.role, parts: [{text: m.text}]})),
-                        generationConfig: { maxOutputTokens: 200 }, systemInstruction: systemPrompt,
+                        history: history, generationConfig: { maxOutputTokens: 200 }, systemInstruction: systemPrompt,
                     });
                     this.showScreen('chat-screen');
                 } catch (error) {
