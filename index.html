@@ -360,7 +360,7 @@
                     if (this.state.user) this.saveDataToFirestore();
                 }
                 ,
-                loadLocalSettings() {
+                loadSettings() {
                     const settings = JSON.parse(localStorage.getItem('aiChatSettings'));
                     if (settings) Object.assign(this.state, settings);
                     if (this.elements['api-key-input']) this.elements['api-key-input'].value = this.state.apiKey || '';
