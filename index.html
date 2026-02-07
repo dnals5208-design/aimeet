@@ -265,10 +265,18 @@
                     });
                     if (this.elements['persona-avatar-upload']) this.elements['persona-avatar-upload'].addEventListener('change', (e) => this.previewAvatar(e));
                     if (this.elements['logout-btn']) this.elements['logout-btn'].addEventListener('click', () => signOut(this.state.auth));
-                    // Check if login button exists on current screen (welcome)
                     // The HTML currently does not have a login-btn, so this will be safely skipped.
                     // If login is re-introduced, the button must be added to the HTML.
-                    if (this.elements['login-btn']) this.elements['login-btn'].addEventListener('click', () => this.loginWithGoogle());
+                    // The original "go-to-persona-btn" is now effectively the login trigger.
+                    if (this.elements['go-to-persona-btn'] && !this.state.user) { // If not logged in, this becomes a login/setup trigger
+                        this.elements['go-to-persona-btn'].addEventListener('click', () => {
+                            if (!this.state.user) { // Only log in if no user
+                                this.loginWithGoogle();
+                            } else {
+                                this.showScreen('persona-screen');
+                            }
+                        });
+                    }
                 }
                 ,
                 showScreen(screenId) {
