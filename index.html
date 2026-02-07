@@ -82,15 +82,15 @@
                     <input type="text" id="chat-room-name-input" data-i18n-placeholder="chatRoomNamePlaceholder">
                 </div>
                 <div class="card">
-                    <label>Style <span class="example" data-i18n="styleExample"></span></label>
+                    <label><span data-i18n="personaStyleLabel"></span> <span class="example" data-i18n="styleExample"></span></label>
                     <input type="text" id="persona-style-input" >
-                    <label>Contact Frequency <span class="example" data-i18n="frequencyExample"></span></label>
+                    <label><span data-i18n="personaFrequencyLabel"></span> <span class="example" data-i18n="frequencyExample"></span></label>
                     <input type="text" id="persona-frequency-input">
-                    <label>Conversation Tendency <span class="example" data-i18n="tendencyExample"></span></label>
+                    <label><span data-i18n="personaTendencyLabel"></span> <span class="example" data-i18n="tendencyExample"></span></label>
                     <input type="text" id="persona-tendency-input">
-                    <label>Pet Name <span class="example" data-i18n="nicknameExample"></span></label>
+                    <label><span data-i18n="personaNicknameLabel"></span> <span class="example" data-i18n="nicknameExample"></span></label>
                     <input type="text" id="persona-nickname-input">
-                    <label>Age <span class="example" data-i18n="ageExample"></span></label>
+                    <label><span data-i18n="personaAgeLabel"></span> <span class="example" data-i18n="ageExample"></span></label>
                     <input type="text" id="persona-age-input">
                 </div>
                 <div class="card">
@@ -138,7 +138,8 @@
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-storage.js";
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
         
-        document.addEventListener('DOMContentLoaded', () => {
+        // This IIFE pattern isolates the code to prevent global scope conflicts.
+        (function() {
             const app = {
                 elements: {},
                 state: {
@@ -149,24 +150,26 @@
                 i18n: {
                     en: {
                         appTitle: 'Connect', appDescription: 'Familiar conversations, a new kind of empathy. Your own AI partner.', loginBtn: 'Login with Google',
-                        setupTitle: 'Settings', personaLabel: 'AI Persona Profile', personaNamePlaceholder: 'AI Name', chatRoomNamePlaceholder: 'Chat Room Name',
+                        setupTitle: 'Settings', personaLabel: 'AI Persona Profile', 
                         styleExample: '(e.g., Cute)', frequencyExample: '(e.g., Often)', tendencyExample: '(e.g., Affectionate)', nicknameExample: '(e.g., Honey)', ageExample: '(e.g., 24)',
                         apiKeyLabel: 'API Key', apiKeyPlaceholder: 'Enter your Google AI API Key', getApiKeyBtn: 'How to get an API Key',
                         startChatBtn: 'Start Chatting', messagePlaceholder: 'Type a message...', modalTitle: 'Get Your Free Google AI API Key',
                         modalStep1: 'Log in to Google AI Studio.', modalStep2: 'Click "Create API Key".', modalStep3: 'Copy the key and paste it here.',
                         modalLink: 'Go to Google AI Studio', logoutBtn: 'Logout',
+                        personaNameLabel: 'AI Name', personaNamePlaceholder: 'AI Name (e.g., Jisu)', chatRoomNamePlaceholder: 'Chat Room Name (e.g., My Sweetheart)',
                     },
                     ko: {
                         appTitle: '커넥트', appDescription: '익숙한 대화, 색다른 공감. 나만의 AI 파트너.', loginBtn: 'Google 계정으로 로그인',
-                        setupTitle: '채팅 설정', personaLabel: 'AI 프로필 설정', personaNamePlaceholder: 'AI 이름 (예: 지수)', chatRoomNamePlaceholder: '채팅방 이름 (예: 내 사랑)',
+                        setupTitle: '채팅 설정', personaLabel: 'AI 프로필 설정', 
                         styleExample: '(예: 귀여운 성향)', frequencyExample: '(예: 드문드문)', tendencyExample: '(예: 애교많은)', nicknameExample: '(예: 자기야)', ageExample: '(예: 연하)',
                         apiKeyLabel: 'API 키', apiKeyPlaceholder: 'Google AI API 키를 입력하세요', getApiKeyBtn: 'API 키 발급 방법',
                         startChatBtn: '채팅 시작하기', messagePlaceholder: '메시지를 입력하세요...', modalTitle: '무료 Google AI API 키 발급받기',
                         modalStep1: 'Google AI Studio에 로그인하세요.', modalStep2: '"Create API Key"를 클릭하세요.', modalStep3: '생성된 키를 복사하여 앱에 붙여넣으세요.',
                         modalLink: 'Google AI Studio로 이동', logoutBtn: '로그아웃',
+                        personaNameLabel: 'AI 이름', personaNamePlaceholder: 'AI 이름 (예: 지수)', chatRoomNamePlaceholder: '채팅방 이름 (예: 내 사랑)',
                     }
                 },
-                init() {
+                init: async function() { // Made init async if it's going to call async functions directly
                     const firebaseConfig = {
                         apiKey: "AIzaSyDmO1wpZQJEiPEjNoq7xtFcq33akIzoGY8",
                         authDomain: "aimeet-c235c.firebaseapp.com",
@@ -190,11 +193,12 @@
                         alert("Firebase 초기화 실패. 콘솔을 확인해주세요."); return;
                     }
                     
-                    this.loadLocalSettings();
+                    this.loadSettings(); // This is the function in question
                     this.applyTheme();
                     this.addEventListeners();
+                    this.updateUI(); 
                     
-                    onAuthStateChanged(this.state.auth, user => {
+                    onAuthStateChanged(this.state.auth, (user) => {
                         if (user) {
                             this.state.user = user;
                             this.loadDataFromFirestore();
@@ -204,7 +208,7 @@
                         }
                     });
                 },
-                addEventListeners() {
+                addEventListeners: function() { // Use regular function for consistency, this needs to be bound or use elements from closure
                     const elements = this.elements;
                     if (elements['login-btn']) elements['login-btn'].addEventListener('click', () => this.loginWithGoogle());
                     if (elements['logout-btn']) elements['logout-btn'].addEventListener('click', () => signOut(this.state.auth));
@@ -215,20 +219,23 @@
                     if (elements['message-input']) elements['message-input'].addEventListener('keydown', e => { if (e.key === 'Enter') this.sendMessage(); });
                     if (elements['persona-avatar-preview']) elements['persona-avatar-preview'].addEventListener('click', () => elements['persona-avatar-upload'].click());
                     if (elements['persona-avatar-upload']) elements['persona-avatar-upload'].addEventListener('change', e => this.previewAvatar(e));
+                    if (elements['lang-toggle']) elements['lang-toggle'].addEventListener('click', () => this.toggleLanguage());
+                    if (elements['theme-toggle']) elements['theme-toggle'].addEventListener('click', () => this.toggleTheme());
                 },
-                showScreen(screenId) {
+                showScreen: function(screenId) {
                     ['login-screen', 'setup-screen', 'chat-screen'].forEach(id => {
                         if(this.elements[id]) this.elements[id].classList.toggle('active', id === screenId);
                     });
                     this.updateUI();
                 },
-                async loadDataFromFirestore() {
+                loadDataFromFirestore: async function() {
+                    if (!this.state.user) return;
                     const userRef = doc(this.state.db, 'users', this.state.user.uid);
                     try {
                         const docSnap = await getDoc(userRef);
                         if (docSnap.exists() && docSnap.data().apiKey) {
                             const data = docSnap.data();
-                            this.state = { ...this.state, ...data };
+                            this.state = { ...this.state, ...data }; // Merge loaded state
                             this.startChat(true);
                         } else {
                             this.showScreen('setup-screen');
@@ -241,26 +248,29 @@
                     this.applyTheme();
                     this.updateUI();
                 },
-                async saveDataToFirestore() {
+                saveDataToFirestore: async function() {
                     if (!this.state.user) return;
                     const userRef = doc(this.state.db, 'users', this.state.user.uid);
-                    const { user, db, auth, storage, chat, ...dataToSave } = this.state;
+                    const { user, db, auth, storage, chat, ...dataToSave } = this.state; // Exclude non-serializable state
                     await setDoc(userRef, dataToSave, { merge: true });
                 },
-                loginWithGoogle() {
+                loginWithGoogle: function() {
                     signInWithPopup(this.state.auth, new GoogleAuthProvider()).catch(error => {
                         alert(`로그인 실패: ${error.message}`);
                         console.error("Firebase 로그인 오류:", error);
                     });
                 },
-                loadLocalSettings() {
+                loadSettings: function() { // THIS IS THE DEFINITION
                     this.state.language = localStorage.getItem('aiChatLanguage') || 'ko';
                     this.state.isDarkMode = localStorage.getItem('aiChatDarkMode') === 'true';
+
+                    if (this.elements['lang-toggle']) this.elements['lang-toggle'].textContent = this.state.language === 'ko' ? '🇺🇸' : '🇰🇷';
+                    if (this.elements['theme-toggle']) this.elements['theme-toggle'].textContent = this.state.isDarkMode ? '☀️' : '🌙';
                 },
-                applyTheme() {
+                applyTheme: function() {
                     document.body.className = this.state.isDarkMode ? 'dark-mode' : '';
                 },
-                updateUI() {
+                updateUI: function() {
                     const translations = this.i18n[this.state.language];
                     document.querySelectorAll('[data-i18n]').forEach(el => {
                         const key = el.dataset.i18n;
@@ -269,13 +279,14 @@
                             else el.textContent = translations[key];
                         }
                     });
+                    if (this.elements['persona-avatar-preview']) this.elements['persona-avatar-preview'].title = translations.personaAvatarUploadTitle || 'Click to upload image';
                 },
-                previewAvatar(event) {
+                previewAvatar: function(event) {
                     const file = event.target.files[0];
                     if (!file) return;
                     this.elements['persona-avatar-preview'].src = URL.createObjectURL(file);
                 },
-                async saveAndStartChat() {
+                saveAndStartChat: async function() {
                     this.state.apiKey = this.elements['api-key-input'].value.trim();
                     this.state.persona.name = this.elements['persona-name-input'].value.trim();
                     this.state.persona.chatRoomName = this.elements['chat-room-name-input'].value.trim();
@@ -303,14 +314,14 @@
                     await this.saveDataToFirestore();
                     this.startChat(false);
                 },
-                async startChat(isAutoStart) {
+                startChat: async function(isAutoStart) {
                     if (typeof GoogleGenerativeAI === 'undefined') {
                         alert('AI 서비스에 연결할 수 없습니다. 인터넷 연결을 확인하고 새로고침 해주세요.');
                         this.showScreen('setup-screen'); return;
                     }
 
                     this.elements['chat-room-name-header'].textContent = this.state.persona.chatRoomName || this.state.persona.name;
-                    this.elements['chat-header-avatar'].src = this.state.persona.avatarUrl || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+                    this.elements['chat-header-avatar'].src = this.state.persona.avatarUrl || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="';
                     this.elements['message-area'].innerHTML = '';
                     
                     try {
@@ -330,7 +341,7 @@
                         this.showScreen('setup-screen');
                     }
                 },
-                async sendInitialGreeting() {
+                sendInitialGreeting: async function() {
                     const greetingPrompt = "You are starting a conversation with me for the first time. Greet me warmly based on your persona.";
                     this.displayMessage('model', '...'); // Show typing indicator
                     try {
@@ -345,7 +356,7 @@
                         this.displayMessage('model', `(인사 메시지를 생성하는 데 실패했습니다: ${error.message})`);
                     }
                 },
-                async sendMessage() {
+                sendMessage: async function() {
                     const messageText = this.elements['message-input'].value.trim();
                     if (!messageText || !this.state.chat) return;
                     
@@ -365,7 +376,7 @@
                         this.displayMessage('model', `죄송합니다, 오류가 발생했습니다: ${error.message}`);
                     }
                 },
-                displayMessage(role, text) {
+                displayMessage: function(role, text) {
                     const container = document.createElement('div');
                     container.className = `message-container ${role}`;
                     const bubble = document.createElement('div');
@@ -376,8 +387,10 @@
                     this.elements['message-area'].scrollTop = this.elements['message-area'].scrollHeight;
                 }
             };
-            app.init();
-        });
+            document.addEventListener('DOMContentLoaded', () => {
+                app.init();
+            });
+        })(); // IIFE wrapper
     </script>
 </body>
 </html>
