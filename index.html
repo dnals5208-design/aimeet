@@ -7,15 +7,14 @@
     <style>
         :root {
             --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            --border-radius-md: 8px; --border-radius-lg: 16px; --transition: 0.2s ease-out;
             --bg-primary: #fff; --bg-secondary: #f0f2f5; --text-primary: #1c1e21; --text-secondary: #65676b; --divider: #e4e6eb;
             --accent: #8A2BE2; --user-bubble: #8A2BE2; --partner-bubble: #e4e6eb; --user-text: #fff; --partner-text: #1c1e21; --modal-bg: #fff;
-            --danger: #ff4d4f; --btn-ai: #4285F4;
+            --danger: #ff4d4f; --btn-ai: #6c5ce7;
         }
         .dark-mode { 
             --bg-primary: #1c1c1e; --bg-secondary: #000; --text-primary: #f5f5f7; --text-secondary: #8d8d93; --divider: #3a3a3c; 
             --accent: #BB86FC; --user-bubble: #BB86FC; --partner-bubble: #2c2c2e; --user-text: #1c1c1e; --partner-text: #f5f5f7; 
-            --modal-bg: #2c2c2e; --danger: #ff7875; --btn-ai: #5e9eff;
+            --modal-bg: #2c2c2e; --danger: #ff7875; --btn-ai: #a29bfe;
         }
         .whatsapp-mode {
             --bg-primary: #efe7dd; --bg-secondary: #ece5dd; --text-primary: #111b21; --text-secondary: #667781; --divider: #d1d7db;
@@ -23,62 +22,72 @@
             --header-bg: #008069; --header-text: #fff;
         }
 
-        body { margin: 0; font-family: var(--font-sans); background-color: var(--bg-secondary); color: var(--text-primary); transition: background-color var(--transition), color var(--transition); }
-        #app { display: flex; flex-direction: column; height: 100vh; max-width: 600px; margin: 0 auto; background-color: var(--bg-primary); box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); position: relative;}
+        body { margin: 0; font-family: var(--font-sans); background-color: var(--bg-secondary); color: var(--text-primary); transition: 0.2s; overflow: hidden; }
+        #app { display: flex; flex-direction: column; height: 100vh; max-width: 600px; margin: 0 auto; background-color: var(--bg-primary); box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative;}
         .whatsapp-mode #app { background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay; background-color: #efe7dd; }
 
         .screen { display: none; flex-direction: column; height: 100%; }
         .screen.active { display: flex; }
-        .screen-content { flex-grow: 1; overflow-y: auto; padding: 1.5rem; }
+        .screen-content { flex-grow: 1; overflow-y: auto; padding: 1rem; padding-bottom: 2rem; }
         
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 1.5rem 0; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid var(--divider); }
+        .header h1 { font-size: 1.3rem; margin: 0; font-weight: 700; }
         .controls { display: flex; gap: 0.5rem; }
-        .control-btn { background: none; border: 1px solid var(--divider); border-radius: var(--border-radius-md); padding: 8px; cursor: pointer; color: var(--text-secondary); min-width: 40px; font-size: 0.9rem;}
+        .control-btn { background: none; border: 1px solid var(--divider); border-radius: 8px; padding: 6px; cursor: pointer; color: var(--text-secondary); min-width: 36px; font-size: 0.9rem;}
         
-        .card { background-color: var(--bg-primary); padding: 1.5rem; border-radius: var(--border-radius-lg); margin-bottom: 1.5rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .card label { font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5rem; display: block; font-size: 0.95rem; }
-        .card label .example { font-weight: 400; color: var(--text-secondary); opacity: 0.8; margin-left: 0.5rem; font-size: 0.85rem;}
-        .card input { width: 100%; padding: 0.75rem 1rem; border-radius: var(--border-radius-md); border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 1rem; box-sizing: border-box; margin-bottom: 0.5rem;}
+        /* 설정 카드 스타일 (한눈에 보기 좋게) */
+        .card { background-color: var(--bg-primary); padding: 1rem; border-radius: 12px; margin-bottom: 0.8rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .card label { font-weight: 600; color: var(--text-secondary); margin-bottom: 0.3rem; display: block; font-size: 0.85rem; }
+        .card label .example { font-weight: 400; opacity: 0.7; margin-left: 0.3rem; font-size: 0.75rem;}
+        .card input { width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 0.9rem; box-sizing: border-box; margin-bottom: 0.6rem;}
         
-        .avatar-controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 1.5rem; }
-        .btn-cta-small { padding: 8px 16px; font-size: 0.9rem; border-radius: 20px; border: 1px solid var(--divider); cursor: pointer; background: var(--bg-secondary); color: var(--text-primary); font-weight: 600; transition: 0.2s; }
-        .btn-ai-style { border-color: var(--btn-ai); color: var(--btn-ai); }
-        .btn-ai-style:hover { background: var(--btn-ai); color: #fff; }
+        /* AI 생성 컨트롤 */
+        .ai-prompt-area { display: flex; gap: 5px; margin-bottom: 8px; }
+        .ai-prompt-area input { margin-bottom: 0; flex-grow: 1; font-size: 0.85rem; border: 1px solid var(--accent); }
+        .avatar-controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 1rem; }
+        .btn-cta-small { padding: 8px 0; font-size: 0.85rem; border-radius: 8px; border: 1px solid var(--divider); cursor: pointer; background: var(--bg-secondary); color: var(--text-primary); font-weight: 600; transition: 0.2s; flex: 1; text-align: center;}
+        .btn-ai-style { background-color: var(--btn-ai); color: white; border: none; }
+        .btn-ai-style:hover { opacity: 0.9; }
 
-        .hint-text { font-size: 0.8rem; color: var(--accent); margin-bottom: 1rem; display: block; }
-        .button { display: block; width: 100%; padding: 1rem; border: none; border-radius: var(--border-radius-md); font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; }
+        .hint-text { font-size: 0.75rem; color: var(--accent); margin-top: -0.4rem; margin-bottom: 0.6rem; display: block; }
+        
+        .button { display: block; width: 100%; padding: 0.9rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; }
         .button-primary { background-color: var(--accent); color: #fff; }
-        .button-danger { background-color: var(--danger); color: white; margin-top: 1rem; }
-        .button-secondary { background-color: transparent; border: 1px solid var(--divider); color: var(--text-primary); margin-top: 0.5rem; }
+        .button-danger { background-color: var(--danger); color: white; margin-top: 0.5rem; }
+        .button-secondary { background-color: transparent; border: 1px solid var(--divider); color: var(--text-primary); margin-top: 0.3rem; padding: 0.6rem; font-size: 0.85rem;}
 
-        .modal { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; }
-        .modal-content { background-color: var(--modal-bg); padding: 24px; border-radius: var(--border-radius-lg); width: 85%; max-width: 450px; position: relative; max-height: 85vh; overflow-y: auto; }
-        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; cursor: pointer; }
+        /* 모달 (잘리지 않게 수정) */
+        .modal { position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; }
+        .modal-content { background-color: var(--modal-bg); padding: 20px; border-radius: 12px; width: 85%; max-width: 400px; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--text-secondary); }
+        .modal-content h2 { margin-top: 0; font-size: 1.1rem; }
+        .modal-content ol { padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
         
-        .chat-header { display: flex; align-items: center; padding: 0.75rem 1rem; background-color: var(--bg-primary); border-bottom: 1px solid var(--divider); flex-shrink: 0; }
+        .chat-header { display: flex; align-items: center; padding: 0.7rem 1rem; background-color: var(--bg-primary); border-bottom: 1px solid var(--divider); flex-shrink: 0; }
         .whatsapp-mode .chat-header { background-color: var(--header-bg); color: #fff; border: none; }
-        .chat-header-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 0.75rem; background-color: #ddd; }
+        .chat-header-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; margin-right: 0.6rem; background-color: #ddd; }
         .chat-header-info { flex-grow: 1; }
-        .chat-header-info h2 { font-size: 1.1rem; margin: 0; }
+        .chat-header-info h2 { font-size: 1rem; margin: 0; font-weight: 600; }
         
         #message-area { flex-grow: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; background-color: var(--bg-secondary); }
         .whatsapp-mode #message-area { background-color: transparent; }
-        .message-bubble { padding: 0.6rem 1rem; border-radius: 1.25rem; line-height: 1.5; max-width: 75%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); word-wrap: break-word;}
+        .message-bubble { padding: 0.6rem 0.9rem; border-radius: 1rem; line-height: 1.4; max-width: 75%; box-shadow: 0 1px 1px rgba(0,0,0,0.05); word-wrap: break-word; font-size: 0.95rem; }
         .message-bubble img { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
         .message-container.user { justify-content: flex-end; display: flex; }
         .message-container.partner { justify-content: flex-start; display: flex; }
-        .message-container.user .message-bubble { background-color: var(--user-bubble); color: var(--user-text); }
-        .message-container.partner .message-bubble { background-color: var(--partner-bubble); color: var(--partner-text); }
+        .message-container.user .message-bubble { background-color: var(--user-bubble); color: var(--user-text); border-bottom-right-radius: 0; }
+        .message-container.partner .message-bubble { background-color: var(--partner-bubble); color: var(--partner-text); border-bottom-left-radius: 0; }
         
-        .chat-footer { display: flex; align-items: center; padding: 0.5rem 1rem; border-top: 1px solid var(--divider); background-color: var(--bg-primary); gap: 0.5rem; }
-        #message-input { flex-grow: 1; border: none; background-color: var(--bg-secondary); border-radius: 1.5rem; padding: 0.75rem 1.25rem; font-size: 1rem; }
-        #send-btn { background-color: var(--accent); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; flex-shrink: 0; }
-        #attach-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary); padding: 0 5px; }
+        .chat-footer { display: flex; align-items: center; padding: 0.5rem; border-top: 1px solid var(--divider); background-color: var(--bg-primary); gap: 0.5rem; }
+        #message-input { flex-grow: 1; border: none; background-color: var(--bg-secondary); border-radius: 20px; padding: 0.6rem 1rem; font-size: 0.95rem; }
+        .whatsapp-mode #message-input { background-color: #fff; }
+        #send-btn { background-color: var(--accent); color: #fff; border: none; border-radius: 50%; width: 38px; height: 38px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        #attach-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-secondary); padding: 0 5px; }
 
-        #persona-avatar-preview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--divider); margin: 0 auto 0.5rem; display: block; }
+        #persona-avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--divider); margin: 0 auto 0.5rem; display: block; }
         
-        .image-preview-container { display: none; padding: 10px; background: var(--bg-secondary); border-top: 1px solid var(--divider); text-align: center; }
-        .image-preview-container img { max-height: 100px; border-radius: 8px; }
+        .image-preview-container { display: none; padding: 8px; background: var(--bg-secondary); border-top: 1px solid var(--divider); text-align: center; }
+        .image-preview-container img { max-height: 80px; border-radius: 6px; }
         .image-preview-container.active { display: block; }
     </style>
 </head>
@@ -87,7 +96,7 @@
         <div id="login-screen" class="screen active">
             <div class="screen-content" style="display: flex; flex-direction: column; justify-content: center; text-align: center;">
                 <h1 data-i18n="appTitle"></h1>
-                <p data-i18n="appDescription" style="margin-bottom: 2rem;"></p>
+                <p data-i18n="appDescription" style="margin-bottom: 2rem; opacity: 0.7;"></p>
                 <button id="login-btn" class="button button-primary" data-i18n="loginBtn"></button>
             </div>
         </div>
@@ -100,16 +109,18 @@
                 <div class="card">
                     <label style="text-align: center;" data-i18n="profileImageLabel"></label>
                     <img id="persona-avatar-preview">
+                    
+                    <div class="ai-prompt-area">
+                        <input type="text" id="ai-prompt-input" placeholder="예: 청순한 긴머리 여자, 실사 느낌">
+                    </div>
                     <div class="avatar-controls">
                         <button id="ai-create-btn" class="btn-cta-small btn-ai-style" data-i18n="aiCreateBtn">AI 생성</button>
                         <button id="upload-trigger-btn" class="btn-cta-small" data-i18n="uploadPhotoBtn">사진 업로드</button>
                     </div>
                     <input type="file" id="persona-avatar-upload" accept="image/*" style="display: none;">
                     
-                    <label for="persona-name-input" data-i18n="personaNameLabel"></label>
-                    <input type="text" id="persona-name-input" data-i18n-placeholder="personaNamePlaceholder">
-                    <label for="chat-room-name-input" data-i18n="chatRoomNameLabel"></label>
-                    <input type="text" id="chat-room-name-input" data-i18n-placeholder="chatRoomNamePlaceholder">
+                    <label for="persona-name-input" data-i18n="personaNameLabel"></label><input type="text" id="persona-name-input" data-i18n-placeholder="personaNamePlaceholder">
+                    <label for="chat-room-name-input" data-i18n="chatRoomNameLabel"></label><input type="text" id="chat-room-name-input" data-i18n-placeholder="chatRoomNamePlaceholder">
                 </div>
                 <div class="card">
                     <label for="persona-style-input"><span data-i18n="personaStyleLabel"></span> <span class="example" data-i18n="styleExample"></span></label>
@@ -121,7 +132,6 @@
                     
                     <label for="persona-tendency-input"><span data-i18n="personaTendencyLabel"></span> <span class="example" data-i18n="tendencyExample"></span></label>
                     <input type="text" id="persona-tendency-input">
-                    <span class="hint-text" data-i18n="specificHint"></span>
                     
                     <label for="persona-nickname-input"><span data-i18n="personaNicknameLabel"></span> <span class="example" data-i18n="nicknameExample"></span></label>
                     <input type="text" id="persona-nickname-input">
@@ -130,12 +140,11 @@
                     <input type="text" id="persona-age-input">
                 </div>
                 <div class="card">
-                    <label for="api-key-input" data-i18n="apiKeyLabel"></label>
-                    <input type="password" id="api-key-input" data-i18n-placeholder="apiKeyPlaceholder">
+                    <label for="api-key-input" data-i18n="apiKeyLabel"></label><input type="password" id="api-key-input" data-i18n-placeholder="apiKeyPlaceholder">
                     <button id="get-api-key-btn" class="button button-secondary" data-i18n="getApiKeyBtn"></button>
                 </div>
             </div>
-            <footer style="padding: 1.5rem;">
+            <footer style="padding: 1rem; border-top: 1px solid var(--divider); background-color: var(--bg-primary);">
                 <button id="start-chat-btn" class="button button-primary" data-i18n="startChatBtn"></button>
                 <button id="reset-btn-setup" class="button button-danger" data-i18n="resetBtn"></button>
             </footer>
@@ -164,7 +173,7 @@
             <div class="modal-content">
                 <span id="close-modal-btn" class="close-btn">&times;</span>
                 <h2 data-i18n="modalTitle"></h2>
-                <ol style="padding-left: 1.2rem; line-height: 1.6;"><li data-i18n="modalStep1"></li><li data-i18n="modalStep2"></li><li data-i18n="modalStep3"></li></ol>
+                <ol><li data-i18n="modalStep1"></li><li data-i18n="modalStep2"></li><li data-i18n="modalStep3"></li></ol>
                 <a href="https://aistudio.google.com/app/apikey" target="_blank" class="button button-primary" data-i18n="modalLink"></a>
             </div>
         </div>
@@ -177,7 +186,8 @@
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
         
         const DEFAULT_AVATAR = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
-        const MODEL_NAME = "gemini-2.5-flash"; // 사용자 확인 모델 적용
+        // [확정] 사용자 요청대로 2.5 Flash 적용
+        const MODEL_NAME = "gemini-2.5-flash"; 
 
         (function() {
             const app = {
@@ -185,7 +195,7 @@
                 state: { apiKey: null, language: 'ko', isDarkMode: false, persona: {}, chat: null, chatHistory: [], db: null, auth: null, user: null, pendingImage: null },
                 i18n: {
                     en: {
-                        appTitle: 'Connect', appDescription: 'Familiar conversations.', loginBtn: 'Login with Google',
+                        appTitle: 'Connect', appDescription: 'Your own Partner.', loginBtn: 'Login with Google',
                         setupTitle: 'Profile', profileImageLabel: 'Profile Photo', aiCreateBtn: 'AI Gen', uploadPhotoBtn: 'Upload',
                         personaNameLabel: 'Partner Name', personaNamePlaceholder: 'Name (e.g., Jisu)',
                         specificHint: 'More details make it better!', chatRoomNameLabel: 'Chat Title', chatRoomNamePlaceholder: 'e.g., My Love',
@@ -197,7 +207,7 @@
                         modalTitle: 'Get Free API Key', modalStep1: 'Login to AI Studio.', modalStep2: 'Click "Create API Key".', modalStep3: 'Copy & Paste here.', modalLink: 'Go to AI Studio'
                     },
                     ko: {
-                        appTitle: '커넥트', appDescription: '익숙한 대화. 나만의 파트너.', loginBtn: 'Google 계정으로 로그인',
+                        appTitle: '커넥트', appDescription: '나만의 소중한 파트너.', loginBtn: 'Google 계정으로 로그인',
                         setupTitle: '프로필 설정', profileImageLabel: '상대방 프로필 사진', aiCreateBtn: 'AI 생성', uploadPhotoBtn: '사진 업로드',
                         personaNameLabel: '상대방 이름', personaNamePlaceholder: '이름 (예: 지수)',
                         specificHint: '* 구체적으로 적으면 더 실감나요!', chatRoomNameLabel: '채팅방 이름', chatRoomNamePlaceholder: '예: 내 사랑♡',
@@ -217,7 +227,7 @@
                         appId: "1:732324287861:web:15d894068755c627842f3c"
                     };
                     
-                    const ids = ['app', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'persona-avatar-upload', 'persona-avatar-preview', 'upload-trigger-btn', 'ai-create-btn', 'start-chat-btn', 'reset-btn-setup', 'reset-btn-chat', 'chat-header-avatar', 'chat-room-name-header', 'logout-btn', 'login-btn', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'attach-btn', 'chat-image-input', 'image-preview-area', 'image-preview-img', 'cancel-image-btn'];
+                    const ids = ['app', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'persona-avatar-upload', 'persona-avatar-preview', 'upload-trigger-btn', 'ai-create-btn', 'ai-prompt-input', 'start-chat-btn', 'reset-btn-setup', 'reset-btn-chat', 'chat-header-avatar', 'chat-room-name-header', 'logout-btn', 'login-btn', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'attach-btn', 'chat-image-input', 'image-preview-area', 'image-preview-img', 'cancel-image-btn'];
                     ids.forEach(id => { this.elements[id] = document.getElementById(id); });
                     if(this.elements['persona-avatar-preview']) this.elements['persona-avatar-preview'].src = DEFAULT_AVATAR;
 
@@ -290,12 +300,17 @@
                     this.state.pendingImage = null;
                     this.elements['image-preview-area'].classList.remove('active');
                 },
+                // [기능 개선] Pollinations AI 사용 (고퀄리티/프롬프트 지원)
                 generateAIAvatar: function() {
-                    const seed = (this.elements['persona-name-input'].value || 'avatar') + Date.now();
-                    // Lorelei 스타일 (예쁜 2D 스타일) 적용
-                    const url = `https://api.dicebear.com/9.x/lorelei/svg?seed=${seed}&backgroundColor=ffe4e1,f0f8ff`;
+                    const userInput = this.elements['ai-prompt-input'].value.trim();
+                    const prompt = userInput ? encodeURIComponent(userInput + ", masterpiece, best quality, photorealistic, 8k") : "beautiful woman, korean kpop style, photorealistic, high quality";
+                    // Pollinations AI URL (Flux 모델 사용)
+                    const url = `https://image.pollinations.ai/prompt/${prompt}?width=300&height=300&model=flux&seed=${Math.floor(Math.random() * 1000)}`;
+                    
                     this.elements['persona-avatar-preview'].src = url;
-                    this.state.persona.avatarUrl = url;
+                    // 중요: 이미지를 Base64로 변환해서 저장해야 함 (CORS 때문에 캔버스 오염 가능성 있으나, img tag엔 url 바로 사용)
+                    // 여기서는 URL을 그대로 저장하고, 나중에 로드할 때 쓰는 방식 사용
+                    this.state.persona.avatarUrl = url; 
                 },
                 resetUserData: async function() {
                     if (confirm("정말 초기화하시겠습니까?") && confirm("진짜 삭제됩니다. 계속할까요?")) {
@@ -336,6 +351,72 @@
                     await setDoc(doc(this.state.db, 'users', this.state.user.uid), { apiKey: this.state.apiKey, persona: p }, { merge: true });
                     this.startChat(false);
                 },
+                // 대기 함수 (재시도용)
+                wait: function(ms) { return new Promise(resolve => setTimeout(resolve, ms)); },
+                
+                // [429 에러 자동 재시도 로직 포함]
+                sendMessage: async function() {
+                    const txt = this.elements['message-input'].value.trim();
+                    const imgBase64 = this.state.pendingImage;
+                    if ((!txt && !imgBase64) || !this.state.chat) return;
+                    
+                    this.displayMessage('user', txt, imgBase64);
+                    this.elements['message-input'].value = '';
+                    this.cancelImage();
+
+                    this.displayMessage('model', '...'); // 타이핑 표시
+
+                    const maxRetries = 3;
+                    let attempt = 0;
+                    let success = false;
+
+                    while (attempt < maxRetries && !success) {
+                        try {
+                            let parts = [];
+                            if (imgBase64) {
+                                const base64Data = imgBase64.split(',')[1];
+                                parts.push({ inlineData: { data: base64Data, mimeType: 'image/jpeg' } });
+                            }
+                            if (txt) parts.push({ text: txt });
+
+                            const res = await this.state.chat.sendMessage(parts);
+                            const aiTxt = res.response.text();
+                            
+                            // 로딩 제거
+                            if(this.elements['message-area'].lastChild.textContent === '...') {
+                                this.elements['message-area'].removeChild(this.elements['message-area'].lastChild);
+                            }
+
+                            this.displayMessage('model', aiTxt);
+                            
+                            this.state.chatHistory.push({ role: 'user', parts: parts });
+                            this.state.chatHistory.push({ role: 'model', parts: [{ text: aiTxt }] });
+                            await setDoc(doc(this.state.db, 'users', this.state.user.uid), { chatHistory: this.state.chatHistory }, { merge: true });
+                            success = true;
+
+                        } catch(e) {
+                            attempt++;
+                            if (e.message.includes("429")) {
+                                console.log(`429 감지. 재시도 중... (${attempt}/${maxRetries})`);
+                                // 지수 백오프: 2초, 4초, 8초 대기
+                                await this.wait(2000 * Math.pow(2, attempt - 1));
+                            } else {
+                                if(this.elements['message-area'].lastChild.textContent === '...') {
+                                    this.elements['message-area'].removeChild(this.elements['message-area'].lastChild);
+                                }
+                                this.displayMessage('model', `오류: ${e.message}`);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (!success && attempt >= maxRetries) {
+                        if(this.elements['message-area'].lastChild.textContent === '...') {
+                            this.elements['message-area'].removeChild(this.elements['message-area'].lastChild);
+                        }
+                        this.displayMessage('model', "서버가 혼잡합니다. 잠시 후 다시 시도해주세요.");
+                    }
+                },
                 startChat: async function(isAuto) {
                     this.elements['chat-room-name-header'].textContent = this.state.persona.chatRoomName || this.state.persona.name;
                     this.elements['chat-header-avatar'].src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
@@ -356,48 +437,13 @@
                         this.state.chat = model.startChat({ history: this.state.chatHistory });
                         this.showScreen('chat-screen');
                         if (!isAuto && this.state.chatHistory.length === 0) {
-                            const res = await this.state.chat.sendMessage("안녕!");
-                            this.displayMessage('model', res.response.text());
+                            try {
+                                const res = await this.state.chat.sendMessage("안녕!");
+                                this.displayMessage('model', res.response.text());
+                            } catch(e) {}
                         }
                     } catch(e) {
-                        if (e.message.includes("429")) {
-                            alert("요청이 너무 많아 일시적으로 제한되었습니다. 1분만 기다렸다가 다시 시도해주세요.");
-                        } else {
-                            alert(`오류: ${e.message}`);
-                        }
                         this.showScreen('setup-screen'); 
-                    }
-                },
-                sendMessage: async function() {
-                    const txt = this.elements['message-input'].value.trim();
-                    const imgBase64 = this.state.pendingImage;
-                    if ((!txt && !imgBase64) || !this.state.chat) return;
-                    
-                    this.displayMessage('user', txt, imgBase64);
-                    this.elements['message-input'].value = '';
-                    this.cancelImage();
-
-                    try {
-                        let parts = [];
-                        if (imgBase64) {
-                            const base64Data = imgBase64.split(',')[1];
-                            parts.push({ inlineData: { data: base64Data, mimeType: 'image/jpeg' } });
-                        }
-                        if (txt) parts.push({ text: txt });
-
-                        const res = await this.state.chat.sendMessage(parts);
-                        const aiTxt = res.response.text();
-                        this.displayMessage('model', aiTxt);
-                        
-                        this.state.chatHistory.push({ role: 'user', parts: parts });
-                        this.state.chatHistory.push({ role: 'model', parts: [{ text: aiTxt }] });
-                        await setDoc(doc(this.state.db, 'users', this.state.user.uid), { chatHistory: this.state.chatHistory }, { merge: true });
-                    } catch(e) { 
-                        if (e.message.includes("429")) {
-                            this.displayMessage('model', "⚠️ 요청 과다 (1분 대기 필요)");
-                        } else {
-                            console.error(e);
-                        }
                     }
                 },
                 displayMessage: function(role, txt, imgBase64) {
