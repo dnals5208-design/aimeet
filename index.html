@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Connect</title>
     <style>
-        /* 변수 설정 */
+        /* 기본 변수 (변경 없음) */
         :root {
             --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             --bg-primary: #fff; --bg-secondary: #f0f2f5; --text-primary: #1c1e21; --text-secondary: #65676b; --divider: #e4e6eb;
@@ -34,11 +34,11 @@
         }
         .whatsapp-mode #app { background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay; background-color: #efe7dd; }
 
-        /* 화면 관리 */
+        /* 화면 관리 (로그인창 겹침 방지 유지) */
         .screen { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: var(--bg-primary); }
         .screen.active { display: flex; z-index: 100; }
         
-        /* 헤더 */
+        /* 헤더 스타일 (얇게 유지) */
         .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 1rem; border-bottom: 1px solid var(--divider); background: var(--bg-primary); z-index: 10; min-height: 50px; }
         .header h1 { font-size: 1.1rem; margin: 0; font-weight: 700; }
         
@@ -85,7 +85,7 @@
         .modal-content h2 { margin-top: 0; font-size: 1.1rem; margin-bottom: 10px; }
         .modal-content ol { padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0; }
         
-        /* 메시지 스타일 */
+        /* 메시지 영역 */
         #message-area { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; background-color: var(--bg-secondary); }
         .whatsapp-mode #message-area { background-color: transparent; }
         
@@ -252,8 +252,8 @@
                 elements: {},
                 state: { 
                     apiKey: null, language: 'ko', isDarkMode: false, persona: {}, chat: null, 
-                    chatHistory: [], // Gemini용
-                    visualHistory: [], // 화면 표시용 (분리 저장)
+                    chatHistory: [], // Gemini Context
+                    visualHistory: [], // UI Display (분리 저장)
                     db: null, auth: null, user: null, pendingImage: null,
                     debounceTimer: null, messageQueue: []
                 },
@@ -393,6 +393,11 @@
                         }
                     });
                 },
+                // 스크롤 최하단 이동 함수
+                scrollToBottom: function() {
+                    const area = this.elements['message-area'];
+                    if(area) area.scrollTop = area.scrollHeight;
+                },
                 loadDataFromFirestore: async function() {
                     try {
                         const snap = await getDoc(doc(this.state.db, 'users', this.state.user.uid));
@@ -452,7 +457,7 @@
                     c.id = 'temp-typing-bubble';
                     c.innerHTML = '<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
                     this.elements['message-area'].appendChild(c);
-                    this.elements['message-area'].scrollTop = this.elements['message-area'].scrollHeight;
+                    this.scrollToBottom(); // 타이핑 버블 표시 시 스크롤
                 },
                 removeTypingBubble: function() {
                     const bubble = document.getElementById('temp-typing-bubble');
@@ -490,7 +495,7 @@
                     }, 1500);
                 },
 
-                // [강력 필터링 3.0] 속마음 제거
+                // [강력 필터링] 속마음 제거
                 cleanAiThought: function(text) {
                     if (!text) return "";
                     let clean = text.replace(/THOUGHT[\s\S]*?(\n\n|$)/gi, "");
@@ -500,11 +505,12 @@
                     return clean.trim();
                 },
 
-                processAiResponse: async function() {
+                processAiResponse: async function(retryCount = 0) {
                     if (!this.state.chat || !this.state.messageQueue.length) return;
 
                     const combinedParts = this.state.messageQueue.flat();
-                    this.state.messageQueue = []; 
+                    // 재시도가 아닐 때만 큐 비우기 (재시도 중엔 큐 유지해야 함)
+                    if (retryCount === 0) this.state.messageQueue = []; 
 
                     const speed = this.state.persona.speed || 'normal';
                     let baseDelay = 1000;
@@ -535,15 +541,11 @@
                         for (const fragment of splitResponses) {
                             if (!fragment) continue;
                             this.displayMessage('model', fragment);
-                            
-                            // UI용 분리 내역 저장
                             this.state.visualHistory.push({ role: 'model', text: fragment, timestamp: now });
-                            
                             const typingDelay = Math.min(fragment.length * 50 + 500, 3000);
                             await this.wait(typingDelay); 
                         }
 
-                        // DB 저장 (분리된 내역 포함)
                         await setDoc(doc(this.state.db, 'users', this.state.user.uid), { 
                             chatHistory: this.state.chatHistory,
                             visualHistory: this.state.visualHistory 
@@ -551,9 +553,14 @@
 
                     } catch(e) {
                         this.removeTypingBubble();
-                        if (e.message.includes("429")) {
-                            await this.wait(3000);
-                            this.processAiResponse();
+                        // 429 오류 재시도 (최대 3회)
+                        if (e.message.includes("429") && retryCount < 3) {
+                            const delay = Math.pow(2, retryCount + 1) * 1000; // 2s, 4s, 8s
+                            console.log(`429 Error. Retrying in ${delay}ms...`);
+                            await this.wait(delay);
+                            // 큐 복구 및 재시도
+                            this.state.messageQueue.push(combinedParts); 
+                            this.processAiResponse(retryCount + 1);
                         }
                     }
                 },
@@ -563,7 +570,6 @@
                     this.elements['chat-header-avatar'].src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
                     this.elements['message-area'].innerHTML = '';
                     
-                    // [중요] 분리된 말풍선 내역 로드
                     const historyToRender = (this.state.visualHistory && this.state.visualHistory.length > 0) 
                         ? this.state.visualHistory 
                         : this.state.chatHistory;
@@ -574,8 +580,10 @@
                             if (!text && m.parts) m.parts.forEach(p => { if(p.text) text = p.text; });
                             this.displayMessage(m.role, text, m.img || null); 
                         });
+                        // [중요] 입장 시 스크롤 최하단
+                        setTimeout(() => this.scrollToBottom(), 100);
                         
-                        // 선톡 체크 (2~4시간)
+                        // 선톡 체크
                         const lastMsg = historyToRender[historyToRender.length - 1];
                         if (lastMsg && lastMsg.role === 'user' && lastMsg.timestamp) {
                             const hoursPassed = (Date.now() - lastMsg.timestamp) / (1000 * 60 * 60);
@@ -610,7 +618,7 @@
                         1. Speak like a real Korean on KakaoTalk.
                         2. NEVER output internal thoughts (THOUGHT, I should...). ONLY the message.
                         3. Split long messages. Use text + emoji mix naturally.
-                        4. Emoji usage: Moderate (30%).
+                        4. EMOJI RULE: Use VERY FEW emojis. Max 1-2 per message, usually 0. Only use more if the user's specific persona settings demand it.
                         `;
                         
                         const model = genAI.getGenerativeModel({ model: MODEL_NAME, systemInstruction: prompt });
@@ -660,7 +668,7 @@
                     
                     row.appendChild(bubble);
                     this.elements['message-area'].appendChild(row);
-                    this.elements['message-area'].scrollTop = this.elements['message-area'].scrollHeight;
+                    this.scrollToBottom(); // 메시지 표시 시 스크롤
                 },
                 loadSettings: function() {
                     this.state.language = localStorage.getItem('lang') || 'ko';
