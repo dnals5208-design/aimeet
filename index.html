@@ -16,87 +16,57 @@
             --bg-secondary: #f0f2f5;
             --text-primary: #1c1e21;
             --text-secondary: #65676b;
-            --divider: #ddd;
-            --accent: #007bff;
-            --user-bubble: #007bff;
+            --divider: #e4e6eb;
             --partner-bubble: #e4e6eb;
-            --user-text: #fff;
             --partner-text: #1c1e21;
         }
-
         .dark-mode {
             --bg-primary: #1c1c1e;
             --bg-secondary: #000;
             --text-primary: #f5f5f7;
             --text-secondary: #8d8d93;
             --divider: #3a3a3c;
-            --accent: #0a84ff;
-            --user-bubble: #0a84ff;
             --partner-bubble: #2c2c2e;
-            --user-text: #fff;
             --partner-text: #f5f5f7;
         }
-
-        body {
-            margin: 0;
-            font-family: var(--font-sans);
-            background-color: var(--bg-secondary);
-            color: var(--text-primary);
-            transition: background-color var(--transition), color var(--transition);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+        .theme-yellow {
+            --accent: #f9e000;
+            --user-bubble: #f9e000;
+            --user-text: #1c1e21;
         }
-
-        #app {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: var(--bg-primary);
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        .theme-green {
+            --accent: #008069;
+            --user-bubble: #d9fdd3;
+            --user-text: #1c1e21;
         }
-
-        .screen {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            overflow-y: auto;
-            padding: 1.5rem;
-            box-sizing: border-box;
+        .dark-mode.theme-green {
+            --accent: #00a884;
+            --user-bubble: #005c4b;
+            --user-text: #f5f5f7;
         }
+        body { margin: 0; font-family: var(--font-sans); background-color: var(--bg-secondary); color: var(--text-primary); transition: background-color var(--transition), color var(--transition); }
+        #app { display: flex; flex-direction: column; height: 100vh; max-width: 600px; margin: 0 auto; background-color: var(--bg-primary); box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); }
+        .screen { display: flex; flex-direction: column; height: 100%; overflow-y: auto; padding: 1.5rem; box-sizing: border-box; }
         #chat-screen { padding: 0; }
-
         .setup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         #setup-screen h1 { font-size: 1.8rem; margin: 0; }
         .controls { display: flex; gap: 1rem; }
         .control-btn { background: none; border: 1px solid var(--divider); border-radius: var(--border-radius-md); padding: 8px; cursor: pointer; color: var(--text-secondary); }
-
         .card { background-color: var(--bg-secondary); padding: 1.5rem; border-radius: var(--border-radius-lg); margin-bottom: 1.5rem; }
         .card label { font-weight: 600; color: var(--text-secondary); margin-bottom: 0.75rem; display: block; }
-        .card input, .card textarea {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border-radius: var(--border-radius-md);
-            border: 1px solid var(--divider);
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        .card textarea { resize: vertical; min-height: 50px; }
+        .card input, .card textarea { width: 100%; padding: 0.75rem 1rem; border-radius: var(--border-radius-md); border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 1rem; box-sizing: border-box; }
         .card input:focus, .card textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent); }
-
+        .theme-selection { display: flex; gap: 1rem; }
+        .theme-option { padding: 0.5rem 1rem; border: 2px solid var(--divider); border-radius: var(--border-radius-md); cursor: pointer; transition: border-color var(--transition); }
+        .theme-option.active { border-color: var(--accent); }
         .button { display: block; width: 100%; padding: 1rem; border: none; border-radius: var(--border-radius-md); font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; transition: background-color var(--transition), transform var(--transition); }
         .button-primary { background-color: var(--accent); color: #fff; }
+        .dark-mode .theme-yellow .button-primary { color: #000; }
         .button:hover { transform: translateY(-2px); }
-
-        .chat-header { display: flex; align-items: center; padding: 0.75rem 1rem; background-color: var(--bg-secondary); border-bottom: 1px solid var(--divider); flex-shrink: 0; }
-        .chat-header .avatar { width: 36px; height: 36px; border-radius: 50%; margin-left: 0.5rem; background-color: var(--divider); }
+        .chat-header { display: flex; align-items: center; padding: 0.75rem 1rem; background-color: var(--bg-primary); border-bottom: 1px solid var(--divider); flex-shrink: 0; }
         .chat-header-info { flex-grow: 1; text-align: center; }
         .chat-header-info h2 { font-size: 1.1rem; margin: 0; }
         .chat-header button { background: none; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; padding: 0.5rem; }
-        
         #message-area { flex-grow: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
         .message-bubble { padding: 0.6rem 1rem; border-radius: 1.25rem; line-height: 1.5; max-width: 75%; word-wrap: break-word; }
         .message-container { display: flex; }
@@ -104,36 +74,45 @@
         .message-container.partner { justify-content: flex-start; }
         .message-container.user .message-bubble { background-color: var(--user-bubble); color: var(--user-text); }
         .message-container.partner .message-bubble { background-color: var(--partner-bubble); color: var(--partner-text); }
-
-        .chat-footer { display: flex; align-items: center; padding: 0.75rem; border-top: 1px solid var(--divider); }
+        .chat-footer { display: flex; align-items: center; padding: 0.75rem; border-top: 1px solid var(--divider); background-color: var(--bg-primary); }
         #message-input { flex-grow: 1; border: none; background-color: var(--bg-secondary); border-radius: 1.5rem; padding: 0.75rem 1.25rem; font-size: 1rem; color: var(--text-primary); margin-right: 0.75rem; }
-        #send-btn { background-color: var(--accent); color: #fff; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 1.5rem; line-height: 44px; text-align: center; cursor: pointer; transition: transform var(--transition); flex-shrink: 0; }
+        #send-btn { background-color: var(--accent); color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 1.2rem; line-height: 36px; text-align: center; cursor: pointer; transition: transform var(--transition); flex-shrink: 0; }
+        .dark-mode .theme-yellow #send-btn { color: #000; }
         #send-btn:hover { transform: scale(1.1); }
     </style>
 </head>
 <body>
     <div id="app">
-        <!-- Setup Screen -->
         <div id="setup-screen" class="screen">
-            <div class="setup-header">
-                <h1 data-i18n="appTitle">AI Chat</h1>
+            <header class="setup-header">
+                <h1 data-i18n="appTitle"></h1>
                 <div class="controls">
-                    <button id="lang-toggle" class="control-btn">🇺🇸</button>
-                    <button id="theme-toggle" class="control-btn">🌙</button>
+                    <button id="lang-toggle" class="control-btn"></button>
+                    <button id="theme-toggle" class="control-btn"></button>
                 </div>
-            </div>
-            <div class="card">
-                <label for="api-key" data-i18n="apiKeyLabel">🔑 API Key</label>
-                <input type="password" id="api-key" data-i18n-placeholder="apiKeyPlaceholder">
-            </div>
-            <div class="card">
-                <label data-i18n="personaLabel">AI Persona</label>
-                <input type="text" id="persona-name" data-i18n-placeholder="personaNamePlaceholder">
-            </div>
-            <button id="start-chat-btn" class="button button-primary" data-i18n="startChatBtn">Start Chat</button>
+            </header>
+            <main>
+                <div class="card">
+                    <label for="api-key" data-i18n="apiKeyLabel"></label>
+                    <input type="password" id="api-key" data-i18n-placeholder="apiKeyPlaceholder">
+                </div>
+                <div class="card">
+                    <label data-i18n="personaNameLabel"></label>
+                    <input type="text" id="persona-name" data-i18n-placeholder="personaNamePlaceholder">
+                </div>
+                <div class="card">
+                    <label data-i18n="accentThemeLabel"></label>
+                    <div class="theme-selection">
+                        <div class="theme-option" data-theme="theme-green">Green</div>
+                        <div class="theme-option" data-theme="theme-yellow">Yellow</div>
+                    </div>
+                </div>
+            </main>
+            <footer>
+                <button id="start-chat-btn" class="button button-primary" data-i18n="startChatBtn"></button>
+            </footer>
         </div>
 
-        <!-- Chat Screen -->
         <div id="chat-screen" class="screen" style="display: none;">
             <header class="chat-header">
                 <button id="back-btn">&lt;</button>
@@ -144,7 +123,7 @@
             </header>
             <main id="message-area"></main>
             <footer class="chat-footer">
-                <input type="text" id="message-input" placeholder="Message...">
+                <input type="text" id="message-input" data-i18n-placeholder="messagePlaceholder">
                 <button id="send-btn">➤</button>
             </footer>
         </div>
@@ -159,6 +138,7 @@
                 apiKey: null,
                 language: 'ko',
                 isDarkMode: false,
+                accentTheme: 'theme-green',
                 personaName: '',
                 chat: null,
                 chatHistory: [],
@@ -168,55 +148,57 @@
                     appTitle: 'AI Chat',
                     apiKeyLabel: 'API Key',
                     apiKeyPlaceholder: 'Enter your Google AI API Key',
-                    personaLabel: 'AI Persona Name',
+                    personaNameLabel: 'AI Name',
                     personaNamePlaceholder: 'e.g., Jisu',
+                    accentThemeLabel: 'Accent Color',
                     startChatBtn: 'Start Chat',
+                    messagePlaceholder: 'Type a message...',
                 },
                 ko: {
                     appTitle: 'AI 채팅',
                     apiKeyLabel: 'API 키',
                     apiKeyPlaceholder: 'Google AI API 키를 입력하세요',
-                    personaLabel: 'AI 이름',
+                    personaNameLabel: 'AI 이름',
                     personaNamePlaceholder: '예: 지수',
+                    accentThemeLabel: '악센트 컬러',
                     startChatBtn: '채팅 시작',
+                    messagePlaceholder: '메시지를 입력하세요...',
                 }
             },
             init() {
-                // --- Query Elements ---
                 const ids = ['app', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key', 'persona-name', 'start-chat-btn', 'back-btn', 'reset-btn', 'chat-persona-name', 'message-area', 'message-input', 'send-btn'];
                 ids.forEach(id => this.elements[id] = document.getElementById(id));
-                
+                this.elements.themeOptions = document.querySelectorAll('.theme-option');
+
                 if (!this.elements.app) {
-                    console.error('Fatal Error: App container not found. Exiting.');
+                    alert('Critical Error: App could not start.');
                     return;
                 }
 
-                // --- Load Settings & Set Initial State ---
                 this.loadSettings();
                 this.applyTheme();
                 this.updateUI();
                 this.addEventListeners();
 
-                // --- Determine Initial Screen ---
                 if (this.state.apiKey && this.state.personaName) {
                     this.showScreen('chat-screen');
-                    this.startChat(true); // Start chat without saving settings again
+                    this.startChat(true);
                 } else {
                     this.showScreen('setup-screen');
                 }
             },
             addEventListeners() {
-                this.elements.lang_toggle.addEventListener('click', () => this.toggleLanguage());
-                this.elements.theme_toggle.addEventListener('click', () => this.toggleTheme());
-                this.elements.start_chat_btn.addEventListener('click', () => this.startChat(false));
-                this.elements.back_btn.addEventListener('click', () => this.showScreen('setup-screen'));
-                this.elements.reset_btn.addEventListener('click', () => this.resetSettings());
-                this.elements.send_btn.addEventListener('click', () => this.sendMessage());
-                this.elements.message_input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        this.sendMessage();
-                    }
+                this.elements['lang-toggle'].addEventListener('click', () => this.toggleLanguage());
+                this.elements['theme-toggle'].addEventListener('click', () => this.toggleTheme());
+                this.elements['start-chat-btn'].addEventListener('click', () => this.startChat(false));
+                this.elements['back-btn'].addEventListener('click', () => this.showScreen('setup-screen'));
+                this.elements['reset-btn'].addEventListener('click', () => this.resetSettings());
+                this.elements['send-btn'].addEventListener('click', () => this.sendMessage());
+                this.elements['message-input'].addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); }
+                });
+                this.elements.themeOptions.forEach(option => {
+                    option.addEventListener('click', () => this.setAccentTheme(option.dataset.theme));
                 });
             },
             showScreen(screenId) {
@@ -224,7 +206,6 @@
                     this.elements[id].style.display = (id === screenId) ? 'flex' : 'none';
                 });
             },
-            // --- Language & Theme ---
             toggleLanguage() {
                 this.state.language = this.state.language === 'ko' ? 'en' : 'ko';
                 this.updateUI();
@@ -235,30 +216,38 @@
                 this.applyTheme();
                 this.saveSettings();
             },
+            setAccentTheme(theme) {
+                this.state.accentTheme = theme;
+                this.applyTheme();
+                this.saveSettings();
+            },
             applyTheme() {
-                document.body.classList.toggle('dark-mode', this.state.isDarkMode);
-                this.elements.theme_toggle.textContent = this.state.isDarkMode ? '☀️' : '🌙';
+                document.body.className = '';
+                if(this.state.isDarkMode) document.body.classList.add('dark-mode');
+                document.body.classList.add(this.state.accentTheme);
+                this.elements['theme-toggle'].textContent = this.state.isDarkMode ? '☀️' : '🌙';
+                this.elements.themeOptions.forEach(opt => {
+                    opt.classList.toggle('active', opt.dataset.theme === this.state.accentTheme);
+                });
             },
             updateUI() {
                 const translations = this.i18n[this.state.language];
                 document.title = translations.appTitle;
-                this.elements.lang_toggle.textContent = this.state.language === 'ko' ? '🇺🇸' : '🇰🇷';
+                this.elements['lang-toggle'].textContent = this.state.language === 'ko' ? '🇺🇸' : '🇰🇷';
                 
-                Object.keys(translations).forEach(key => {
-                    const el = document.querySelector(`[data-i18n="${key}"]`);
-                    if (el) {
-                        if (el.placeholder !== undefined) el.placeholder = translations[key];
-                        else el.textContent = translations[key];
-                    }
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.dataset.i18n;
+                    if (el.placeholder !== undefined) el.placeholder = translations[key];
+                    else el.textContent = translations[key];
                 });
             },
-            // --- Settings & State ---
             saveSettings() {
                 const settings = {
                     apiKey: this.state.apiKey,
                     personaName: this.state.personaName,
                     language: this.state.language,
                     isDarkMode: this.state.isDarkMode,
+                    accentTheme: this.state.accentTheme,
                     chatHistory: this.state.chatHistory,
                 };
                 localStorage.setItem('aiChatSettings', JSON.stringify(settings));
@@ -267,8 +256,8 @@
                 const settings = JSON.parse(localStorage.getItem('aiChatSettings'));
                 if (settings) Object.assign(this.state, settings);
                 
-                this.elements.api_key.value = this.state.apiKey || '';
-                this.elements.persona_name.value = this.state.personaName || '';
+                this.elements['api-key'].value = this.state.apiKey || '';
+                this.elements['persona-name'].value = this.state.personaName || '';
             },
             resetSettings() {
                 if (confirm('Are you sure you want to reset all settings?')) {
@@ -276,11 +265,10 @@
                     window.location.reload();
                 }
             },
-            // --- Chat Logic ---
             startChat(isAutoStart = false) {
                 if (!isAutoStart) {
-                    this.state.apiKey = this.elements.api_key.value;
-                    this.state.personaName = this.elements.persona_name.value;
+                    this.state.apiKey = this.elements['api-key'].value.trim();
+                    this.state.personaName = this.elements['persona-name'].value.trim();
                     if (!this.state.apiKey || !this.state.personaName) {
                         alert('Please provide an API Key and a name for the AI.');
                         return;
@@ -288,13 +276,13 @@
                     this.saveSettings();
                 }
 
-                if (typeof GoogleGenerativeAI === 'undefined') {
-                    alert('Could not connect to Google AI. Check your internet and refresh.');
+                if (typeof window.GoogleGenerativeAI === 'undefined') {
+                    alert('Could not connect to Google AI. Check your internet connection and refresh.');
                     return;
                 }
                 
-                this.elements.chat_persona_name.textContent = this.state.personaName;
-                this.elements.message_area.innerHTML = '';
+                this.elements['chat-persona-name'].textContent = this.state.personaName;
+                this.elements['message-area'].innerHTML = '';
                 this.state.chatHistory.forEach(msg => this.displayMessage(msg.role, msg.parts[0].text));
 
                 try {
@@ -313,12 +301,13 @@
                 }
             },
             async sendMessage() {
-                const messageText = this.elements.message_input.value.trim();
+                const messageText = this.elements['message-input'].value.trim();
                 if (!messageText || !this.state.chat) return;
 
-                this.elements.message_input.value = '';
+                const tempMsgId = `msg-${Date.now()}`;
                 this.displayMessage('user', messageText);
                 this.state.chatHistory.push({ role: 'user', parts: [{ text: messageText }] });
+                this.elements['message-input'].value = '';
 
                 try {
                     const result = await this.state.chat.sendMessage(messageText);
@@ -343,8 +332,8 @@
                 }
                 
                 container.appendChild(bubble);
-                this.elements.message_area.appendChild(container);
-                this.elements.message_area.scrollTop = this.elements.message_area.scrollHeight;
+                this.elements['message-area'].appendChild(container);
+                this.elements['message-area'].scrollTop = this.elements['message-area'].scrollHeight;
             }
         };
 
