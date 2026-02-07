@@ -41,7 +41,7 @@
         .card input { width: 100%; padding: 0.75rem 1rem; border-radius: var(--border-radius-md); border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 1rem; box-sizing: border-box; margin-bottom: 0.5rem;}
         
         .avatar-controls { display: flex; gap: 8px; justify-content: center; margin-bottom: 1.5rem; }
-        .btn-cta-small { padding: 6px 14px; font-size: 0.85rem; border-radius: 20px; border: 1px solid var(--divider); cursor: pointer; background: var(--bg-secondary); color: var(--text-primary); font-weight: 600; transition: 0.2s; }
+        .btn-cta-small { padding: 8px 16px; font-size: 0.9rem; border-radius: 20px; border: 1px solid var(--divider); cursor: pointer; background: var(--bg-secondary); color: var(--text-primary); font-weight: 600; transition: 0.2s; }
         .btn-ai-style { border-color: var(--btn-ai); color: var(--btn-ai); }
         .btn-ai-style:hover { background: var(--btn-ai); color: #fff; }
 
@@ -49,6 +49,7 @@
         .button { display: block; width: 100%; padding: 1rem; border: none; border-radius: var(--border-radius-md); font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; }
         .button-primary { background-color: var(--accent); color: #fff; }
         .button-danger { background-color: var(--danger); color: white; margin-top: 1rem; }
+        .button-secondary { background-color: transparent; border: 1px solid var(--divider); color: var(--text-primary); margin-top: 0.5rem; }
 
         .modal { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; }
         .modal-content { background-color: var(--modal-bg); padding: 24px; border-radius: var(--border-radius-lg); width: 85%; max-width: 450px; position: relative; max-height: 85vh; overflow-y: auto; }
@@ -100,21 +101,37 @@
                     <label style="text-align: center;" data-i18n="profileImageLabel"></label>
                     <img id="persona-avatar-preview">
                     <div class="avatar-controls">
-                        <button id="ai-create-btn" class="btn-cta-small btn-ai-style">✨ AI 생성</button>
-                        <button id="upload-trigger-btn" class="btn-cta-small">📷 사진 업로드</button>
+                        <button id="ai-create-btn" class="btn-cta-small btn-ai-style" data-i18n="aiCreateBtn">AI 생성</button>
+                        <button id="upload-trigger-btn" class="btn-cta-small" data-i18n="uploadPhotoBtn">사진 업로드</button>
                     </div>
                     <input type="file" id="persona-avatar-upload" accept="image/*" style="display: none;">
-                    <label for="persona-name-input" data-i18n="personaNameLabel"></label><input type="text" id="persona-name-input" data-i18n-placeholder="personaNamePlaceholder">
-                    <label for="chat-room-name-input" data-i18n="chatRoomNameLabel"></label><input type="text" id="chat-room-name-input" data-i18n-placeholder="chatRoomNamePlaceholder">
+                    
+                    <label for="persona-name-input" data-i18n="personaNameLabel"></label>
+                    <input type="text" id="persona-name-input" data-i18n-placeholder="personaNamePlaceholder">
+                    <label for="chat-room-name-input" data-i18n="chatRoomNameLabel"></label>
+                    <input type="text" id="chat-room-name-input" data-i18n-placeholder="chatRoomNamePlaceholder">
                 </div>
                 <div class="card">
-                    <label for="persona-style-input" data-i18n="personaStyleLabel"></label><input type="text" id="persona-style-input">
+                    <label for="persona-style-input"><span data-i18n="personaStyleLabel"></span> <span class="example" data-i18n="styleExample"></span></label>
+                    <input type="text" id="persona-style-input">
                     <span class="hint-text" data-i18n="specificHint"></span>
-                    <label for="persona-age-input" data-i18n="personaAgeLabel"></label><input type="text" id="persona-age-input">
-                    <label for="persona-nickname-input" data-i18n="personaNicknameLabel"></label><input type="text" id="persona-nickname-input">
+                    
+                    <label for="persona-frequency-input"><span data-i18n="personaFrequencyLabel"></span> <span class="example" data-i18n="frequencyExample"></span></label>
+                    <input type="text" id="persona-frequency-input">
+                    
+                    <label for="persona-tendency-input"><span data-i18n="personaTendencyLabel"></span> <span class="example" data-i18n="tendencyExample"></span></label>
+                    <input type="text" id="persona-tendency-input">
+                    <span class="hint-text" data-i18n="specificHint"></span>
+                    
+                    <label for="persona-nickname-input"><span data-i18n="personaNicknameLabel"></span> <span class="example" data-i18n="nicknameExample"></span></label>
+                    <input type="text" id="persona-nickname-input">
+                    
+                    <label for="persona-age-input"><span data-i18n="personaAgeLabel"></span> <span class="example" data-i18n="ageExample"></span></label>
+                    <input type="text" id="persona-age-input">
                 </div>
                 <div class="card">
-                    <label for="api-key-input" data-i18n="apiKeyLabel"></label><input type="password" id="api-key-input" data-i18n-placeholder="apiKeyPlaceholder">
+                    <label for="api-key-input" data-i18n="apiKeyLabel"></label>
+                    <input type="password" id="api-key-input" data-i18n-placeholder="apiKeyPlaceholder">
                     <button id="get-api-key-btn" class="button button-secondary" data-i18n="getApiKeyBtn"></button>
                 </div>
             </div>
@@ -160,7 +177,7 @@
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
         
         const DEFAULT_AVATAR = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
-        const MODEL_NAME = "gemini-2.0-flash"; 
+        const MODEL_NAME = "gemini-2.5-flash"; // 사용자 확인 모델 적용
 
         (function() {
             const app = {
@@ -169,20 +186,26 @@
                 i18n: {
                     en: {
                         appTitle: 'Connect', appDescription: 'Familiar conversations.', loginBtn: 'Login with Google',
-                        setupTitle: 'Profile', profileImageLabel: 'Profile Photo', aiCreateBtn: '✨ AI Gen', uploadPhotoBtn: '📷 Upload',
+                        setupTitle: 'Profile', profileImageLabel: 'Profile Photo', aiCreateBtn: 'AI Gen', uploadPhotoBtn: 'Upload',
                         personaNameLabel: 'Partner Name', personaNamePlaceholder: 'Name (e.g., Jisu)',
                         specificHint: 'More details make it better!', chatRoomNameLabel: 'Chat Title', chatRoomNamePlaceholder: 'e.g., My Love',
-                        personaStyleLabel: 'Style', personaNicknameLabel: 'Your Nickname', personaAgeLabel: 'Age',
-                        apiKeyLabel: 'API Key', startChatBtn: 'Start', resetBtn: 'Reset', logoutBtn: 'Logout',
+                        personaStyleLabel: 'Style', styleExample: '(e.g., Cute)', 
+                        personaFrequencyLabel: 'Frequency', frequencyExample: '(e.g., Often)',
+                        personaTendencyLabel: 'Tendency', tendencyExample: '(e.g., Warm)',
+                        personaNicknameLabel: 'Your Nickname', nicknameExample: '(e.g., Honey)', personaAgeLabel: 'Age', ageExample: '(e.g., 24)',
+                        apiKeyLabel: 'API Key', apiKeyPlaceholder: 'Enter API Key', getApiKeyBtn: 'How to get API Key', startChatBtn: 'Start', resetBtn: 'Reset', logoutBtn: 'Logout', messagePlaceholder: 'Type a message...',
                         modalTitle: 'Get Free API Key', modalStep1: 'Login to AI Studio.', modalStep2: 'Click "Create API Key".', modalStep3: 'Copy & Paste here.', modalLink: 'Go to AI Studio'
                     },
                     ko: {
                         appTitle: '커넥트', appDescription: '익숙한 대화. 나만의 파트너.', loginBtn: 'Google 계정으로 로그인',
-                        setupTitle: '프로필 설정', profileImageLabel: '상대방 프로필 사진', aiCreateBtn: '✨ AI 생성', uploadPhotoBtn: '📷 사진 업로드',
+                        setupTitle: '프로필 설정', profileImageLabel: '상대방 프로필 사진', aiCreateBtn: 'AI 생성', uploadPhotoBtn: '사진 업로드',
                         personaNameLabel: '상대방 이름', personaNamePlaceholder: '이름 (예: 지수)',
                         specificHint: '* 구체적으로 적으면 더 실감나요!', chatRoomNameLabel: '채팅방 이름', chatRoomNamePlaceholder: '예: 내 사랑♡',
-                        personaStyleLabel: '성격 스타일', personaNicknameLabel: '나를 부를 애칭', personaAgeLabel: '나이',
-                        apiKeyLabel: 'API 키', startChatBtn: '대화 시작하기', resetBtn: '초기화', logoutBtn: '로그아웃',
+                        personaStyleLabel: '성격 스타일', styleExample: '(예: 귀여운 성향)', 
+                        personaFrequencyLabel: '연락 빈도', frequencyExample: '(예: 칼답, 자주)',
+                        personaTendencyLabel: '대화 성향', tendencyExample: '(예: 애교많은)',
+                        personaNicknameLabel: '나를 부를 애칭', nicknameExample: '(예: 자기야)', personaAgeLabel: '나이', ageExample: '(예: 24살)',
+                        apiKeyLabel: 'API 키', apiKeyPlaceholder: 'API 키 입력', getApiKeyBtn: 'API 키 발급 방법', startChatBtn: '대화 시작하기', resetBtn: '초기화', logoutBtn: '로그아웃', messagePlaceholder: '메시지를 입력하세요...',
                         modalTitle: '무료 API 키 발급', modalStep1: 'AI Studio 로그인.', modalStep2: '"Create API Key" 클릭.', modalStep3: '키 복사 후 붙여넣기.', modalLink: '이동하기'
                     }
                 },
@@ -193,18 +216,16 @@
                         projectId: "aimeet-c235c",
                         appId: "1:732324287861:web:15d894068755c627842f3c"
                     };
-                    // Storage 관련 코드 삭제됨
                     
-                    const ids = ['app', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-nickname-input', 'persona-age-input', 'persona-avatar-upload', 'persona-avatar-preview', 'upload-trigger-btn', 'ai-create-btn', 'start-chat-btn', 'reset-btn-setup', 'reset-btn-chat', 'chat-header-avatar', 'chat-room-name-header', 'logout-btn', 'login-btn', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'attach-btn', 'chat-image-input', 'image-preview-area', 'image-preview-img', 'cancel-image-btn'];
+                    const ids = ['app', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'persona-avatar-upload', 'persona-avatar-preview', 'upload-trigger-btn', 'ai-create-btn', 'start-chat-btn', 'reset-btn-setup', 'reset-btn-chat', 'chat-header-avatar', 'chat-room-name-header', 'logout-btn', 'login-btn', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'attach-btn', 'chat-image-input', 'image-preview-area', 'image-preview-img', 'cancel-image-btn'];
                     ids.forEach(id => { this.elements[id] = document.getElementById(id); });
                     if(this.elements['persona-avatar-preview']) this.elements['persona-avatar-preview'].src = DEFAULT_AVATAR;
 
                     const firebaseApp = initializeApp(firebaseConfig);
                     this.state.auth = getAuth(firebaseApp);
                     this.state.db = getFirestore(firebaseApp);
-                    // Storage 초기화 삭제
 
-                    this.loadSettings(); this.addEventListeners();
+                    this.loadSettings(); this.addEventListeners(); this.updateUI();
                     onAuthStateChanged(this.state.auth, (user) => {
                         if (user) { this.state.user = user; this.loadDataFromFirestore(); }
                         else { this.showScreen('login-screen'); }
@@ -230,7 +251,6 @@
                     el['lang-toggle'].addEventListener('click', () => this.toggleLanguage());
                     el['theme-toggle'].addEventListener('click', () => this.toggleTheme());
                 },
-                // 이미지 압축 및 Base64 변환 (핵심 기능)
                 compressImage: function(file, maxWidth, quality) {
                     return new Promise((resolve) => {
                         const reader = new FileReader();
@@ -240,13 +260,12 @@
                             img.src = event.target.result;
                             img.onload = () => {
                                 const canvas = document.createElement('canvas');
-                                let width = img.width;
-                                let height = img.height;
+                                let width = img.width; let height = img.height;
                                 if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
                                 canvas.width = width; canvas.height = height;
                                 const ctx = canvas.getContext('2d');
                                 ctx.drawImage(img, 0, 0, width, height);
-                                resolve(canvas.toDataURL('image/jpeg', quality)); // 압축된 Base64 문자열 반환
+                                resolve(canvas.toDataURL('image/jpeg', quality));
                             };
                         };
                     });
@@ -254,10 +273,9 @@
                 processImage: async function(file, type) {
                     if (!file) return;
                     if (type === 'avatar') {
-                        // 프로필은 작게 압축 (300px)
                         const base64 = await this.compressImage(file, 300, 0.7);
                         this.elements['persona-avatar-preview'].src = base64;
-                        this.state.persona.avatarUrl = base64; // Storage 대신 Base64 문자열 직접 저장
+                        this.state.persona.avatarUrl = base64;
                     }
                 },
                 handleChatImage: async function(e) {
@@ -265,7 +283,6 @@
                     if (!file) return;
                     this.elements['image-preview-area'].classList.add('active');
                     this.elements['image-preview-img'].src = URL.createObjectURL(file);
-                    // 채팅 이미지는 적당히 압축 (800px)
                     this.state.pendingImage = await this.compressImage(file, 800, 0.7); 
                     e.target.value = '';
                 },
@@ -275,7 +292,8 @@
                 },
                 generateAIAvatar: function() {
                     const seed = (this.elements['persona-name-input'].value || 'avatar') + Date.now();
-                    const url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`;
+                    // Lorelei 스타일 (예쁜 2D 스타일) 적용
+                    const url = `https://api.dicebear.com/9.x/lorelei/svg?seed=${seed}&backgroundColor=ffe4e1,f0f8ff`;
                     this.elements['persona-avatar-preview'].src = url;
                     this.state.persona.avatarUrl = url;
                 },
@@ -287,7 +305,6 @@
                 },
                 showScreen: function(id) {
                     ['login-screen', 'setup-screen', 'chat-screen'].forEach(s => this.elements[s].classList.toggle('active', s === id));
-                    this.updateUI();
                 },
                 loadDataFromFirestore: async function() {
                     const snap = await getDoc(doc(this.state.db, 'users', this.state.user.uid));
@@ -296,13 +313,14 @@
                         this.state.apiKey = data.apiKey;
                         this.state.persona = data.persona || {};
                         this.state.chatHistory = data.chatHistory || [];
-                        ['api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-nickname-input', 'persona-age-input'].forEach(k => {
+                        ['api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input'].forEach(k => {
                             const field = k.replace('-input', '').split('-').pop();
                             this.elements[k].value = this.state.persona[field] || '';
                         });
                         this.elements['persona-avatar-preview'].src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
                         this.startChat(true);
                     } else { this.showScreen('setup-screen'); }
+                    this.updateUI();
                 },
                 saveAndStartChat: async function() {
                     this.state.apiKey = this.elements['api-key-input'].value.trim();
@@ -310,9 +328,10 @@
                     p.name = this.elements['persona-name-input'].value;
                     p.chatRoomName = this.elements['chat-room-name-input'].value;
                     p.style = this.elements['persona-style-input'].value;
+                    p.frequency = this.elements['persona-frequency-input'].value;
+                    p.tendency = this.elements['persona-tendency-input'].value;
                     p.nickname = this.elements['persona-nickname-input'].value;
                     p.age = this.elements['persona-age-input'].value;
-                    // 이미지는 이미 processImage에서 this.state.persona.avatarUrl에 저장됨 (Base64)
                     
                     await setDoc(doc(this.state.db, 'users', this.state.user.uid), { apiKey: this.state.apiKey, persona: p }, { merge: true });
                     this.startChat(false);
@@ -326,14 +345,13 @@
                         this.state.chatHistory.forEach(m => {
                             let text = ""; let hasImg = false;
                             if(m.parts) m.parts.forEach(p => { if(p.text) text = p.text; if(p.inlineData) hasImg = true; });
-                            // 이미지는 DB 용량 문제로 텍스트로 대체 표현될 수 있음. Base64로 저장했다면 복원 가능하지만 여기선 텍스트만.
                             this.displayMessage(m.role, text, hasImg ? m.parts.find(p=>p.inlineData)?.inlineData.data : null); 
                         });
                     }
 
                     try {
                         const genAI = new GoogleGenerativeAI(this.state.apiKey);
-                        const prompt = `You are my partner. Name: ${this.state.persona.name}. Age: ${this.state.persona.age}. Style: ${this.state.persona.style}. Nickname for me: ${this.state.persona.nickname}. Reply in ${this.state.language === 'ko' ? 'Korean' : 'English'}. Natural chat only.`;
+                        const prompt = `You are my partner. Name: ${this.state.persona.name}. Age: ${this.state.persona.age}. Style: ${this.state.persona.style}. Frequency: ${this.state.persona.frequency}. Tendency: ${this.state.persona.tendency}. Nickname for me: ${this.state.persona.nickname}. Reply in ${this.state.language === 'ko' ? 'Korean' : 'English'}. Natural chat only.`;
                         const model = genAI.getGenerativeModel({ model: MODEL_NAME, systemInstruction: prompt });
                         this.state.chat = model.startChat({ history: this.state.chatHistory });
                         this.showScreen('chat-screen');
@@ -341,7 +359,14 @@
                             const res = await this.state.chat.sendMessage("안녕!");
                             this.displayMessage('model', res.response.text());
                         }
-                    } catch(e) { this.showScreen('setup-screen'); }
+                    } catch(e) {
+                        if (e.message.includes("429")) {
+                            alert("요청이 너무 많아 일시적으로 제한되었습니다. 1분만 기다렸다가 다시 시도해주세요.");
+                        } else {
+                            alert(`오류: ${e.message}`);
+                        }
+                        this.showScreen('setup-screen'); 
+                    }
                 },
                 sendMessage: async function() {
                     const txt = this.elements['message-input'].value.trim();
@@ -355,7 +380,6 @@
                     try {
                         let parts = [];
                         if (imgBase64) {
-                             // Base64 헤더 제거 (data:image/jpeg;base64,...)
                             const base64Data = imgBase64.split(',')[1];
                             parts.push({ inlineData: { data: base64Data, mimeType: 'image/jpeg' } });
                         }
@@ -365,11 +389,16 @@
                         const aiTxt = res.response.text();
                         this.displayMessage('model', aiTxt);
                         
-                        // DB 저장 (이미지도 Base64 문자열로 저장 - 용량 주의)
                         this.state.chatHistory.push({ role: 'user', parts: parts });
                         this.state.chatHistory.push({ role: 'model', parts: [{ text: aiTxt }] });
                         await setDoc(doc(this.state.db, 'users', this.state.user.uid), { chatHistory: this.state.chatHistory }, { merge: true });
-                    } catch(e) { console.error(e); }
+                    } catch(e) { 
+                        if (e.message.includes("429")) {
+                            this.displayMessage('model', "⚠️ 요청 과다 (1분 대기 필요)");
+                        } else {
+                            console.error(e);
+                        }
+                    }
                 },
                 displayMessage: function(role, txt, imgBase64) {
                     const c = document.createElement('div');
@@ -378,7 +407,6 @@
                     b.className = 'message-bubble';
                     if (imgBase64) {
                         const img = document.createElement('img');
-                        // Base64 문자열이 헤더가 없으면 붙여줌
                         img.src = imgBase64.startsWith('data:') ? imgBase64 : `data:image/jpeg;base64,${imgBase64}`;
                         b.appendChild(img);
                     }
@@ -413,8 +441,12 @@
                 },
                 updateUI: function() {
                     const t = this.i18n[this.state.language];
-                    document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t[el.dataset.i18n]);
-                    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => el.placeholder = t[el.dataset.i18nPlaceholder]);
+                    document.querySelectorAll('[data-i18n]').forEach(el => {
+                        if (t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n];
+                    });
+                    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                        if (t[el.dataset.i18nPlaceholder]) el.placeholder = t[el.dataset.i18nPlaceholder];
+                    });
                 }
             };
             document.addEventListener('DOMContentLoaded', () => app.init());
