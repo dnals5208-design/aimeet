@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Connect</title>
     <style>
-        /* 기본 설정 */
+        /* 변수 설정 */
         :root {
             --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             --bg-primary: #fff; --bg-secondary: #f0f2f5; --text-primary: #1c1e21; --text-secondary: #65676b; --divider: #e4e6eb;
@@ -34,36 +34,23 @@
         }
         .whatsapp-mode #app { background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay; background-color: #efe7dd; }
 
-        /* 화면 관리 */
+        /* [중요 수정] 모든 화면은 기본적으로 숨김 */
         .screen { display: none; flex-direction: column; height: 100%; }
-        /* 로딩 화면 삭제됨, 로그인 화면이 기본 */
-        #login-screen { display: flex; } 
+        /* .active 클래스가 붙은 화면만 보임 */
         .screen.active { display: flex; }
         
-        /* 헤더 디자인 (얇게 복구) */
-        .header { 
-            flex-shrink: 0; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 0.7rem 1rem; 
-            border-bottom: 1px solid var(--divider); 
-            background: var(--bg-primary); 
-            z-index: 10; 
-            min-height: 50px;
-        }
+        /* 헤더 */
+        .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 1rem; border-bottom: 1px solid var(--divider); background: var(--bg-primary); z-index: 10; min-height: 50px; }
         .header h1 { font-size: 1.1rem; margin: 0; font-weight: 700; }
         
-        /* 채팅방 헤더 (카톡 스타일) */
+        /* 채팅방 헤더 (슬림 & 카톡 스타일) */
         .chat-header {
             flex-shrink: 0;
-            display: flex;
-            justify-content: space-between; 
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             padding: 0.6rem 1rem;
             border-bottom: 1px solid var(--divider);
             background-color: var(--bg-primary);
-            height: 50px; /* 높이 고정으로 두꺼워짐 방지 */
+            height: 50px;
         }
         .chat-header-left { display: flex; align-items: center; }
         .chat-header-avatar { width: 35px; height: 35px; border-radius: 40%; object-fit: cover; margin-right: 10px; background-color: #ddd; }
@@ -72,10 +59,9 @@
         .controls { display: flex; gap: 0.5rem; align-items: center; }
         .control-btn { background: none; border: 1px solid var(--divider); border-radius: 6px; padding: 4px 8px; cursor: pointer; color: var(--text-secondary); font-size: 0.8rem; height: 28px; display: flex; align-items: center;}
 
-        /* 콘텐츠 영역 (스크롤 가능) */
+        /* 콘텐츠 영역 */
         .screen-content { flex: 1; overflow-y: auto; padding: 1rem; -webkit-overflow-scrolling: touch; }
         
-        /* 카드 스타일 */
         .card { background-color: var(--bg-primary); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .card label { font-weight: 600; color: var(--text-secondary); margin-bottom: 0.3rem; display: block; font-size: 0.85rem; }
         .card label .example { font-weight: 400; opacity: 0.7; margin-left: 0.3rem; font-size: 0.75rem;}
@@ -86,7 +72,6 @@
 
         .ai-prompt-area { display: flex; gap: 5px; margin-bottom: 8px; }
         .ai-prompt-area input { margin-bottom: 0; flex-grow: 1; font-size: 0.85rem; border: 1px solid var(--accent); }
-        
         .avatar-controls { display: flex; gap: 8px; justify-content: space-between; margin-bottom: 1rem; }
         .btn-cta-small { padding: 10px 0; font-size: 0.9rem; border-radius: 8px; border: 1px solid var(--divider); cursor: pointer; background: var(--bg-secondary); color: var(--text-primary); font-weight: 600; transition: 0.2s; flex: 1; text-align: center; white-space: nowrap; }
         .btn-ai-style { background-color: var(--btn-ai); color: white; border: none; }
@@ -97,7 +82,7 @@
         .button-danger { background-color: var(--danger); color: white; }
         .help-link-btn { background: none; border: none; color: var(--text-secondary); text-decoration: underline; font-size: 0.85rem; cursor: pointer; display: block; margin-top: 5px; text-align: left; padding: 0;}
 
-        /* 모달 스타일 */
+        /* 모달 */
         .modal { position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; }
         .modal-content { background-color: var(--modal-bg); padding: 20px; border-radius: 12px; width: 90%; max-width: 350px; max-height: 80vh; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .modal-body { overflow-y: auto; flex: 1; padding-right: 5px; margin-bottom: 15px; }
@@ -105,7 +90,7 @@
         .modal-content h2 { margin-top: 0; font-size: 1.1rem; margin-bottom: 10px; }
         .modal-content ol { padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0; }
         
-        /* 채팅 영역 - 카톡 스타일 */
+        /* 메시지 스타일 */
         #message-area { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; background-color: var(--bg-secondary); }
         .whatsapp-mode #message-area { background-color: transparent; }
         
@@ -277,8 +262,8 @@
                 elements: {},
                 state: { 
                     apiKey: null, language: 'ko', isDarkMode: false, persona: {}, chat: null, 
-                    chatHistory: [], // Gemini용 (context)
-                    visualHistory: [], // 화면 표시용 (완전 분리)
+                    chatHistory: [], // Gemini용
+                    visualHistory: [], // 화면 표시용 (말풍선 분리)
                     db: null, auth: null, user: null, pendingImage: null,
                     debounceTimer: null, messageQueue: []
                 },
@@ -416,12 +401,19 @@
                         location.reload();
                     }
                 },
+                
+                // [화면 전환 로직 핵심 수정]
                 showScreen: function(id) {
+                    // 모든 화면 숨김 (classList 사용)
                     ['login-screen', 'setup-screen', 'chat-screen'].forEach(s => {
                         const el = this.elements[s];
-                        if (el) el.classList.toggle('active', s === id);
+                        if (el) {
+                            if (s === id) el.classList.add('active');
+                            else el.classList.remove('active');
+                        }
                     });
                 },
+                
                 loadDataFromFirestore: async function() {
                     try {
                         const snap = await getDoc(doc(this.state.db, 'users', this.state.user.uid));
@@ -431,7 +423,6 @@
                                 this.state.apiKey = data.apiKey;
                                 this.state.persona = data.persona;
                                 
-                                // 데이터 정리 (1주일)
                                 const now = Date.now();
                                 const retentionMs = 7 * 24 * 60 * 60 * 1000;
                                 
@@ -494,18 +485,16 @@
                     
                     if (!txt && !imgBase64) return;
 
-                    // 화면 표시 및 저장용 (나눠서 저장하기 위해 별도 객체 생성)
                     const userMsgObj = { role: 'user', text: txt, img: imgBase64, timestamp: Date.now() };
                     
                     this.displayMessage(userMsgObj.role, userMsgObj.text, userMsgObj.img);
-                    this.state.visualHistory.push(userMsgObj); // 시각적 역사에 저장
+                    this.state.visualHistory.push(userMsgObj);
 
                     this.elements['message-input'].value = '';
                     this.cancelImage();
 
                     if (!this.state.messageQueue) this.state.messageQueue = [];
                     
-                    // API 전송용
                     let parts = [];
                     if (imgBase64) {
                         const base64Data = imgBase64.split(',')[1];
@@ -521,15 +510,11 @@
                     }, 1500);
                 },
 
-                // [강력 필터링] AI 속마음 제거 함수
                 cleanAiThought: function(text) {
                     if (!text) return "";
-                    // 1. THOUGHT (...) 제거
-                    let clean = text.replace(/THOUGHT[\s\S]*?(?=\n|$)/gi, "");
-                    // 2. [Instructions] 같은 대괄호 블록 제거
+                    let clean = text.replace(/THOUGHT[\s\S]*?(\n\n|$)/gi, "");
+                    clean = clean.replace(/^(I should|The user|Analysis|Step|Note|I need).*/gim, "");
                     clean = clean.replace(/\[.*?\]/g, "");
-                    // 3. "The user said..." 같은 내레이션 제거
-                    clean = clean.replace(/^(The user|I should|I need|Analysis|Step).*/gim, "");
                     return clean.trim();
                 },
 
@@ -554,14 +539,12 @@
                         this.removeTypingBubble();
                         
                         let fullResponse = res.response.text();
-                        // [핵심] 출력 전 필터링 수행
                         fullResponse = this.cleanAiThought(fullResponse); 
-                        if (!fullResponse) fullResponse = "..."; // 필터링 후 빈 문자열이면 점이라도 찍음
+                        if (!fullResponse) fullResponse = "...";
 
                         const splitResponses = fullResponse.split(/(?<=[.?!])\s+/).filter(s => s.trim().length > 0);
                         const now = Date.now();
 
-                        // API 히스토리에는 합쳐서 저장 (컨텍스트 유지)
                         const userTxt = combinedParts.map(p => p.text || "[사진]").join(" ");
                         this.state.chatHistory.push({ role: 'user', parts: [{ text: userTxt }], timestamp: now });
                         this.state.chatHistory.push({ role: 'model', parts: [{ text: fullResponse }], timestamp: now });
@@ -570,14 +553,12 @@
                             if (!fragment) continue;
                             this.displayMessage('model', fragment);
                             
-                            // 시각적 히스토리에는 나눠서 저장 (뭉침 방지)
                             this.state.visualHistory.push({ role: 'model', text: fragment, timestamp: now });
                             
                             const typingDelay = Math.min(fragment.length * 50 + 500, 3000);
                             await this.wait(typingDelay); 
                         }
 
-                        // DB 저장 (시각적 히스토리 포함)
                         await setDoc(doc(this.state.db, 'users', this.state.user.uid), { 
                             chatHistory: this.state.chatHistory,
                             visualHistory: this.state.visualHistory 
@@ -597,22 +578,17 @@
                     this.elements['chat-header-avatar'].src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
                     this.elements['message-area'].innerHTML = '';
                     
-                    // [복원] 시각적 히스토리(나눠진 말풍선) 우선 로드
                     const historyToRender = (this.state.visualHistory && this.state.visualHistory.length > 0) 
                         ? this.state.visualHistory 
-                        : this.state.chatHistory; // 없으면 기존(뭉친거)라도 사용
+                        : this.state.chatHistory;
 
                     if (historyToRender.length > 0) {
                         historyToRender.forEach(m => {
-                            // visualHistory 구조: {role, text, img}
-                            // chatHistory 구조: {role, parts:[{text}]}
                             let text = m.text;
                             if (!text && m.parts) m.parts.forEach(p => { if(p.text) text = p.text; });
-                            
                             this.displayMessage(m.role, text, m.img || null); 
                         });
                         
-                        // 선톡 체크 (마지막 메시지 기준)
                         const lastMsg = historyToRender[historyToRender.length - 1];
                         if (lastMsg && lastMsg.role === 'user' && lastMsg.timestamp) {
                             const hoursPassed = (Date.now() - lastMsg.timestamp) / (1000 * 60 * 60);
@@ -650,7 +626,6 @@
                         `;
                         
                         const model = genAI.getGenerativeModel({ model: MODEL_NAME, systemInstruction: prompt });
-                        // API에는 표준 history 포맷 전달
                         const apiHistory = this.state.chatHistory.map(h => ({ role: h.role, parts: h.parts }));
                         this.state.chat = model.startChat({ history: apiHistory });
                         
