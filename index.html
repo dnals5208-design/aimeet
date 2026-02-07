@@ -10,61 +10,34 @@
             --border-radius-md: 8px;
             --border-radius-lg: 16px;
             --transition: 0.2s ease-out;
-
-            /* Light Theme with Light Purple Accent */
-            --bg-primary: #fff;
-            --bg-secondary: #f0f2f5;
-            --text-primary: #1c1e21;
-            --text-secondary: #65676b;
-            --divider: #e4e6eb;
-            --accent: #8A2BE2; /* Bluish Purple */
-            --user-bubble: #8A2BE2; /* User bubble color matches accent */
-            --partner-bubble: #e4e6eb;
-            --user-text: #fff;
-            --partner-text: #1c1e21;
-            --modal-bg: #fff;
+            --bg-primary: #fff; --bg-secondary: #f0f2f5; --text-primary: #1c1e21; --text-secondary: #65676b; --divider: #e4e6eb;
+            --accent: #8A2BE2; --user-bubble: #8A2BE2; --partner-bubble: #e4e6eb; --user-text: #fff; --partner-text: #1c1e21; --modal-bg: #fff;
         }
-        .dark-mode {
-            --bg-primary: #1c1c1e;
-            --bg-secondary: #000;
-            --text-primary: #f5f5f7;
-            --text-secondary: #8d8d93;
-            --divider: #3a3a3c;
-            --accent: #BB86FC; /* Lighter purple for dark mode accent */
-            --user-bubble: #BB86FC;
-            --partner-bubble: #2c2c2e;
-            --user-text: #1c1c1e; /* Darker text for light bubble on dark background */
-            --partner-text: #f5f5f7;
-            --modal-bg: #2c2c2e;
-        }
-
-        body { margin: 0; font-family: var(--font-sans); background-color: var(--bg-secondary); color: var(--text-primary); transition: background-color var(--transition), color var(--transition); }
+        .dark-mode { --bg-primary: #1c1c1e; --bg-secondary: #000; --text-primary: #f5f5f7; --text-secondary: #8d8d93; --divider: #3a3a3c; --accent: #BB86FC; --user-bubble: #BB86FC; --partner-bubble: #2c2c2e; --user-text: #1c1c1e; --partner-text: #f5f5f7; --modal-bg: #2c2c2e; }
+        body { margin: 0; font-family: var(--font-sans); background-color: var(--bg-secondary); color: var(--text-primary); }
         #app { display: flex; flex-direction: column; height: 100vh; max-width: 600px; margin: 0 auto; background-color: var(--bg-primary); box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); }
         .screen { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding: 1.5rem; box-sizing: border-box; }
         .screen.active { display: flex; }
         #chat-screen { padding: 0; }
-        .setup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         h1 { font-size: 1.8rem; margin: 0; }
+        p { color: var(--text-secondary); line-height: 1.6; }
         .controls { display: flex; gap: 1rem; }
         .control-btn { background: none; border: 1px solid var(--divider); border-radius: var(--border-radius-md); padding: 8px; cursor: pointer; color: var(--text-secondary); width: 40px; text-align: center;}
         .card { background-color: var(--bg-secondary); padding: 1.5rem; border-radius: var(--border-radius-lg); margin-bottom: 1.5rem; }
         .card label { font-weight: 600; color: var(--text-secondary); margin-bottom: 0.75rem; display: block; }
         .card input, .card textarea { width: 100%; padding: 0.75rem 1rem; border-radius: var(--border-radius-md); border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 1rem; box-sizing: border-box; margin-bottom: 0.5rem;}
-        .card textarea { resize: vertical; min-height: 50px; }
+        .card textarea { resize: vertical; min-height: 40px; }
         .card input:focus, .card textarea:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent); }
-        .theme-selection { display: flex; gap: 1rem; }
-        .theme-option { padding: 0.5rem 1rem; border: 2px solid var(--divider); border-radius: var(--border-radius-md); cursor: pointer; transition: border-color var(--transition); display: flex; align-items: center; gap: 0.5rem;}
-        .theme-option .preview { width: 20px; height: 20px; border-radius: 50%; }
-        .preview.purple { background-color: #8A2BE2; }
-        .theme-option.active { border-color: var(--accent); } /* Active state for single theme should highlight if user needs to click to confirm */
         .button { display: block; width: 100%; padding: 1rem; border: none; border-radius: var(--border-radius-md); font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; transition: background-color var(--transition), transform var(--transition); }
         .button-primary { background-color: var(--accent); color: #fff; }
-        .dark-mode .button-primary { color: var(--text-primary); } /* Adjust text color for dark mode accent */
+        .dark-mode .button-primary { color: var(--text-primary); }
         .button-secondary { background-color: transparent; border: 1px solid var(--divider); color: var(--text-primary); margin-top: 0.5rem;}
         .button:hover { transform: translateY(-2px); }
         .modal { position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; }
         .modal-content { background-color: var(--modal-bg); padding: 24px; border-radius: var(--border-radius-lg); width: 90%; max-width: 500px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
         .modal-content h2 { margin-top: 0; }
+        .modal-content a.button { margin-top: 1rem; }
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; color: var(--text-secondary); cursor: pointer; }
         .chat-header { display: flex; align-items: center; padding: 0.75rem 1rem; background-color: var(--bg-primary); border-bottom: 1px solid var(--divider); flex-shrink: 0; }
         .chat-header-info { flex-grow: 1; text-align: center; }
@@ -80,51 +53,66 @@
         .chat-footer { display: flex; align-items: center; padding: 0.75rem; border-top: 1px solid var(--divider); background-color: var(--bg-primary); }
         #message-input { flex-grow: 1; border: none; background-color: var(--bg-secondary); border-radius: 1.5rem; padding: 0.75rem 1.25rem; font-size: 1rem; color: var(--text-primary); margin-right: 0.75rem; }
         #send-btn { background-color: var(--accent); color: #fff; border: none; border-radius: 50%; width: 36px; height: 36px; font-size: 1.2rem; line-height: 36px; text-align: center; cursor: pointer; transition: transform var(--transition); flex-shrink: 0; }
-        .dark-mode .theme-yellow #send-btn { color: var(--text-primary); }
+        .dark-mode .button-primary { color: #1c1c1e; }
         #send-btn:hover { transform: scale(1.1); }
     </style>
 </head>
 <body>
     <div id="app">
-        <div id="setup-screen" class="screen active">
-            <header class="setup-header">
+        <div id="welcome-screen" class="screen active">
+            <header class="header">
                 <h1 data-i18n="appTitle"></h1>
                 <div class="controls">
                     <button id="lang-toggle" class="control-btn"></button>
                     <button id="theme-toggle" class="control-btn"></button>
                 </div>
             </header>
+            <main style="text-align: center; margin-top: 2rem;">
+                <p data-i18n="appDescription"></p>
+                <button id="go-to-persona-btn" class="button button-primary" data-i18n="welcomeStartBtn"></button>
+            </main>
+        </div>
+
+        <div id="persona-screen" class="screen">
+            <header class="header"><h1 data-i18n="personaTitle"></h1></header>
             <main>
-                <div id="logged-out-view">
-                    <div class="card">
-                        <p data-i18n="appDescription" style="text-align: center; margin-bottom: 1rem;"></p>
-                        <p data-i18n="loginPrompt"></p>
-                        <button id="login-btn" class="button button-primary" data-i18n="loginBtn"></button>
-                    </div>
-                </div>
-                <div id="logged-in-view" style="display: none;">
-                     <div class="card">
-                        <label for="api-key" data-i18n="apiKeyLabel"></label>
-                        <input type="password" id="api-key" data-i18n-placeholder="apiKeyPlaceholder">
-                        <button id="get-api-key-btn" class="button button-secondary" data-i18n="getApiKeyBtn"></button>
-                    </div>
-                    <div class="card">
-                        <label data-i18n="personaLabel"></label>
-                        <input type="text" id="persona-name" data-i18n-placeholder="personaNamePlaceholder">
-                        <input type="text" id="persona-relation" data-i18n-placeholder="personaRelationPlaceholder">
-                        <textarea id="persona-style" data-i18n-placeholder="personaStylePlaceholder"></textarea>
-                    </div>
-                    <!-- Simplified: removed accent theme selection -->
-                    <button id="start-chat-btn" class="button button-primary" data-i18n="startChatBtn"></button>
+                <p data-i18n="personaDescription" style="text-align: center;"></p>
+                <div class="card">
+                    <label data-i18n="personaStyleLabel"></label>
+                    <input type="text" id="persona-style" data-i18n-placeholder="personaStylePlaceholder">
+                    <label data-i18n="personaFrequencyLabel"></label>
+                    <input type="text" id="persona-frequency" data-i18n-placeholder="personaFrequencyPlaceholder">
+                    <label data-i18n="personaTendencyLabel"></label>
+                    <input type="text" id="persona-tendency" data-i18n-placeholder="personaTendencyPlaceholder">
+                    <label data-i18n="personaNicknameLabel"></label>
+                    <input type="text" id="persona-nickname" data-i18n-placeholder="personaNicknamePlaceholder">
+                    <label data-i18n="personaAgeLabel"></label>
+                    <input type="text" id="persona-age" data-i18n-placeholder="personaAgePlaceholder">
                 </div>
             </main>
+            <footer>
+                <button id="go-to-api-btn" class="button button-primary" data-i18n="nextBtn"></button>
+            </footer>
+        </div>
+
+        <div id="api-key-screen" class="screen">
+            <header class="header"><h1 data-i18n="apiKeyTitle"></h1></header>
+            <main>
+                <div class="card">
+                    <label for="api-key" data-i18n="apiKeyLabel"></label>
+                    <input type="password" id="api-key" data-i18n-placeholder="apiKeyPlaceholder">
+                    <button id="get-api-key-btn" class="button button-secondary" data-i18n="getApiKeyBtn"></button>
+                </div>
+            </main>
+            <footer>
+                <button id="start-chat-btn" class="button button-primary" data-i18n="startChatBtn"></button>
+            </footer>
         </div>
 
         <div id="chat-screen" class="screen">
             <header class="chat-header">
                 <button id="back-btn">&lt;</button>
                 <div class="chat-header-info"><h2 id="chat-persona-name"></h2></div>
-                <button id="logout-btn">Logout</button>
             </header>
             <main id="message-area"></main>
             <footer class="chat-footer">
@@ -147,149 +135,78 @@
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://sdk.gemini.ai/v1.5/gemini-web.js"></script>
-    <!-- Firebase v8 Compatibility SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const app = {
             elements: {},
             state: {
-                user: null, apiKey: null, language: 'ko', isDarkMode: false,
-                persona: { name: '', relation: '', style: '' },
-                chat: null, chatHistory: [], db: null, auth: null,
+                apiKey: null, language: 'ko', isDarkMode: false,
+                persona: { style: '', frequency: '', tendency: '', nickname: '', age: '' },
+                chat: null, chatHistory: []
             },
             i18n: {
                 en: {
-                    appTitle: 'Connect',
-                    appDescription: 'Familiar conversations, a new kind of empathy. Your own AI partner.',
-                    loginPrompt: 'To continue the conversation, please log in.', loginBtn: 'Login with Google', setupTitle: 'Settings',
-                    apiKeyLabel: 'API Key', apiKeyPlaceholder: 'Enter your Google AI API Key', getApiKeyBtn: 'How to get an API Key',
-                    personaLabel: 'AI Persona', personaNamePlaceholder: 'Name (e.g., Jisu)', personaRelationPlaceholder: 'Relationship (e.g., Friend)',
-                    personaStylePlaceholder: 'Personality & Tone (e.g., Cheerful, uses emojis 💕)', accentThemeLabel: 'Accent Color', greenChat: 'Green', yellowChat: 'Yellow',
-                    startChatBtn: 'Save & Start Chat', messagePlaceholder: 'Type a message...', modalTitle: 'Get Your Free Google AI API Key',
+                    appTitle: 'Connect', appDescription: 'Familiar conversations, a new kind of empathy. Your own AI partner.', welcomeStartBtn: 'Start',
+                    personaTitle: 'Preferred Contact Style', personaDescription: 'Please describe the conversation style and concept of your ideal partner.',
+                    personaStyleLabel: 'Style', personaStylePlaceholder: 'e.g., Cute, friendly, chic',
+                    personaFrequencyLabel: 'Contact Frequency', personaFrequencyPlaceholder: 'e.g., Often, only when I contact first',
+                    personaTendencyLabel: 'Conversation Tendency', personaTendencyPlaceholder: 'e.g., Leads the conversation, mostly listens',
+                    personaNicknameLabel: 'Pet Name', personaNicknamePlaceholder: 'e.g., Honey, Babe',
+                    personaAgeLabel: 'Age', personaAgePlaceholder: 'e.g., 24',
+                    nextBtn: 'Next',
+                    apiKeyTitle: 'API Key Setup', apiKeyLabel: 'API Key', apiKeyPlaceholder: 'Enter your Google AI API Key', getApiKeyBtn: 'How to get an API Key',
+                    startChatBtn: 'Start Chat', messagePlaceholder: 'Type a message...', modalTitle: 'Get Your Free Google AI API Key',
                     modalStep1: 'Log in to Google AI Studio.', modalStep2: 'Click "Create API Key".', modalStep3: 'Copy the key and paste it here.',
                     modalLink: 'Go to Google AI Studio',
                 },
                 ko: {
-                    appTitle: '커넥트',
-                    appDescription: '익숙한 대화, 색다른 공감. 나만의 AI 파트너',
-                    loginPrompt: '대화를 이어가고 싶다면 로그인하세요.', loginBtn: 'Google 계정으로 로그인', setupTitle: '채팅 설정',
-                    apiKeyLabel: 'API 키', apiKeyPlaceholder: 'Google AI API 키를 입력하세요', getApiKeyBtn: 'API 키 발급 방법',
-                    personaLabel: 'AI 페르소나', personaNamePlaceholder: '이름 (예: 지수)', personaRelationPlaceholder: '관계 (예: 친구)',
-                    personaStylePlaceholder: '성격 & 말투 (예: 활발하고, 이모티콘을 자주 씀 💕)', accentThemeLabel: '악센트 컬러', greenChat: '그린', yellowChat: '옐로우',
-                    startChatBtn: '저장하고 채팅 시작', messagePlaceholder: '메시지를 입력하세요...', modalTitle: '무료 Google AI API 키 발급받기',
+                    appTitle: '커넥트', appDescription: '익숙한 대화, 색다른 공감. 나만의 AI 파트너', welcomeStartBtn: '시작하기',
+                    personaTitle: '선호하는 연락 스타일', personaDescription: '선호하는 이성의 대화 성향과 컨셉을 적어주세요.',
+                    personaStyleLabel: '스타일', personaStylePlaceholder: '예: 애교있게, 친구처럼, 시크하게',
+                    personaFrequencyLabel: '연락 주기', personaFrequencyPlaceholder: '예: 자주, 내가 먼저 연락할 때만',
+                    personaTendencyLabel: '대화 성향', personaTendencyPlaceholder: '예: 대화를 주도하는 편, 주로 들어주는 편',
+                    personaNicknameLabel: '애칭', personaNicknamePlaceholder: '예: 자기야, 애기야',
+                    personaAgeLabel: '나이', personaAgePlaceholder: '예: 24',
+                    nextBtn: '다음',
+                    apiKeyTitle: 'API 키 설정', apiKeyLabel: 'API 키', apiKeyPlaceholder: 'Google AI API 키를 입력하세요', getApiKeyBtn: 'API 키 발급 방법',
+                    startChatBtn: '채팅 시작', messagePlaceholder: '메시지를 입력하세요...', modalTitle: '무료 Google AI API 키 발급받기',
                     modalStep1: 'Google AI Studio에 로그인하세요.', modalStep2: '"Create API Key"를 클릭하세요.', modalStep3: '생성된 키를 복사하여 앱에 붙여넣으세요.',
                     modalLink: 'Google AI Studio로 이동',
                 }
             },
             init() {
-                const firebaseConfig = {
-                    apiKey: "AIzaSyDmO1wpZQJEiPEjNoq7xtFcq33akIzoGY8",
-                    authDomain: "aimeet-c235c.firebaseapp.com",
-                    projectId: "aimeet-c235c",
-                    storageBucket: "aimeet-c235c.firebasestorage.app",
-                    messagingSenderId: "732324287861",
-                    appId: "1:732324287861:web:15d894068755c627842f3c",
-                    measurementId: "G-CD2L6WFJN9"
-                };
-
-                const ids = ['app', 'setup-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key', 'persona-name', 'persona-relation', 'persona-style', 'start-chat-btn', 'back-btn', 'logout-btn', 'chat-persona-name', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'login-btn', 'logged-out-view', 'logged-in-view'];
+                const ids = ['app', 'welcome-screen', 'persona-screen', 'api-key-screen', 'chat-screen', 'lang-toggle', 'theme-toggle', 'api-key', 'persona-style', 'persona-frequency', 'persona-tendency', 'persona-nickname', 'persona-age', 'go-to-persona-btn', 'go-to-api-btn', 'start-chat-btn', 'back-btn', 'chat-persona-name', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn'];
                 ids.forEach(id => this.elements[id] = document.getElementById(id));
-                // Remove themeOptions as it's no longer used
-                // this.elements.themeOptions = document.querySelectorAll('.theme-option');
-
-                try {
-                    firebase.initializeApp(firebaseConfig);
-                    this.state.auth = firebase.auth();
-                    this.state.db = firebase.firestore();
-                } catch (e) {
-                    alert("Could not initialize Firebase. Please check your console for details.");
-                    return;
-                }
                 
-                this.loadLocalSettings();
+                this.loadSettings();
                 this.applyTheme();
                 this.updateUI();
                 this.addEventListeners();
-                
-                this.state.auth.onAuthStateChanged(user => {
-                    if (user) { this.state.user = user; this.loadDataFromFirestore(); } 
-                    else { this.state.user = null; this.showView('logged-out-view'); }
-                });
             },
             addEventListeners() {
-                this.elements['login-btn'].addEventListener('click', () => this.loginWithGoogle());
-                this.elements['logout-btn'].addEventListener('click', () => this.state.auth.signOut());
                 this.elements['lang-toggle'].addEventListener('click', () => this.toggleLanguage());
                 this.elements['theme-toggle'].addEventListener('click', () => this.toggleTheme());
+                this.elements['go-to-persona-btn'].addEventListener('click', () => this.showScreen('persona-screen'));
+                this.elements['go-to-api-btn'].addEventListener('click', () => this.showScreen('api-key-screen'));
                 this.elements['get-api-key-btn'].addEventListener('click', () => this.elements['api-key-modal'].style.display = 'flex');
-                if (this.elements['close-modal-btn']) this.elements['close-modal-btn'].addEventListener('click', () => this.elements['api-key-modal'].style.display = 'none');
+                this.elements['close-modal-btn'].addEventListener('click', () => this.elements['api-key-modal'].style.display = 'none');
                 this.elements['start-chat-btn'].addEventListener('click', () => this.startChat());
-                this.elements['back-btn'].addEventListener('click', () => this.showScreen('setup-screen'));
+                this.elements['back-btn'].addEventListener('click', () => this.showScreen('api-key-screen'));
                 this.elements['send-btn'].addEventListener('click', () => this.sendMessage());
                 this.elements['message-input'].addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.sendMessage(); }
                 });
-                // Theme options removed
-                // this.elements.themeOptions.forEach(option => {
-                //     option.addEventListener('click', () => this.setAccentTheme(option.dataset.theme));
-                // });
             },
             showScreen(screenId) {
-                ['setup-screen', 'chat-screen'].forEach(id => {
+                ['welcome-screen', 'persona-screen', 'api-key-screen', 'chat-screen'].forEach(id => {
                     this.elements[id].classList.toggle('active', id === screenId);
                 });
             },
-            showView(viewId) {
-                ['logged-out-view', 'logged-in-view'].forEach(id => {
-                    this.elements[id].style.display = (id === viewId) ? 'block' : 'none';
-                });
-            },
-            async loadDataFromFirestore() {
-                const userRef = this.state.db.collection('users').doc(this.state.user.uid);
-                try {
-                    const doc = await userRef.get();
-                    if (doc.exists) {
-                        const data = doc.data();
-                        Object.assign(this.state, data); // Load all data
-                        this.elements['api-key'].value = this.state.apiKey || '';
-                        this.elements['persona-name'].value = this.state.persona.name || '';
-                        this.elements['persona-relation'].value = this.state.persona.relation || '';
-                        this.elements['persona-style'].value = this.state.persona.style || '';
-                        this.startChat(true);
-                    } else {
-                        this.showView('logged-in-view'); // Show settings for new user
-                        this.showScreen('setup-screen');
-                    }
-                } catch (error) {
-                    alert(`Firestore 데이터 로드 실패: ${error.message}`);
-                    this.showView('logged-in-view'); // Fallback to settings
-                    this.showScreen('setup-screen');
-                }
-                this.applyTheme(); // Re-apply theme after loading
-                this.updateUI(); // Re-update UI after loading
-            },
-            async saveDataToFirestore() {
-                if (!this.state.user) return;
-                const userRef = this.state.db.collection('users').doc(this.state.user.uid);
-                const { user, db, auth, chat, ...settingsToSave } = this.state;
-                await userRef.set(settingsToSave, { merge: true });
-            },
-            loginWithGoogle() {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                this.state.auth.signInWithPopup(provider).catch(error => {
-                    alert(`Login Failed: ${error.message}`);
-                });
-            },
-            toggleLanguage() { this.state.language = this.state.language === 'ko' ? 'en' : 'ko'; this.updateUI(); if(this.state.user) this.saveDataToFirestore(); else this.saveLocalSettings(); },
-            toggleTheme() { this.state.isDarkMode = !this.state.isDarkMode; this.applyTheme(); if(this.state.user) this.saveDataToFirestore(); else this.saveLocalSettings(); },
-            // setAccentTheme function removed as it's no longer needed
+            toggleLanguage() { this.state.language = this.state.language === 'ko' ? 'en' : 'ko'; this.updateUI(); this.saveSettings(); },
+            toggleTheme() { this.state.isDarkMode = !this.state.isDarkMode; this.applyTheme(); this.saveSettings(); },
             applyTheme() {
-                document.body.className = ''; // Clear existing theme classes
+                document.body.className = '';
                 if(this.state.isDarkMode) document.body.classList.add('dark-mode');
-                // The accent theme is now hardcoded to a purple scheme via :root vars
                 this.elements['theme-toggle'].textContent = this.state.isDarkMode ? '☀️' : '🌙';
             },
             updateUI() {
@@ -298,57 +215,49 @@
                 this.elements['lang-toggle'].textContent = this.state.language === 'ko' ? '🇺🇸' : '🇰🇷';
                 document.querySelectorAll('[data-i18n]').forEach(el => {
                     const key = el.dataset.i18n;
-                    if(!translations[key]) return; // Handle missing translations
-                    if (el.placeholder !== undefined) el.placeholder = translations[key];
-                    else el.textContent = translations[key];
+                    if(translations[key] !== undefined) {
+                        if (el.placeholder !== undefined) el.placeholder = translations[key];
+                        else el.textContent = translations[key];
+                    }
                 });
             },
-            loadLocalSettings() { // For pre-login language/theme persistence
-                const lang = localStorage.getItem('aiChatLanguage');
-                const darkMode = localStorage.getItem('aiChatDarkMode');
-                if(lang) this.state.language = lang;
-                if(darkMode) this.state.isDarkMode = (darkMode === 'true');
+            saveSettings() {
+                localStorage.setItem('aiChatSettings', JSON.stringify(this.state));
             },
-            saveLocalSettings() { // For pre-login language/theme persistence
-                localStorage.setItem('aiChatLanguage', this.state.language);
-                localStorage.setItem('aiChatDarkMode', this.state.isDarkMode);
+            loadSettings() {
+                const settings = JSON.parse(localStorage.getItem('aiChatSettings'));
+                if (settings) Object.assign(this.state, settings);
             },
-            startChat(isAutoStart = false) {
-                if (!isAutoStart) {
-                    this.state.apiKey = this.elements['api-key'].value.trim();
-                    this.state.persona = {
-                        name: this.elements['persona-name'].value.trim(),
-                        relation: this.elements['persona-relation'].value.trim(),
-                        style: this.elements['persona-style'].value.trim(),
-                    };
-                    if (!this.state.apiKey || !this.state.persona.name) {
-                        alert('API 키와 AI 이름을 모두 입력해주세요.');
-                        return;
-                    }
-                    this.saveDataToFirestore();
-                }
+            startChat() {
+                this.state.apiKey = this.elements['api-key'].value.trim();
+                Object.keys(this.state.persona).forEach(key => {
+                    this.state.persona[key] = this.elements[`persona-${key}`].value.trim();
+                });
+
+                if (!this.state.apiKey) { alert('API 키를 입력해주세요.'); return; }
+                this.saveSettings();
 
                 if (typeof window.GoogleGenerativeAI === 'undefined') {
-                    alert('AI 서비스에 연결할 수 없습니다. 인터넷 연결을 확인하고 새로고침 해주세요.');
-                    this.showScreen('setup-screen'); return;
+                    alert('AI 서비스에 연결할 수 없습니다. 인터넷 연결을 확인하고 새로고침 해주세요.'); return;
                 }
                 
-                this.elements['chat-persona-name'].textContent = this.state.persona.name;
+                this.elements['chat-persona-name'].textContent = this.state.persona.nickname || 'AI';
                 this.elements['message-area'].innerHTML = '';
                 (this.state.chatHistory || []).forEach(msg => this.displayMessage(msg.role, msg.text));
 
                 try {
                     const genAI = new window.GoogleGenerativeAI(this.state.apiKey);
                     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                    const history = (this.state.chatHistory || []).map(m => ({role: m.role, parts: [{text: m.text}]}));
-                    const systemPrompt = `You are ${this.state.persona.name}, my ${this.state.persona.relation}. Your personality and tone of voice is: ${this.state.persona.style}. Please reply in ${this.state.language === 'ko' ? 'Korean' : 'English'}. Keep replies natural and conversational.`;
+                    const systemPrompt = `You are my AI partner. Your pet name for me is '${this.state.persona.nickname}'. You are ${this.state.persona.age} years old. Your overall style is '${this.state.persona.style}'. You tend to '${this.state.persona.tendency}' in conversation. You contact me '${this.state.persona.frequency}'. Please reply in ${this.state.language === 'ko' ? 'Korean' : 'English'}. Keep replies natural and conversational.`;
                     this.state.chat = model.startChat({
-                        history: history, generationConfig: { maxOutputTokens: 200 }, systemInstruction: systemPrompt,
+                        history: (this.state.chatHistory || []).map(m => ({role: m.role, parts: [{text: m.text}]})),
+                        generationConfig: { maxOutputTokens: 200 },
+                        systemInstruction: systemPrompt,
                     });
                     this.showScreen('chat-screen');
                 } catch (error) {
                     alert(`AI 채팅 시작 중 오류가 발생했습니다: ${error.message}`);
-                    this.showScreen('setup-screen');
+                    this.showScreen('api-key-screen');
                 }
             },
             async sendMessage() {
@@ -368,7 +277,7 @@
                 } catch (error) {
                     this.displayMessage('model', `죄송합니다, 오류가 발생했습니다: ${error.message}`);
                 }
-                this.saveDataToFirestore();
+                this.saveSettings();
             },
             displayMessage(role, text) {
                 const container = document.createElement('div');
