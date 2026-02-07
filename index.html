@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Connect</title>
     <style>
-        /* 변수 설정 (기존 유지) */
+        /* 변수 설정 */
         :root {
             --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             --bg-primary: #fff; --bg-secondary: #f0f2f5; --text-primary: #1c1e21; --text-secondary: #65676b; --divider: #e4e6eb;
@@ -34,18 +34,15 @@
         }
         .whatsapp-mode #app { background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay; background-color: #efe7dd; }
 
-        /* [핵심 수정] 모든 화면 숨김 처리 -> active만 표시 */
+        /* 화면 관리 (로그인 겹침 방지: !important) */
         .screen { display: none !important; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: var(--bg-primary); }
         .screen.active { display: flex !important; z-index: 100; }
-        
-        /* 로딩 화면 (초기 잠깐용) */
-        #loading-screen { justify-content: center; align-items: center; }
         
         /* 헤더 */
         .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 1rem; border-bottom: 1px solid var(--divider); background: var(--bg-primary); z-index: 10; min-height: 50px; }
         .header h1 { font-size: 1.1rem; margin: 0; font-weight: 700; }
         
-        /* 채팅방 헤더 */
+        /* 채팅방 헤더 (롤백됨) */
         .chat-header {
             flex-shrink: 0;
             display: flex; justify-content: space-between; align-items: center;
@@ -72,6 +69,7 @@
         .hint-block { background-color: rgba(138, 43, 226, 0.08); padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; border: 1px solid rgba(138, 43, 226, 0.2); }
         .hint-text-main { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
 
+        /* AI 생성 버튼 삭제하고 업로드만 남김 */
         .avatar-controls { display: flex; justify-content: center; margin-bottom: 1rem; }
         .btn-cta-small { padding: 10px 0; font-size: 0.9rem; border-radius: 8px; border: 1px solid var(--divider); cursor: pointer; background: var(--bg-secondary); color: var(--text-primary); font-weight: 600; transition: 0.2s; width: 100%; text-align: center; }
 
@@ -255,16 +253,14 @@
                 elements: {},
                 state: { 
                     apiKey: null, language: 'ko', isDarkMode: false, persona: {}, chat: null, 
-                    chatHistory: [], // Gemini Context
-                    visualHistory: [], // UI Display (분리 저장)
+                    chatHistory: [], visualHistory: [], 
                     db: null, auth: null, user: null, pendingImage: null,
-                    debounceTimer: null, messageQueue: [],
-                    isProcessing: false // [수정] 중복 실행 방지용 상태 추가
+                    debounceTimer: null, messageQueue: []
                 },
                 i18n: {
                     en: {
                         appTitle: 'Connect', appDescription: 'Familiar conversations,\nYour own AI Partner.', loginBtn: 'Start with Google',
-                        setupTitle: 'Profile', profileImageLabel: 'Profile Photo', aiCreateBtn: 'AI Gen', uploadPhotoBtn: 'Upload Photo',
+                        setupTitle: 'Profile', profileImageLabel: 'Profile Photo', uploadPhotoBtn: 'Upload Photo',
                         personaNameLabel: 'Partner Name', personaNamePlaceholder: 'Name (e.g., Jisu)',
                         specificHint: '* More details make it better! Describe each field.', chatRoomNameLabel: 'Chat Title', chatRoomNamePlaceholder: 'e.g., My Love',
                         personaStyleLabel: 'Style', styleExample: '(e.g., Cute)', 
@@ -276,7 +272,7 @@
                     },
                     ko: {
                         appTitle: '커넥트', appDescription: '익숙한 대화, 색다른 공감.<br>나만의 AI 파트너.', loginBtn: '구글 계정으로 시작하기',
-                        setupTitle: '프로필 설정', profileImageLabel: '상대방 프로필 사진', aiCreateBtn: 'AI 생성', uploadPhotoBtn: '사진 업로드',
+                        setupTitle: '프로필 설정', profileImageLabel: '상대방 프로필 사진', uploadPhotoBtn: '사진 업로드',
                         personaNameLabel: '상대방 이름', personaNamePlaceholder: '이름 (예: 지수)',
                         specificHint: '* 구체적으로 적으면 더 실감나요! 각 항목을 자세히 적어주세요.', chatRoomNameLabel: '채팅방 이름', chatRoomNamePlaceholder: '예: 내 사랑♡',
                         personaStyleLabel: '성격 스타일', styleExample: '(예: 귀여운 성향)', 
@@ -328,16 +324,6 @@
                     el['attach-btn'].addEventListener('click', () => el['chat-image-input'].click());
                     el['chat-image-input'].addEventListener('change', e => this.handleChatImage(e));
                     el['cancel-image-btn'].addEventListener('click', () => this.cancelImage());
-                    
-                    // 상단 아바타 클릭 시 변경 (채팅방)
-                    if(el['chat-header-avatar']) {
-                        el['chat-header-avatar'].addEventListener('click', () => {
-                            if(confirm("프로필 사진을 변경하시겠습니까?")) {
-                                el['persona-avatar-upload'].click();
-                            }
-                        });
-                    }
-
                     el['get-api-key-btn'].addEventListener('click', (e) => { e.preventDefault(); el['api-key-modal'].style.display = 'flex'; });
                     el['close-modal-btn'].addEventListener('click', () => el['api-key-modal'].style.display = 'none');
                     
@@ -346,6 +332,9 @@
                         if(el[`theme-toggle-${scr}`]) el[`theme-toggle-${scr}`].addEventListener('click', () => this.toggleTheme());
                     });
                     if(el['theme-toggle-chat']) el['theme-toggle-chat'].addEventListener('click', () => this.toggleTheme());
+                    if(el['chat-header-avatar']) el['chat-header-avatar'].addEventListener('click', () => {
+                        if(confirm("프로필 사진을 변경하시겠습니까?")) el['persona-avatar-upload'].click();
+                    });
                 },
                 compressImage: function(file, maxWidth, quality) {
                     return new Promise((resolve) => {
@@ -373,9 +362,7 @@
                         this.elements['persona-avatar-preview'].src = base64;
                         this.elements['chat-header-avatar'].src = base64; 
                         this.state.persona.avatarUrl = base64;
-                        if(this.state.user) {
-                            await setDoc(doc(this.state.db, 'users', this.state.user.uid), { persona: this.state.persona }, { merge: true });
-                        }
+                        if(this.state.user) await setDoc(doc(this.state.db, 'users', this.state.user.uid), { persona: this.state.persona }, { merge: true });
                     }
                 },
                 handleChatImage: async function(e) {
@@ -396,19 +383,15 @@
                         location.reload();
                     }
                 },
-                // [화면 전환 로직 핵심 수정] active 클래스만 제어하여 겹침 방지
                 showScreen: function(id) {
-                    // 모든 화면의 active 클래스 제거
                     ['login-screen', 'setup-screen', 'chat-screen'].forEach(s => {
                         const el = this.elements[s];
-                        if (el) el.classList.remove('active');
+                        if (el) {
+                            if (s === id) el.classList.add('active');
+                            else el.classList.remove('active');
+                        }
                     });
-                    // 대상 화면만 active 추가
-                    if (this.elements[id]) {
-                        this.elements[id].classList.add('active');
-                    }
                 },
-                // 스크롤 최하단 이동 함수
                 scrollToBottom: function() {
                     const area = this.elements['message-area'];
                     if(area) area.scrollTop = area.scrollHeight;
@@ -421,14 +404,11 @@
                             if (data.apiKey && data.persona && data.persona.name) {
                                 this.state.apiKey = data.apiKey;
                                 this.state.persona = data.persona;
-                                
                                 const now = Date.now();
                                 const retentionMs = 7 * 24 * 60 * 60 * 1000;
-                                
                                 this.state.chatHistory = (data.chatHistory || []).filter(msg => !msg.timestamp || (now - msg.timestamp < retentionMs));
-                                // [중요] 말풍선 분리된 visualHistory 우선 로드
                                 this.state.visualHistory = (data.visualHistory || []).filter(msg => !msg.timestamp || (now - msg.timestamp < retentionMs));
-
+                                
                                 ['api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input'].forEach(k => {
                                     const field = k.replace('-input', '').split('-').pop();
                                     this.elements[k].value = this.state.persona[field] || '';
@@ -465,36 +445,28 @@
                     this.startChat(false);
                 },
                 wait: function(ms) { return new Promise(resolve => setTimeout(resolve, ms)); },
-                
                 displayTypingBubble: function() {
                     const c = document.createElement('div');
                     c.className = 'typing-bubble';
                     c.id = 'temp-typing-bubble';
                     c.innerHTML = '<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
                     this.elements['message-area'].appendChild(c);
-                    this.scrollToBottom(); // 타이핑 버블 표시 시 스크롤
+                    this.scrollToBottom();
                 },
                 removeTypingBubble: function() {
                     const bubble = document.getElementById('temp-typing-bubble');
                     if (bubble) bubble.remove();
                 },
-
                 handleUserMessage: async function() {
                     const txt = this.elements['message-input'].value.trim();
                     const imgBase64 = this.state.pendingImage;
-                    
                     if (!txt && !imgBase64) return;
-
                     const userMsgObj = { role: 'user', text: txt, img: imgBase64, timestamp: Date.now() };
-                    
                     this.displayMessage(userMsgObj.role, userMsgObj.text, userMsgObj.img);
-                    this.state.visualHistory.push(userMsgObj); // 분리 저장
-
+                    this.state.visualHistory.push(userMsgObj);
                     this.elements['message-input'].value = '';
                     this.cancelImage();
-
                     if (!this.state.messageQueue) this.state.messageQueue = [];
-                    
                     let parts = [];
                     if (imgBase64) {
                         const base64Data = imgBase64.split(',')[1];
@@ -502,15 +474,9 @@
                     }
                     if (txt) parts.push({ text: txt });
                     this.state.messageQueue.push(parts);
-
                     if (this.state.debounceTimer) clearTimeout(this.state.debounceTimer);
-                    
-                    this.state.debounceTimer = setTimeout(() => {
-                        this.processAiResponse(); 
-                    }, 1500);
+                    this.state.debounceTimer = setTimeout(() => { this.processAiResponse(); }, 1500);
                 },
-
-                // [강력 필터링 3.0] 속마음 제거 (프롬프트 강화 후속 조치)
                 cleanAiThought: function(text) {
                     if (!text) return "";
                     let clean = text.replace(/THOUGHT[\s\S]*?(\n\n|$)/gi, "");
@@ -519,138 +485,29 @@
                     if (!/[가-힣]/.test(clean) && /[a-zA-Z]/.test(clean)) return ""; 
                     return clean.trim();
                 },
-
                 processAiResponse: async function(retryCount = 0) {
-                    // [수정] 1. 중복 실행 방지: 이미 처리 중이고 재시도가 아니라면 함수 종료
-                    if (this.state.isProcessing && retryCount === 0) return;
-
                     if (!this.state.chat || !this.state.messageQueue.length) return;
-
-                    // [수정] 처리 시작 시 잠금
-                    this.state.isProcessing = true;
-
+                    const combinedParts = this.state.messageQueue.flat();
+                    if (retryCount === 0) this.state.messageQueue = []; 
+                    const speed = this.state.persona.speed || 'normal';
+                    let baseDelay = 1000;
+                    if (speed === 'fast') baseDelay = 500;
+                    else if (speed === 'slow') baseDelay = 3000;
+                    const thinkingTime = Math.floor(Math.random() * baseDelay) + baseDelay;
+                    setTimeout(() => this.displayTypingBubble(), 200);
+                    await this.wait(thinkingTime);
                     try {
-                        const combinedParts = this.state.messageQueue.flat();
-                        // 재시도가 아닐 때만 큐 비우기 (재시도 중엔 큐 유지해야 함)
-                        if (retryCount === 0) this.state.messageQueue = []; 
-
-                        const speed = this.state.persona.speed || 'normal';
-                        let baseDelay = 1000;
-                        if (speed === 'fast') baseDelay = 500;
-                        else if (speed === 'slow') baseDelay = 3000;
-
-                        const thinkingTime = Math.floor(Math.random() * baseDelay) + baseDelay;
-                        
-                        setTimeout(() => this.displayTypingBubble(), 200);
-                        await this.wait(thinkingTime);
-
                         const res = await this.state.chat.sendMessage(combinedParts);
                         this.removeTypingBubble();
-                        
                         let fullResponse = res.response.text();
                         fullResponse = this.cleanAiThought(fullResponse); 
                         if (!fullResponse) fullResponse = "...";
-
                         const splitResponses = fullResponse.split(/(?<=[.?!])\s+/).filter(s => s.trim().length > 0);
                         const now = Date.now();
-
-                        // Gemini용 합친 내역
                         const userTxt = combinedParts.map(p => p.text || "[사진]").join(" ");
+                        // [429 방지] 채팅 히스토리에는 합쳐서 저장하되, 나중에 불러올 땐 30개만 자름
                         this.state.chatHistory.push({ role: 'user', parts: [{ text: userTxt }], timestamp: now });
                         this.state.chatHistory.push({ role: 'model', parts: [{ text: fullResponse }], timestamp: now });
-
-                        for (const fragment of splitResponses) {
-                            if (!fragment) continue;
-                            this.displayMessage('model', fragment);
-                            
-                            // UI용 분리 내역 저장
-                            this.state.visualHistory.push({ role: 'model', text: fragment, timestamp: now });
-                            
-                            const typingDelay = Math.min(fragment.length * 50 + 500, 3000);
-                            await this.wait(typingDelay); 
-                        }
-
-                        // DB 저장 (분리된 내역 포함)
-                        await setDoc(doc(this.state.db, 'users', this.state.user.uid), { 
-                            chatHistory: this.state.chatHistory,
-                            visualHistory: this.state.visualHistory 
-                        }, { merge: true });
-
-                    } catch(e) {
-                        this.removeTypingBubble();
-                        // [수정] 429 오류 처리 강화
-                        // 1. 재시도 횟수 5회로 증가
-                        if (e.message.includes("429") && retryCount < 5) {
-                            // 2. 대기 시간 대폭 증가: (재시도횟수+1) * 5초 -> 5초, 10초, 15초...
-                            const delay = (retryCount + 1) * 5000; 
-                            console.log(`429 Error. Retrying in ${delay}ms...`);
-                            await this.wait(delay);
-                            
-                            // 3. 큐 복구: 실패한 메시지를 큐의 맨 앞에 다시 넣음 (순서 유지)
-                            const combinedParts = this.state.messageQueue.flat(); // 위에서 이미 가져온 데이터가 없어졌을 수 있으므로 주의.
-                            // 사실 위 try 문 안에서 combinedParts를 정의했으므로, 여기서는 접근 불가할 수 있음.
-                            // 하지만 JS의 var scope가 아니므로, catch 블록에서 접근 불가.
-                            // 해결책: 이전에 큐에서 뺀 데이터를 다시 넣어야 함.
-                            // 하지만 큐를 비웠으므로(this.state.messageQueue = []), 
-                            // 방금 보낸 combinedParts를 다시 unshift 해야 함.
-                            // *중요: combinedParts 변수를 try 블록 밖으로 꺼내거나, 여기서 다시 구성해야 함.
-                            // 하지만 combinedParts는 try 안에서 선언됨. 
-                            // 여기서는 간단히 로직 흐름상 큐를 복구하는 방식을 사용.
-                            
-                            // * 수정된 로직: processAiResponse를 재귀 호출하기 전에 큐에 다시 넣어야 함.
-                            // 하지만 combinedParts에 접근할 수 없으므로, 구조를 약간 변경합니다.
-                            // (아래에서 combinedParts를 try 밖에서 선언하여 해결)
-                        } else {
-                            console.error(e); 
-                        }
-                    } finally {
-                        // [수정] 처리 완료 시 잠금 해제 (최상위 호출일 때만)
-                        if (retryCount === 0) {
-                            this.state.isProcessing = false;
-                            // 처리 도중 쌓인 메시지가 있다면 다시 실행
-                            if (this.state.messageQueue.length > 0) {
-                                this.processAiResponse();
-                            }
-                        }
-                    }
-                },
-                
-                // [수정 보완] processAiResponse 함수를 위해 combinedParts 스코프 조정 및 재작성
-                processAiResponse: async function(retryCount = 0) {
-                    if (this.state.isProcessing && retryCount === 0) return;
-                    if (!this.state.chat || !this.state.messageQueue.length) return;
-
-                    this.state.isProcessing = true;
-                    let combinedParts = []; // 스코프 이동
-
-                    try {
-                        combinedParts = this.state.messageQueue.flat();
-                        if (retryCount === 0) this.state.messageQueue = []; 
-
-                        const speed = this.state.persona.speed || 'normal';
-                        let baseDelay = 1000;
-                        if (speed === 'fast') baseDelay = 500;
-                        else if (speed === 'slow') baseDelay = 3000;
-
-                        const thinkingTime = Math.floor(Math.random() * baseDelay) + baseDelay;
-                        
-                        setTimeout(() => this.displayTypingBubble(), 200);
-                        await this.wait(thinkingTime);
-
-                        const res = await this.state.chat.sendMessage(combinedParts);
-                        this.removeTypingBubble();
-                        
-                        let fullResponse = res.response.text();
-                        fullResponse = this.cleanAiThought(fullResponse); 
-                        if (!fullResponse) fullResponse = "...";
-
-                        const splitResponses = fullResponse.split(/(?<=[.?!])\s+/).filter(s => s.trim().length > 0);
-                        const now = Date.now();
-
-                        const userTxt = combinedParts.map(p => p.text || "[사진]").join(" ");
-                        this.state.chatHistory.push({ role: 'user', parts: [{ text: userTxt }], timestamp: now });
-                        this.state.chatHistory.push({ role: 'model', parts: [{ text: fullResponse }], timestamp: now });
-
                         for (const fragment of splitResponses) {
                             if (!fragment) continue;
                             this.displayMessage('model', fragment);
@@ -658,97 +515,52 @@
                             const typingDelay = Math.min(fragment.length * 50 + 500, 3000);
                             await this.wait(typingDelay); 
                         }
-
                         await setDoc(doc(this.state.db, 'users', this.state.user.uid), { 
                             chatHistory: this.state.chatHistory,
                             visualHistory: this.state.visualHistory 
                         }, { merge: true });
-
                     } catch(e) {
                         this.removeTypingBubble();
-                        if (e.message.includes("429") && retryCount < 5) {
-                            const delay = (retryCount + 1) * 5000; // 5초, 10초, 15초...
-                            console.log(`429 Error. Retrying in ${delay}ms...`);
+                        if (e.message.includes("429") && retryCount < 3) {
+                            const delay = Math.pow(2, retryCount + 1) * 1000; 
                             await this.wait(delay);
-                            
-                            // [수정] 실패한 메시지를 대기열 맨 앞에 복구
-                            this.state.messageQueue.unshift(combinedParts);
-                            await this.processAiResponse(retryCount + 1); 
-                        }
-                    } finally {
-                        if (retryCount === 0) {
-                            this.state.isProcessing = false;
-                            if (this.state.messageQueue.length > 0) {
-                                this.processAiResponse();
-                            }
+                            this.state.messageQueue.push(combinedParts); 
+                            this.processAiResponse(retryCount + 1);
                         }
                     }
                 },
-
                 startChat: async function(isAuto) {
                     this.elements['chat-room-name-header'].textContent = this.state.persona.chatRoomName || this.state.persona.name;
                     this.elements['chat-header-avatar'].src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
                     this.elements['message-area'].innerHTML = '';
-                    
-                    // [중요] 분리된 말풍선 내역 로드
-                    const historyToRender = (this.state.visualHistory && this.state.visualHistory.length > 0) 
-                        ? this.state.visualHistory 
-                        : this.state.chatHistory;
-
+                    const historyToRender = (this.state.visualHistory && this.state.visualHistory.length > 0) ? this.state.visualHistory : this.state.chatHistory;
                     if (historyToRender.length > 0) {
                         historyToRender.forEach(m => {
                             let text = m.text;
                             if (!text && m.parts) m.parts.forEach(p => { if(p.text) text = p.text; });
                             this.displayMessage(m.role, text, m.img || null); 
                         });
-                        // [중요] 입장 시 스크롤 최하단
                         setTimeout(() => this.scrollToBottom(), 100);
-                        
-                        // 선톡 체크
-                        const lastMsg = historyToRender[historyToRender.length - 1];
-                        if (lastMsg && lastMsg.role === 'user' && lastMsg.timestamp) {
-                            const hoursPassed = (Date.now() - lastMsg.timestamp) / (1000 * 60 * 60);
-                            const randomThreshold = Math.random() * (4 - 2) + 2; 
-                            
-                            if (hoursPassed > randomThreshold) {
-                                try {
-                                    const res = await this.state.chat.sendMessage("System: User hasn't replied for a few hours. Send a short, natural 'Are you busy?' or 'What are you doing?' message.");
-                                    let safeText = this.cleanAiThought(res.response.text());
-                                    if(safeText) {
-                                        this.displayMessage('model', safeText);
-                                        const now = Date.now();
-                                        this.state.visualHistory.push({ role: 'model', text: safeText, timestamp: now });
-                                        this.state.chatHistory.push({ role: 'model', parts: [{text: safeText}], timestamp: now });
-                                        await setDoc(doc(this.state.db, 'users', this.state.user.uid), { chatHistory: this.state.chatHistory, visualHistory: this.state.visualHistory }, { merge: true });
-                                    }
-                                } catch(e) {}
-                            }
-                        }
                     }
-
                     try {
                         const genAI = new GoogleGenerativeAI(this.state.apiKey);
                         const now = new Date().toLocaleString('en-US', { timeZone: this.state.persona.timezone || 'Asia/Seoul' });
+                        // [429 방지] 컨텍스트 최근 30개로 제한
+                        const apiHistory = this.state.chatHistory.slice(-30).map(h => ({ role: h.role, parts: h.parts }));
                         
-                        // [시스템 프롬프트 - 이모지 제한 강화]
                         const prompt = `
                         You are '${this.state.persona.name}'.
                         Nickname: '${this.state.persona.nickname}'. Age: ${this.state.persona.age}.
                         Style: ${this.state.persona.style}. Current Time: ${now}.
-                        
-                        [CRITICAL RULES]
+                        [RULES]
                         1. Speak like a real Korean on KakaoTalk.
                         2. NEVER output internal thoughts (THOUGHT, I should...). ONLY the message.
                         3. Split long messages. Use text + emoji mix naturally.
-                        4. EMOJI RULE: Use VERY FEW emojis. Max 1 per message, usually 0. Do NOT overuse emojis.
+                        4. EMOJI RULE: Use VERY FEW emojis. Max 0-1 per message.
                         `;
-                        
                         const model = genAI.getGenerativeModel({ model: MODEL_NAME, systemInstruction: prompt });
-                        const apiHistory = this.state.chatHistory.map(h => ({ role: h.role, parts: h.parts }));
                         this.state.chat = model.startChat({ history: apiHistory });
-                        
                         this.showScreen('chat-screen');
-                        
                         if (!isAuto && historyToRender.length === 0) {
                             try {
                                 const res = await this.state.chat.sendMessage("안녕!");
@@ -760,23 +572,18 @@
                         this.showScreen('setup-screen'); 
                     }
                 },
-                
                 displayMessage: function(role, txt, imgBase64) {
                     if (!txt && !imgBase64) return; 
-
                     const row = document.createElement('div');
                     row.className = `message-row ${role === 'user' ? 'user' : 'partner'}`;
-                    
                     if (role !== 'user') {
                         const avatar = document.createElement('img');
                         avatar.className = 'msg-avatar';
                         avatar.src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
                         row.appendChild(avatar);
                     }
-
                     const bubble = document.createElement('div');
                     bubble.className = 'message-bubble';
-                    
                     if (imgBase64) {
                         const img = document.createElement('img');
                         img.src = imgBase64.startsWith('data:') ? imgBase64 : `data:image/jpeg;base64,${imgBase64}`;
@@ -787,10 +594,9 @@
                         s.textContent = txt; 
                         bubble.appendChild(s); 
                     }
-                    
                     row.appendChild(bubble);
                     this.elements['message-area'].appendChild(row);
-                    this.scrollToBottom(); // 메시지 표시 시 스크롤
+                    this.scrollToBottom(); 
                 },
                 loadSettings: function() {
                     this.state.language = localStorage.getItem('lang') || 'ko';
