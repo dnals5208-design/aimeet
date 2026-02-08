@@ -21,7 +21,6 @@
         :root {
             --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             --bg-primary: #fff; --bg-secondary: #f0f2f5; --text-primary: #1c1e21; --text-secondary: #65676b; --divider: #e4e6eb;
-            /* 연보라색 테마 유지 */
             --accent: #8A2BE2; --user-bubble: #8A2BE2; --partner-bubble: #fff; --user-text: #fff; --partner-text: #1c1e21; --modal-bg: #fff;
             --danger: #ff4d4f;
         }
@@ -33,14 +32,7 @@
         
         html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: var(--font-sans); background-color: var(--bg-secondary); color: var(--text-primary); transition: 0.2s; }
         
-        #app { 
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            display: flex; flex-direction: column; 
-            max-width: 600px; margin: 0 auto; 
-            background-color: var(--bg-primary); 
-            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
-        }
-
+        #app { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; max-width: 600px; margin: 0 auto; background-color: var(--bg-primary); box-shadow: 0 0 20px rgba(0,0,0,0.1); }
         .screen { display: none !important; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: var(--bg-primary); }
         .screen.active { display: flex !important; z-index: 100; }
         
@@ -66,14 +58,7 @@
         .card input, .card select, .card textarea { width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 0.95rem; box-sizing: border-box; margin-bottom: 0.6rem;}
         .card textarea { resize: vertical; min-height: 60px; font-family: var(--font-sans); }
 
-        .hint-block { 
-            background-color: rgba(138, 43, 226, 0.08); 
-            padding: 0.8rem; 
-            border-radius: 8px; 
-            margin-bottom: 1rem; 
-            text-align: center; 
-            border: 1px solid rgba(138, 43, 226, 0.2); 
-        }
+        .hint-block { background-color: rgba(138, 43, 226, 0.08); padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; border: 1px solid rgba(138, 43, 226, 0.2); }
         .hint-text-main { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
 
         .avatar-controls { display: flex; justify-content: center; margin-bottom: 1rem; }
@@ -84,7 +69,6 @@
         .button-danger { background-color: var(--danger); color: white; }
         .help-link-btn { background: none; border: none; color: var(--text-secondary); text-decoration: underline; font-size: 0.85rem; cursor: pointer; display: block; margin-top: 5px; text-align: left; padding: 0;}
 
-        /* 모달 */
         .modal { position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; }
         .modal-content { background-color: var(--modal-bg); padding: 20px; border-radius: 12px; width: 90%; max-width: 350px; max-height: 80vh; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .modal-body { overflow-y: auto; flex: 1; padding-right: 5px; margin-bottom: 15px; }
@@ -99,9 +83,7 @@
         .message-row.partner { justify-content: flex-start; }
         
         .partner-content { display: flex; flex-direction: column; align-items: flex-start; max-width: 70%; }
-
         .msg-avatar { width: 38px; height: 38px; border-radius: 40%; object-fit: cover; margin-right: 8px; flex-shrink: 0; background-color: #ddd; margin-bottom: 15px; } 
-        
         .msg-name { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px; margin-left: 2px; }
 
         .message-bubble { padding: 0.6rem 0.8rem; border-radius: 12px; line-height: 1.4; box-shadow: 0 1px 1px rgba(0,0,0,0.05); word-wrap: break-word; font-size: 0.95rem; position: relative; }
@@ -551,60 +533,57 @@
                     return clean.trim();
                 },
 
-                processAiResponse: async function(retryCount = 0) {
+                processAiResponse: async function() {
                     if (!this.state.chat || !this.state.messageQueue.length) return;
 
                     const combinedParts = this.state.messageQueue.flat();
-                    if (retryCount === 0) this.state.messageQueue = []; 
+                    this.state.messageQueue = []; 
 
                     this.displayTypingBubble();
 
-                    // ========================================================
-                    // [핵심 로직] Gemini 2.5 시도 -> 실패시 2.0 전환
-                    // ========================================================
                     try {
                         const genAI = new GoogleGenerativeAI(this.state.apiKey);
                         const timezone = this.state.persona.timezone || 'Asia/Seoul';
                         const nowStr = new Date().toLocaleString('ko-KR', { timeZone: timezone });
                         
+                        // [핵심] 페르소나 적용 강화 (애교 필터)
+                        const p = this.state.persona;
+                        let personaInstruction = `
+                        You are '${p.name}'. Nickname: '${p.nickname}'. Age: ${p.age}.
+                        Relationship: ${p.intro}.
+                        Your Personality/Style: "${p.style}".
+                        Your Tone/Tendency: "${p.tendency}".
+                        `;
+                        
+                        if (p.style.includes('애교') || p.tendency.includes('애교') || p.style.includes('cute')) {
+                            personaInstruction += `\n[IMPORTANT] You MUST act extremely cute (Aegyo). Use many emoticons (❤️, hehe, >_<) and cute endings (ong, yung) in Korean.`;
+                        }
+
                         const systemPrompt = `
-                        You are '${this.state.persona.name}'. Nickname: '${this.state.persona.nickname}'. Age: ${this.state.persona.age}. Style: ${this.state.persona.style}. 
-                        [CONTEXT] Self-Intro: ${this.state.persona.intro || ''}.
-                        [TIME] Current Time: ${nowStr} (in ${timezone}). Recognize Morning/Day/Night.
+                        ${personaInstruction}
+                        [TIME] Current Time: ${nowStr} (in ${timezone}).
                         
                         [RULES]
                         1. Speak naturally in Korean (KakaoTalk style).
                         2. NEVER output internal thoughts. ONLY the message.
-                        3. Use emojis moderately.
-                        4. Split your message into multiple lines (use \\n) if you want to send multiple bubbles.
+                        3. Split your message into multiple lines (use \\n) if you want to send multiple bubbles.
                         `;
 
-                        const modelParams = { systemInstruction: systemPrompt };
+                        // [핵심] 2.5 Flash 단독 사용 (복잡한 Fallback 제거)
+                        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash", systemInstruction: systemPrompt });
+                        
                         const retentionTime = Date.now() - (3 * 24 * 60 * 60 * 1000);
                         const apiHistory = this.state.chatHistory
                             .filter(m => !m.timestamp || m.timestamp > retentionTime)
                             .map(h => ({ role: h.role, parts: h.parts }));
 
-                        let responseText = "";
-                        
-                        // 1순위: Gemini 2.5 Flash
-                        try {
-                            const model25 = genAI.getGenerativeModel({ model: "gemini-2.5-flash", ...modelParams });
-                            const chatSession = model25.startChat({ history: apiHistory });
-                            const result = await chatSession.sendMessage(combinedParts);
-                            responseText = result.response.text();
-                        } catch (e25) {
-                            console.log("2.5 Failed, Switching to 2.0 Flash");
-                            // 2순위: Gemini 2.0 Flash (Fallback)
-                            const model20 = genAI.getGenerativeModel({ model: "gemini-2.0-flash", ...modelParams });
-                            const chatSession = model20.startChat({ history: apiHistory });
-                            const result = await chatSession.sendMessage(combinedParts);
-                            responseText = result.response.text();
-                        }
+                        const chatSession = model.startChat({ history: apiHistory });
+                        const result = await chatSession.sendMessage(combinedParts);
+                        const responseText = result.response.text();
 
                         this.removeTypingBubble();
 
-                        // [핵심] 줄바꿈(\n) 기준으로 말풍선 쪼개기
+                        // 줄바꿈 기준으로 말풍선 쪼개기
                         const bubbles = responseText.split('\n');
                         const now = Date.now();
 
@@ -621,7 +600,7 @@
                             await this.wait(typingTime);
                             this.removeTypingBubble();
                             
-                            this.displayMessage('model', fragment, null, now); // timestamp 전달
+                            this.displayMessage('model', fragment, null, now);
                             this.state.visualHistory.push({ role: 'model', text: fragment, timestamp: now });
                             
                             if (i < bubbles.length - 1) {
@@ -636,13 +615,9 @@
 
                     } catch(e) {
                         this.removeTypingBubble();
-                        // [요청 사항] 429 오류 시 정확한 멘트 출력
+                        // [핵심] 429 오류 멘트 적용
                         if (e.message.includes("429")) {
                             alert("오늘 할당량을 다 썼어요! 내일 오후 5시에 다시 와주세요. (오후 5시 초기화)");
-                        } else if (retryCount < 2) {
-                            await this.wait(1000);
-                            this.state.messageQueue.push(combinedParts);
-                            this.processAiResponse(retryCount + 1);
                         } else {
                             alert("서버 연결 실패 (API 키 확인 필요)");
                         }
@@ -670,7 +645,7 @@
                         });
                         setTimeout(() => this.scrollToBottom(), 100);
                     } else {
-                        // [요청 사항] 첫 인사에 '...' 타이핑 효과 추가 후 출력 (API 미사용)
+                        // [핵심] 시작 시 '...' 타이핑 효과 후 선톡
                         const hour = new Date().getHours();
                         let greeting = "";
                         const nick = this.state.persona.nickname || '자기';
@@ -681,13 +656,13 @@
                         else if (hour >= 18 && hour < 22) greeting = `저녁 먹었어 ${nick}야?`;
                         else greeting = `${nick}야 안 자고 뭐해? ㅎㅎ`;
 
-                        // 1. 타이핑 효과 먼저 표시
+                        // 1. 타이핑 표시
                         this.displayTypingBubble();
                         
-                        // 2. 2초 대기 (사람이 치는 척)
+                        // 2. 2초 대기 (사람인 척)
                         await this.wait(2000);
                         
-                        // 3. 타이핑 끄고 메시지 출력
+                        // 3. 메시지 출력
                         this.removeTypingBubble();
                         this.displayMessage('model', greeting, null, Date.now());
                         
