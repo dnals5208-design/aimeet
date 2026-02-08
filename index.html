@@ -21,7 +21,7 @@
         :root {
             --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             --bg-primary: #fff; --bg-secondary: #f0f2f5; --text-primary: #1c1e21; --text-secondary: #65676b; --divider: #e4e6eb;
-            /* [색상] 연보라색 테마 (원복) */
+            /* 연보라색 테마 유지 */
             --accent: #8A2BE2; --user-bubble: #8A2BE2; --partner-bubble: #fff; --user-text: #fff; --partner-text: #1c1e21; --modal-bg: #fff;
             --danger: #ff4d4f;
         }
@@ -66,7 +66,6 @@
         .card input, .card select, .card textarea { width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 0.95rem; box-sizing: border-box; margin-bottom: 0.6rem;}
         .card textarea { resize: vertical; min-height: 60px; font-family: var(--font-sans); }
 
-        /* [복구] 보라색 힌트 박스 */
         .hint-block { 
             background-color: rgba(138, 43, 226, 0.08); 
             padding: 0.8rem; 
@@ -111,7 +110,6 @@
         .message-row.user .message-bubble { background-color: var(--user-bubble); color: var(--user-text); border-top-right-radius: 2px; max-width: 100%; }
         .message-row.partner .message-bubble { background-color: var(--partner-bubble); color: var(--partner-text); border-top-left-radius: 2px; width: fit-content; }
         
-        /* [수정] 시간 폰트 깨짐 해결 및 스타일 */
         .msg-time { font-size: 11px; color: #777; margin: 0 5px; min-width: 55px; white-space: nowrap; margin-bottom: 2px; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; letter-spacing: 0; }
         .message-row.user .msg-time { text-align: right; }
 
@@ -606,6 +604,7 @@
 
                         this.removeTypingBubble();
 
+                        // [핵심] 줄바꿈(\n) 기준으로 말풍선 쪼개기
                         const bubbles = responseText.split('\n');
                         const now = Date.now();
 
@@ -637,7 +636,7 @@
 
                     } catch(e) {
                         this.removeTypingBubble();
-                        // [429 오류 처리] - 사용자 요청대로 정확한 멘트 출력
+                        // [요청 사항] 429 오류 시 정확한 멘트 출력
                         if (e.message.includes("429")) {
                             alert("오늘 할당량을 다 썼어요! 내일 오후 5시에 다시 와주세요. (오후 5시 초기화)");
                         } else if (retryCount < 2) {
@@ -671,7 +670,7 @@
                         });
                         setTimeout(() => this.scrollToBottom(), 100);
                     } else {
-                        // [수정] API 호출 없이 가짜 첫 인사를 시간대별로 생성 (토큰 소모 X)
+                        // [요청 사항] 첫 인사에 '...' 타이핑 효과 추가 후 출력 (API 미사용)
                         const hour = new Date().getHours();
                         let greeting = "";
                         const nick = this.state.persona.nickname || '자기';
@@ -682,14 +681,17 @@
                         else if (hour >= 18 && hour < 22) greeting = `저녁 먹었어 ${nick}야?`;
                         else greeting = `${nick}야 안 자고 뭐해? ㅎㅎ`;
 
-                        // 타이핑 효과 후 출력
+                        // 1. 타이핑 효과 먼저 표시
                         this.displayTypingBubble();
-                        await this.wait(1500);
-                        this.removeTypingBubble();
                         
+                        // 2. 2초 대기 (사람이 치는 척)
+                        await this.wait(2000);
+                        
+                        // 3. 타이핑 끄고 메시지 출력
+                        this.removeTypingBubble();
                         this.displayMessage('model', greeting, null, Date.now());
                         
-                        // DB 저장 (화면에 보이게)
+                        // DB 저장
                         this.state.chatHistory.push({ role: 'model', parts: [{ text: greeting }], timestamp: Date.now() });
                         this.state.visualHistory.push({ role: 'model', text: greeting, timestamp: Date.now() });
                         
@@ -774,12 +776,8 @@
                     this.scrollToBottom(); 
                 },
                 loadSettings: function() {
-                    // [수정] 무한 로딩 방지 (오류 해결)
-                    let savedLang = localStorage.getItem('lang');
-                    this.state.language = savedLang ? savedLang.toLowerCase() : 'ko'; 
-                    // 안전장치: i18n에 없는 키면 강제 ko
-                    if (!this.i18n[this.state.language]) this.state.language = 'ko';
-                    
+                    // 무조건 한국어로 강제 설정 (요청 사항)
+                    this.state.language = 'ko'; 
                     this.state.isDarkMode = localStorage.getItem('dark') === 'true';
                     this.applyTheme();
                 },
@@ -803,7 +801,7 @@
                 },
                 updateUI: function() {
                     const t = this.i18n[this.state.language];
-                    if(!t) return; // 안전장치
+                    if(!t) return;
                     document.querySelectorAll('[data-i18n]').forEach(el => {
                         if (t[el.dataset.i18n]) el.innerHTML = t[el.dataset.i18n];
                     });
