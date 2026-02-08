@@ -75,7 +75,7 @@
         .card input, .card select, .card textarea { width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 0.95rem; box-sizing: border-box; margin-bottom: 0.6rem;}
         .card textarea { resize: vertical; min-height: 60px; font-family: var(--font-sans); }
 
-        /* [추가] 보라색 힌트 박스 */
+        /* [추가] 보라색 힌트 박스 스타일 */
         .hint-block { background-color: rgba(138, 43, 226, 0.08); padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; border: 1px solid rgba(138, 43, 226, 0.2); }
         .hint-text-main { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
 
@@ -95,36 +95,36 @@
         .modal-content h2 { margin-top: 0; font-size: 1.1rem; margin-bottom: 10px; }
         .modal-content ol { padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0; }
         
-        /* [핵심] 메시지 & 카톡 디자인 */
+        /* 메시지 영역 */
         #message-area { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; background-color: var(--bg-secondary); }
         
-        .message-row { display: flex; align-items: flex-end; margin-bottom: 5px; } /* 시간 표시를 위해 bottom 정렬 */
+        /* [수정] 시간 표시를 위해 아래쪽 정렬 */
+        .message-row { display: flex; align-items: flex-end; margin-bottom: 5px; }
         .message-row.user { justify-content: flex-end; }
         .message-row.partner { justify-content: flex-start; }
         
-        /* 상대방 메시지 묶음 (이름+내용) */
         .partner-content { display: flex; flex-direction: column; align-items: flex-start; max-width: 70%; }
 
-        .msg-avatar { width: 38px; height: 38px; border-radius: 40%; object-fit: cover; margin-right: 8px; flex-shrink: 0; background-color: #ddd; margin-bottom: 15px; }
+        /* [수정] 아바타 마진 조정 */
+        .msg-avatar { width: 38px; height: 38px; border-radius: 40%; object-fit: cover; margin-right: 8px; flex-shrink: 0; background-color: #ddd; margin-bottom: 20px; }
         
-        /* 이름 */
+        /* [추가] 상대방 이름 */
         .msg-name { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px; margin-left: 2px; }
+
+        /* [추가] 날짜 구분선 */
+        .date-divider { text-align: center; margin: 15px 0; }
+        .date-divider span { background-color: rgba(0,0,0,0.1); color: #fff; padding: 4px 12px; border-radius: 15px; font-size: 0.75rem; }
+
+        /* [추가] 시간 표시 (폰트 키움) */
+        .msg-time { font-size: 11px; color: #555; margin: 0 5px; min-width: 50px; white-space: nowrap; margin-bottom: 2px; font-family: sans-serif; }
+        .message-row.user .msg-time { text-align: right; }
 
         .message-bubble { padding: 0.6rem 0.8rem; border-radius: 12px; line-height: 1.4; box-shadow: 0 1px 1px rgba(0,0,0,0.05); word-wrap: break-word; font-size: 0.95rem; position: relative; }
         .message-bubble img { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
         
         .message-row.user .message-bubble { background-color: var(--user-bubble); color: var(--user-text); border-top-right-radius: 2px; max-width: 100%; }
-        /* 상대방 말풍선 너비 제한 */
         .message-row.partner .message-bubble { background-color: var(--partner-bubble); color: var(--partner-text); border-top-left-radius: 2px; width: fit-content; }
         
-        /* [추가] 시간 표시 스타일 */
-        .msg-time { font-size: 10px; color: #777; margin: 0 5px; min-width: 50px; white-space: nowrap; margin-bottom: 2px; }
-        .message-row.user .msg-time { text-align: right; }
-
-        /* [추가] 날짜 구분선 */
-        .date-divider { text-align: center; margin: 15px 0; }
-        .date-divider span { background-color: rgba(0,0,0,0.1); color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; }
-
         /* 타이핑 애니메이션 (...) */
         .typing-bubble { background-color: var(--partner-bubble); padding: 0.8rem 1rem; border-radius: 1rem; border-bottom-left-radius: 0; width: fit-content; display: none; margin-left: 0; }
         .typing-dots { display: flex; gap: 4px; }
@@ -190,8 +190,6 @@
                     <select id="timezone-select">
                         <option value="Asia/Seoul">한국 (서울)</option>
                         <option value="America/New_York">미국 (뉴욕)</option>
-                        <option value="Europe/London">영국 (런던)</option>
-                        <option value="Asia/Tokyo">일본 (도쿄)</option>
                     </select>
 
                     <label>자기소개 (상황/컨셉)</label>
@@ -286,7 +284,7 @@
                     apiKey: null, language: 'ko', isDarkMode: false, persona: {}, chat: null, 
                     chatHistory: [], visualHistory: [], 
                     db: null, auth: null, user: null, pendingImage: null,
-                    debounceTimer: null, messageQueue: [], lastDateStr: "" // [추가] 날짜 추적 변수
+                    debounceTimer: null, messageQueue: [], lastDateStr: "" // [추가] 날짜 추적용
                 },
                 i18n: {
                     en: {
@@ -570,26 +568,35 @@
 
                     try {
                         const genAI = new GoogleGenerativeAI(this.state.apiKey);
-                        const model = genAI.getGenerativeModel({ 
-                            model: MODEL_NAME,
-                            systemInstruction: `
-                            You are '${this.state.persona.name}'. Nickname: '${this.state.persona.nickname}'. Age: ${this.state.persona.age}.
-                            Relationship: ${this.state.persona.intro}.
-                            Personality: "${this.state.persona.style}".
-                            Tone: "${this.state.persona.tendency}".
-                            
-                            [IMPORTANT]
-                            1. Reflect the user's defined persona (Cute, Cold, etc.) 100%.
-                            2. Speak naturally in Korean (KakaoTalk style).
-                            3. NEVER output internal thoughts. ONLY the message.
-                            4. Use emojis moderately.
-                            ` 
-                        });
                         
-                        const chatSession = model.startChat({
-                            history: this.state.chatHistory.map(h => ({ role: h.role, parts: h.parts }))
-                        });
+                        // [핵심] 페르소나 설정 적용
+                        const p = this.state.persona;
+                        const timezone = p.timezone || 'Asia/Seoul';
+                        const nowStr = new Date().toLocaleString('ko-KR', { timeZone: timezone });
+                        
+                        const systemPrompt = `
+                        You are '${p.name}'. Nickname: '${p.nickname}'. Age: ${p.age}.
+                        Relationship: ${p.intro}.
+                        Your Personality/Style: "${p.style}".
+                        Your Tone/Tendency: "${p.tendency}".
+                        
+                        [IMPORTANT]
+                        1. Act 100% based on the user's defined personality (e.g., Cute, Cold, Fast).
+                        2. Speak naturally in Korean (KakaoTalk style).
+                        3. NEVER output internal thoughts. ONLY the message.
+                        4. Use emojis moderately.
+                        [TIME] Current Time: ${nowStr}.
+                        `;
 
+                        // [핵심] Gemini 2.5 Flash 호출
+                        const model = genAI.getGenerativeModel({ model: MODEL_NAME, systemInstruction: systemPrompt });
+                        
+                        const retentionTime = Date.now() - (3 * 24 * 60 * 60 * 1000);
+                        const apiHistory = this.state.chatHistory
+                            .filter(m => !m.timestamp || m.timestamp > retentionTime)
+                            .map(h => ({ role: h.role, parts: h.parts }));
+
+                        const chatSession = model.startChat({ history: apiHistory });
                         const result = await chatSession.sendMessage(combinedParts);
                         let fullResponse = result.response.text();
                         fullResponse = this.cleanAiThought(fullResponse);
@@ -613,8 +620,11 @@
 
                     } catch(e) {
                         this.removeTypingBubble();
-                        console.error(e);
-                        alert("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                        if (e.message.includes("429")) {
+                            alert("오늘 할당량을 다 썼어요! 내일 오후 5시에 다시 와주세요.");
+                        } else {
+                            alert("답장을 가져오지 못했어요. API 키를 확인해주세요.");
+                        }
                     }
                 },
 
@@ -639,7 +649,7 @@
                         });
                         setTimeout(() => this.scrollToBottom(), 100);
                     } else {
-                        // [추가] 시작 인사: 0.3초 딜레이 후 "안녕!"
+                        // [추가] 시작 인사 딜레이 0.3초
                         this.displayTypingBubble();
                         await this.wait(300);
                         this.removeTypingBubble();
@@ -658,7 +668,7 @@
                     this.showScreen('chat-screen');
                 },
                 
-                // [수정] 시간/날짜/이름 표시 기능 추가된 displayMessage
+                // [핵심] 날짜, 시간, 이름, 말풍선 표시 로직
                 displayMessage: function(role, txt, imgBase64, timestamp) {
                     if (!txt && !imgBase64) return; 
                     
@@ -667,6 +677,7 @@
                     const optionsDate = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
                     const currentDateStr = dateObj.toLocaleDateString('ko-KR', optionsDate);
 
+                    // 날짜 구분선
                     if (this.state.lastDateStr !== currentDateStr) {
                         const dateDiv = document.createElement('div');
                         dateDiv.className = 'date-divider';
@@ -679,14 +690,14 @@
                     const row = document.createElement('div');
                     row.className = `message-row ${isUser ? 'user' : 'partner'}`;
 
-                    // 시간 포맷 (오전 10:30)
+                    // 시간
                     const timeStr = dateObj.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
                     const timeSpan = document.createElement('span');
                     timeSpan.className = 'msg-time';
                     timeSpan.textContent = timeStr;
 
                     if (!isUser) {
-                        // 상대방: 아바타 -> (이름 -> 말풍선+시간)
+                        // Partner
                         const avatar = document.createElement('img');
                         avatar.className = 'msg-avatar';
                         avatar.src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
@@ -695,12 +706,13 @@
                         const contentDiv = document.createElement('div');
                         contentDiv.className = 'partner-content';
 
+                        // 이름 표시
                         const nameDiv = document.createElement('div');
                         nameDiv.className = 'msg-name';
                         nameDiv.textContent = this.state.persona.name || '상대방';
                         contentDiv.appendChild(nameDiv);
 
-                        // 말풍선과 시간을 감싸는 div (가로 정렬, 아래쪽 정렬)
+                        // 말풍선 + 시간 묶음
                         const bubbleWrapper = document.createElement('div');
                         bubbleWrapper.style.display = 'flex';
                         bubbleWrapper.style.alignItems = 'flex-end';
@@ -715,13 +727,13 @@
                         if (txt) { const s = document.createElement('div'); s.textContent = txt; bubble.appendChild(s); }
                         
                         bubbleWrapper.appendChild(bubble);
-                        bubbleWrapper.appendChild(timeSpan); // 시간은 말풍선 오른쪽
+                        bubbleWrapper.appendChild(timeSpan);
 
                         contentDiv.appendChild(bubbleWrapper);
                         row.appendChild(contentDiv);
                     } else {
-                        // 나: 시간 -> 말풍선
-                        row.appendChild(timeSpan); // 시간은 말풍선 왼쪽
+                        // User
+                        row.appendChild(timeSpan);
                         const bubble = document.createElement('div');
                         bubble.className = 'message-bubble';
                         if (imgBase64) {
@@ -737,7 +749,10 @@
                     this.scrollToBottom(); 
                 },
                 loadSettings: function() {
-                    this.state.language = localStorage.getItem('lang') || 'ko';
+                    let savedLang = localStorage.getItem('lang');
+                    this.state.language = savedLang ? savedLang.toLowerCase() : 'ko';
+                    if (!this.i18n[this.state.language]) this.state.language = 'ko';
+                    
                     this.state.isDarkMode = localStorage.getItem('dark') === 'true';
                     this.applyTheme();
                 },
@@ -761,6 +776,7 @@
                 },
                 updateUI: function() {
                     const t = this.i18n[this.state.language];
+                    if(!t) return;
                     document.querySelectorAll('[data-i18n]').forEach(el => {
                         if (t[el.dataset.i18n]) el.innerHTML = t[el.dataset.i18n];
                     });
