@@ -18,69 +18,45 @@
     </script>
 
     <style>
-        /* 변수 설정 */
         :root {
             --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             --bg-primary: #fff; --bg-secondary: #f0f2f5; --text-primary: #1c1e21; --text-secondary: #65676b; --divider: #e4e6eb;
             --accent: #8A2BE2; --user-bubble: #8A2BE2; --partner-bubble: #fff; --user-text: #fff; --partner-text: #1c1e21; --modal-bg: #fff;
-            --danger: #ff4d4f; --btn-ai: #6c5ce7;
+            --danger: #ff4d4f;
         }
         .dark-mode { 
             --bg-primary: #1c1c1e; --bg-secondary: #000; --text-primary: #f5f5f7; --text-secondary: #8d8d93; --divider: #3a3a3c; 
             --accent: #BB86FC; --user-bubble: #BB86FC; --partner-bubble: #2c2c2e; --user-text: #1c1c1e; --partner-text: #f5f5f7; 
-            --modal-bg: #2c2c2e; --danger: #ff7875; --btn-ai: #a29bfe;
+            --modal-bg: #2c2c2e; --danger: #ff7875;
         }
         
         html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: var(--font-sans); background-color: var(--bg-secondary); color: var(--text-primary); transition: 0.2s; }
-        
-        #app { 
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            display: flex; flex-direction: column; 
-            max-width: 600px; margin: 0 auto; 
-            background-color: var(--bg-primary); 
-            box-shadow: 0 0 20px rgba(0,0,0,0.1); 
-        }
-
-        /* 화면 관리 */
+        #app { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; max-width: 600px; margin: 0 auto; background-color: var(--bg-primary); }
         .screen { display: none !important; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background-color: var(--bg-primary); }
         .screen.active { display: flex !important; z-index: 100; }
         
-        /* 로딩 */
         #loading-screen { justify-content: center; align-items: center; }
         .spinner { width: 40px; height: 40px; border: 4px solid var(--divider); border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 헤더 */
         .header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 1rem; border-bottom: 1px solid var(--divider); background: var(--bg-primary); z-index: 10; min-height: 50px; }
         .header h1 { font-size: 1.1rem; margin: 0; font-weight: 700; }
-        
-        /* 채팅방 헤더 */
-        .chat-header {
-            flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;
-            padding: 0.6rem 1rem; border-bottom: 1px solid var(--divider); background-color: var(--bg-primary); height: 50px;
-        }
+        .chat-header { flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 1rem; border-bottom: 1px solid var(--divider); background-color: var(--bg-primary); height: 50px; }
         .chat-header-left { display: flex; align-items: center; }
         .chat-header-avatar { width: 35px; height: 35px; border-radius: 40%; object-fit: cover; margin-right: 10px; background-color: #ddd; cursor: pointer; }
         .chat-header-info h2 { font-size: 1rem; margin: 0; font-weight: 600; }
-
         .controls { display: flex; gap: 0.5rem; align-items: center; }
-        .control-btn { background: none; border: 1px solid var(--divider); border-radius: 6px; padding: 4px 8px; cursor: pointer; color: var(--text-secondary); font-size: 0.8rem; height: 28px; display: flex; align-items: center;}
+        .control-btn { background: none; border: 1px solid var(--divider); border-radius: 6px; padding: 4px 8px; cursor: pointer; color: var(--text-secondary); font-size: 0.8rem; height: 28px; }
 
-        /* 콘텐츠 */
         .screen-content { flex: 1; overflow-y: auto; padding: 1rem; -webkit-overflow-scrolling: touch; }
-        
-        /* 카드 */
         .card { background-color: var(--bg-primary); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
         .card label { font-weight: 600; color: var(--text-secondary); margin-bottom: 0.3rem; display: block; font-size: 0.85rem; }
         .card input, .card select, .card textarea { width: 100%; padding: 0.7rem; border-radius: 8px; border: 1px solid var(--divider); background-color: var(--bg-primary); color: var(--text-primary); font-size: 0.95rem; box-sizing: border-box; margin-bottom: 0.6rem;}
         .card textarea { resize: vertical; min-height: 60px; font-family: var(--font-sans); }
-
         .hint-block { background-color: rgba(138, 43, 226, 0.08); padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem; text-align: center; border: 1px solid rgba(138, 43, 226, 0.2); }
         .hint-text-main { font-size: 0.85rem; color: var(--accent); font-weight: 600; }
-
         .avatar-controls { display: flex; justify-content: center; margin-bottom: 1rem; }
         .btn-cta-small { padding: 10px 0; font-size: 0.9rem; border-radius: 8px; border: 1px solid var(--divider); cursor: pointer; background: var(--bg-secondary); color: var(--text-primary); font-weight: 600; transition: 0.2s; width: 100%; text-align: center; }
-
         .button { display: block; width: 100%; padding: 1rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; text-align: center; margin-bottom: 0.5rem; }
         .button-primary { background-color: var(--accent); color: #fff; }
         .button-danger { background-color: var(--danger); color: white; }
@@ -94,32 +70,28 @@
         .modal-content h2 { margin-top: 0; font-size: 1.1rem; margin-bottom: 10px; }
         .modal-content ol { padding-left: 1.2rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; margin: 0; }
         
-        /* [핵심] 메시지 & 카톡 디자인 */
+        /* 메시지 영역 디자인 (카톡 스타일) */
         #message-area { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; background-color: var(--bg-secondary); }
         
         .message-row { display: flex; align-items: flex-start; margin-bottom: 5px; }
         .message-row.user { justify-content: flex-end; }
         .message-row.partner { justify-content: flex-start; }
         
-        /* 상대방 메시지 묶음 (이름+내용) */
         .partner-content { display: flex; flex-direction: column; align-items: flex-start; max-width: 70%; }
-
+        
         .msg-avatar { width: 38px; height: 38px; border-radius: 40%; object-fit: cover; margin-right: 8px; flex-shrink: 0; background-color: #ddd; margin-top: 2px; }
         
-        /* 이름 */
-        .msg-name { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px; margin-left: 2px; }
+        /* 이름: 프사 옆, 말풍선 위 */
+        .msg-name { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; margin-left: 2px; display: block; }
 
         .message-bubble { padding: 0.6rem 0.8rem; border-radius: 12px; line-height: 1.4; box-shadow: 0 1px 1px rgba(0,0,0,0.05); word-wrap: break-word; font-size: 0.95rem; position: relative; }
         .message-bubble img { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
         
         .message-row.user .message-bubble { background-color: var(--user-bubble); color: var(--user-text); border-top-right-radius: 2px; max-width: 70%; }
-        /* 상대방 말풍선 너비 제한 */
         .message-row.partner .message-bubble { background-color: var(--partner-bubble); color: var(--partner-text); border-top-left-radius: 2px; width: fit-content; }
         
-        /* 타이핑 애니메이션 (...) */
+        /* 타이핑 (...) */
         .typing-bubble { background-color: var(--partner-bubble); padding: 0.8rem 1rem; border-radius: 1rem; border-bottom-left-radius: 0; width: fit-content; display: none; margin-left: 0; }
-        /* 타이핑 버블은 파트너 컨텐츠 안에 들어가므로 마진 조정 */
-        
         .typing-dots { display: flex; gap: 4px; }
         .typing-dot { width: 6px; height: 6px; background-color: #b0b0b0; border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; }
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
@@ -143,35 +115,35 @@
     <div id="app">
         <div id="loading-screen" class="screen active">
             <div class="spinner"></div>
-            <h2 style="color: var(--accent); font-weight: 700;">Connect</h2>
+            <h2>Connect</h2>
         </div>
 
         <div id="login-screen" class="screen">
             <header class="header" style="background: transparent; border: none; justify-content: flex-end;">
-                 <div class="controls"><button id="lang-toggle-login" class="control-btn">EN</button><button id="theme-toggle-login" class="control-btn">🌕</button></div>
+                 <div class="controls"><button id="lang-toggle-login" class="control-btn">EN</button><button id="theme-toggle-login" class="control-btn">🌙</button></div>
             </header>
             <div class="screen-content" style="display: flex; flex-direction: column; justify-content: center; text-align: center;">
-                <h1 data-i18n="appTitle" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Connect</h1>
-                <p data-i18n="appDescription" style="margin-bottom: 3rem; font-size: 1.1rem; color: #666; line-height: 1.6;">익숙한 대화, 색다른 공감.<br>나만의 AI 파트너.</p>
-                <button id="login-btn" class="button button-primary" data-i18n="loginBtn" style="padding: 1.2rem;">구글 계정으로 시작하기</button>
+                <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Connect</h1>
+                <p style="margin-bottom: 3rem; color: #666;">익숙한 대화, 색다른 공감.<br>나만의 AI 파트너.</p>
+                <button id="login-btn" class="button button-primary" style="padding: 1.2rem;">구글 계정으로 시작하기</button>
             </div>
         </div>
 
         <div id="setup-screen" class="screen">
-            <header class="header"><h1 data-i18n="setupTitle"></h1>
-                <div class="controls"><button id="lang-toggle-setup" class="control-btn">EN</button><button id="theme-toggle-setup" class="control-btn">🌕</button></div>
+            <header class="header"><h1>프로필 설정</h1>
+                <div class="controls"><button id="lang-toggle-setup" class="control-btn">EN</button><button id="theme-toggle-setup" class="control-btn">🌙</button></div>
             </header>
             <div class="screen-content">
                 <div class="card">
-                    <label style="text-align: center;" data-i18n="profileImageLabel"></label>
-                    <img id="persona-avatar-preview" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='">
+                    <label style="text-align: center;">상대방 프로필 사진</label>
+                    <img id="persona-avatar-preview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
                     <div class="avatar-controls">
-                        <button id="upload-trigger-btn" class="btn-cta-small" data-i18n="uploadPhotoBtn">사진 업로드</button>
+                        <button id="upload-trigger-btn" class="btn-cta-small">사진 업로드</button>
                     </div>
                     <input type="file" id="persona-avatar-upload" accept="image/*" style="display: none;">
                     
-                    <label for="persona-name-input" data-i18n="personaNameLabel"></label><input type="text" id="persona-name-input" data-i18n-placeholder="personaNamePlaceholder">
-                    <label for="chat-room-name-input" data-i18n="chatRoomNameLabel"></label><input type="text" id="chat-room-name-input" data-i18n-placeholder="chatRoomNamePlaceholder">
+                    <label>이름</label><input type="text" id="persona-name-input" placeholder="예: 지수">
+                    <label>채팅방 이름</label><input type="text" id="chat-room-name-input" placeholder="예: 내 사랑♡">
                 </div>
 
                 <div class="card">
@@ -179,12 +151,10 @@
                     <select id="timezone-select">
                         <option value="Asia/Seoul">한국 (서울)</option>
                         <option value="America/New_York">미국 (뉴욕)</option>
-                        <option value="Europe/London">영국 (런던)</option>
-                        <option value="Asia/Tokyo">일본 (도쿄)</option>
                     </select>
 
                     <label>자기소개 (상황/컨셉)</label>
-                    <textarea id="persona-intro-input" placeholder="예: 나는 24살 대학생이고 너랑은 소꿉친구 사이야. 지금 시험기간이라 힘들어."></textarea>
+                    <textarea id="persona-intro-input" placeholder="예: 우리는 3년차 커플이고, 너는 지금 회사에서 야근 중이야."></textarea>
 
                     <label>답장 속도</label>
                     <select id="speed-select">
@@ -193,26 +163,19 @@
                         <option value="slow">🐢 느림</option>
                     </select>
 
-                    <label for="persona-style-input"><span data-i18n="personaStyleLabel"></span> <span class="example" data-i18n="styleExample"></span></label>
-                    <input type="text" id="persona-style-input">
-                    <label for="persona-frequency-input"><span data-i18n="personaFrequencyLabel"></span> <span class="example" data-i18n="frequencyExample"></span></label>
-                    <input type="text" id="persona-frequency-input">
-                    <label for="persona-tendency-input"><span data-i18n="personaTendencyLabel"></span> <span class="example" data-i18n="tendencyExample"></span></label>
-                    <input type="text" id="persona-tendency-input">
-                    <label for="persona-nickname-input"><span data-i18n="personaNicknameLabel"></span> <span class="example" data-i18n="nicknameExample"></span></label>
-                    <input type="text" id="persona-nickname-input">
-                    <label for="persona-age-input"><span data-i18n="personaAgeLabel"></span> <span class="example" data-i18n="ageExample"></span></label>
-                    <input type="text" id="persona-age-input">
+                    <label>성격 스타일</label><input type="text" id="persona-style-input" placeholder="예: 다정하고 애교 많은">
+                    <label>나를 부를 애칭</label><input type="text" id="persona-nickname-input" placeholder="예: 자기야">
+                    <label>나이</label><input type="text" id="persona-age-input" placeholder="예: 24살">
                 </div>
                 
                 <div class="card">
-                    <label for="api-key-input" data-i18n="apiKeyLabel"></label><input type="password" id="api-key-input" data-i18n-placeholder="apiKeyPlaceholder">
-                    <button id="get-api-key-btn" class="help-link-btn" data-i18n="getApiKeyBtn">API 키 발급 방법 (또는 키 확인)</button>
+                    <label>API 키</label><input type="password" id="api-key-input" placeholder="API Key 입력">
+                    <button id="get-api-key-btn" class="help-link-btn">API 키 발급 방법</button>
                 </div>
 
                 <div style="margin-top: 1rem; padding-bottom: 2rem;">
-                    <button id="start-chat-btn" class="button button-primary" data-i18n="startChatBtn"></button>
-                    <button id="reset-btn-setup" class="button button-danger" data-i18n="resetBtn"></button>
+                    <button id="start-chat-btn" class="button button-primary">대화 시작하기</button>
+                    <button id="reset-btn-setup" class="button button-danger">초기화</button>
                 </div>
             </div>
         </div>
@@ -220,13 +183,13 @@
         <div id="chat-screen" class="screen">
             <header class="chat-header">
                 <div class="chat-header-left">
-                    <img id="chat-header-avatar" class="chat-header-avatar" title="사진 변경">
+                    <img id="chat-header-avatar" class="chat-header-avatar">
                     <div class="chat-header-info"><h2 id="chat-room-name-header"></h2></div>
                 </div>
                 <div class="controls">
                     <button id="reset-btn-chat" class="control-btn" title="Reset">↻</button>
-                    <button id="theme-toggle-chat" class="control-btn">🌕</button>
-                    <button id="logout-btn" class="control-btn" data-i18n="logoutBtn"></button>
+                    <button id="theme-toggle-chat" class="control-btn">🌙</button>
+                    <button id="logout-btn" class="control-btn">로그아웃</button>
                 </div>
             </header>
             <main id="message-area"></main>
@@ -236,9 +199,9 @@
                 <button id="cancel-image-btn" style="display:block; margin: 5px auto; background:none; border:1px solid #ccc; padding:2px 8px; border-radius:4px;">취소</button>
             </div>
             <footer class="chat-footer">
-                <button id="attach-btn" title="Add Image">+</button>
+                <button id="attach-btn">+</button>
                 <input type="file" id="chat-image-input" accept="image/*" style="display: none;">
-                <input type="text" id="message-input" data-i18n-placeholder="messagePlaceholder">
+                <input type="text" id="message-input" placeholder="메시지를 입력하세요...">
                 <button id="send-btn">➤</button>
             </footer>
         </div>
@@ -249,12 +212,12 @@
                 <h2>무료 API 키 발급</h2>
                 <div class="modal-body">
                     <ol>
-                        <li data-i18n="modalStep1"></li>
-                        <li data-i18n="modalStep2"></li>
-                        <li><strong>이미 키가 있다면?</strong> 복사해서 바로 붙여넣으세요!</li>
+                        <li>아래 버튼을 눌러 AI Studio로 이동하세요.</li>
+                        <li>'Create API key'를 클릭하세요.</li>
+                        <li>복사한 키를 여기에 붙여넣으세요.</li>
                     </ol>
                 </div>
-                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="button button-primary" data-i18n="modalLink"></a>
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="button button-primary">이동하기</a>
             </div>
         </div>
     </div>
@@ -277,40 +240,8 @@
                     db: null, auth: null, user: null, pendingImage: null,
                     debounceTimer: null, messageQueue: []
                 },
-                i18n: {
-                    en: {
-                        appTitle: 'Connect', appDescription: 'Familiar conversations,\nYour own AI Partner.', loginBtn: 'Start with Google',
-                        setupTitle: 'Profile', profileImageLabel: 'Profile Photo', uploadPhotoBtn: 'Upload Photo',
-                        personaNameLabel: 'Partner Name', personaNamePlaceholder: 'Name (e.g., Jisu)',
-                        specificHint: '* More details make it better! Describe each field.', chatRoomNameLabel: 'Chat Title', chatRoomNamePlaceholder: 'e.g., My Love',
-                        personaStyleLabel: 'Style', styleExample: '(e.g., Cute)', 
-                        personaFrequencyLabel: 'Frequency', frequencyExample: '(e.g., Often)',
-                        personaTendencyLabel: 'Tendency', tendencyExample: '(e.g., Warm)',
-                        personaNicknameLabel: 'Your Nickname', nicknameExample: '(e.g., Honey)', personaAgeLabel: 'Age', ageExample: '(e.g., 24, Younger)',
-                        apiKeyLabel: 'API Key', apiKeyPlaceholder: 'Enter API Key', getApiKeyBtn: 'How to get API Key', startChatBtn: 'Start Chat', resetBtn: 'Reset Data', logoutBtn: 'Logout', messagePlaceholder: 'Type a message...',
-                        modalTitle: 'Get Free API Key', modalStep1: 'Login to AI Studio.', modalStep2: 'Click "Create API Key".', modalStep3: 'Copy & Paste here.', modalLink: 'Go to AI Studio'
-                    },
-                    ko: {
-                        appTitle: '커넥트', appDescription: '익숙한 대화, 색다른 공감.<br>나만의 AI 파트너.', loginBtn: '구글 계정으로 시작하기',
-                        setupTitle: '프로필 설정', profileImageLabel: '상대방 프로필 사진', uploadPhotoBtn: '사진 업로드',
-                        personaNameLabel: '상대방 이름', personaNamePlaceholder: '이름 (예: 지수)',
-                        specificHint: '* 구체적으로 적으면 더 실감나요! 각 항목을 자세히 적어주세요.', chatRoomNameLabel: '채팅방 이름', chatRoomNamePlaceholder: '예: 내 사랑♡',
-                        personaStyleLabel: '성격 스타일', styleExample: '(예: 귀여운 성향)', 
-                        personaFrequencyLabel: '연락 빈도', frequencyExample: '(예: 칼답, 자주)',
-                        personaTendencyLabel: '대화 성향', tendencyExample: '(예: 애교많은)',
-                        personaNicknameLabel: '나를 부를 애칭', nicknameExample: '(예: 자기)', personaAgeLabel: '나이', ageExample: '(예: 24살, 연하)',
-                        apiKeyLabel: 'API 키', apiKeyPlaceholder: 'API 키 입력', getApiKeyBtn: 'API 키 발급 방법 (또는 키 확인)', startChatBtn: '대화 시작하기', resetBtn: '초기화', logoutBtn: '로그아웃', messagePlaceholder: '메시지를 입력하세요...',
-                        modalTitle: '무료 API 키 발급', modalStep1: 'AI Studio 로그인.', modalStep2: '"Create API Key" 클릭 (또는 기존 키 선택).', modalLink: '이동하기'
-                    }
-                },
                 init: function() {
-                    const firebaseConfig = {
-                        apiKey: "AIzaSyDmO1wpZQJEiPEjNoq7xtFcq33akIzoGY8",
-                        authDomain: "aimeet-c235c.firebaseapp.com",
-                        projectId: "aimeet-c235c",
-                        appId: "1:732324287861:web:15d894068755c627842f3c"
-                    };
-                    
+                    const firebaseConfig = { apiKey: "AIzaSyDmO1wpZQJEiPEjNoq7xtFcq33akIzoGY8", authDomain: "aimeet-c235c.firebaseapp.com", projectId: "aimeet-c235c", appId: "1:732324287861:web:15d894068755c627842f3c" };
                     const ids = ['app', 'loading-screen', 'login-screen', 'setup-screen', 'chat-screen', 'lang-toggle-login', 'theme-toggle-login', 'lang-toggle-setup', 'theme-toggle-setup', 'theme-toggle-chat', 'api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'persona-avatar-upload', 'persona-avatar-preview', 'upload-trigger-btn', 'start-chat-btn', 'reset-btn-setup', 'reset-btn-chat', 'chat-header-avatar', 'chat-room-name-header', 'logout-btn', 'login-btn', 'message-area', 'message-input', 'send-btn', 'get-api-key-btn', 'api-key-modal', 'close-modal-btn', 'attach-btn', 'chat-image-input', 'image-preview-area', 'image-preview-img', 'cancel-image-btn', 'timezone-select', 'speed-select', 'persona-intro-input'];
                     ids.forEach(id => { this.elements[id] = document.getElementById(id); });
                     if(this.elements['persona-avatar-preview']) this.elements['persona-avatar-preview'].src = DEFAULT_AVATAR;
@@ -319,7 +250,7 @@
                     this.state.auth = getAuth(firebaseApp);
                     this.state.db = getFirestore(firebaseApp);
 
-                    this.loadSettings(); this.addEventListeners(); this.updateUI();
+                    this.loadSettings(); this.addEventListeners();
                     
                     onAuthStateChanged(this.state.auth, (user) => {
                         if (user) { 
@@ -346,16 +277,10 @@
                     el['cancel-image-btn'].addEventListener('click', () => this.cancelImage());
                     
                     if(el['chat-header-avatar']) {
-                        el['chat-header-avatar'].addEventListener('click', () => {
-                            if(confirm("프로필 사진을 변경하시겠습니까?")) {
-                                el['persona-avatar-upload'].click();
-                            }
-                        });
+                        el['chat-header-avatar'].addEventListener('click', () => { if(confirm("프로필 사진을 변경하시겠습니까?")) el['persona-avatar-upload'].click(); });
                     }
-
                     el['get-api-key-btn'].addEventListener('click', (e) => { e.preventDefault(); el['api-key-modal'].style.display = 'flex'; });
                     el['close-modal-btn'].addEventListener('click', () => el['api-key-modal'].style.display = 'none');
-                    
                     ['login', 'setup'].forEach(scr => {
                         if(el[`lang-toggle-${scr}`]) el[`lang-toggle-${scr}`].addEventListener('click', () => this.toggleLanguage());
                         if(el[`theme-toggle-${scr}`]) el[`theme-toggle-${scr}`].addEventListener('click', () => this.toggleTheme());
@@ -436,7 +361,7 @@
                                 this.state.chatHistory = (data.chatHistory || []).filter(msg => !msg.timestamp || (now - msg.timestamp < retentionMs));
                                 this.state.visualHistory = (data.visualHistory || []).filter(msg => !msg.timestamp || (now - msg.timestamp < retentionMs));
 
-                                ['api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-frequency-input', 'persona-tendency-input', 'persona-nickname-input', 'persona-age-input', 'persona-intro-input'].forEach(k => {
+                                ['api-key-input', 'persona-name-input', 'chat-room-name-input', 'persona-style-input', 'persona-nickname-input', 'persona-age-input', 'persona-intro-input'].forEach(k => {
                                     const field = k.replace('-input', '').split('-').pop();
                                     if(this.elements[k]) this.elements[k].value = this.state.persona[field] || '';
                                 });
@@ -453,7 +378,6 @@
                     } catch (error) {
                         this.showScreen('setup-screen');
                     }
-                    this.updateUI();
                 },
                 saveAndStartChat: async function() {
                     this.state.apiKey = this.elements['api-key-input'].value.trim();
@@ -461,11 +385,9 @@
                     p.name = this.elements['persona-name-input'].value;
                     p.chatRoomName = this.elements['chat-room-name-input'].value;
                     p.style = this.elements['persona-style-input'].value;
-                    p.frequency = this.elements['persona-frequency-input'].value;
-                    p.tendency = this.elements['persona-tendency-input'].value;
+                    p.intro = this.elements['persona-intro-input'].value;
                     p.nickname = this.elements['persona-nickname-input'].value;
                     p.age = this.elements['persona-age-input'].value;
-                    p.intro = this.elements['persona-intro-input'].value;
                     p.timezone = this.elements['timezone-select'].value;
                     p.speed = this.elements['speed-select'].value;
                     
@@ -474,7 +396,7 @@
                 },
                 wait: function(ms) { return new Promise(resolve => setTimeout(resolve, ms)); },
                 
-                // [수정] 타이핑 버블도 파트너 컨텐츠 안에 표시
+                // [수정] 타이핑 버블 (이름 포함)
                 displayTypingBubble: function() {
                     const row = document.createElement('div');
                     row.className = 'message-row partner';
@@ -534,9 +456,10 @@
 
                     if (this.state.debounceTimer) clearTimeout(this.state.debounceTimer);
                     
+                    // 사람처럼 1.5초 후 타이핑 시작
                     this.state.debounceTimer = setTimeout(() => {
                         this.processAiResponse(); 
-                    }, 500); // 0.5초 후 요청 시작
+                    }, 1500); 
                 },
 
                 cleanAiThought: function(text) {
@@ -555,7 +478,7 @@
                     const combinedParts = this.state.messageQueue.flat();
                     if (retryCount === 0) this.state.messageQueue = []; 
 
-                    // [타이핑 효과] 즉시 '...' 표시
+                    // [리듬감] 먼저 타이핑 버블 표시
                     this.displayTypingBubble();
 
                     try {
@@ -565,7 +488,7 @@
                         fullResponse = this.cleanAiThought(fullResponse); 
                         if (!fullResponse) fullResponse = "...";
 
-                        // [속도 조절] 글자 수에 비례해서 기다림 (사람처럼)
+                        // [리듬감] 글자 수에 비례해서 '...' 유지 (최소 1.5초)
                         const readingTime = Math.min(Math.max(1500, fullResponse.length * 100), 5000); 
                         await this.wait(readingTime);
 
@@ -583,7 +506,7 @@
                             if (!fragment) continue;
                             this.displayMessage('model', fragment);
                             this.state.visualHistory.push({ role: 'model', text: fragment, timestamp: now });
-                            // 말풍선 사이 간격도 글자수에 비례
+                            // 말풍선 간 텀 (읽는 시간)
                             await this.wait(Math.min(fragment.length * 50, 1500)); 
                         }
 
@@ -595,7 +518,7 @@
                     } catch(e) {
                         this.removeTypingBubble();
                         if (e.message.includes("429")) {
-                            alert("일일 사용량 초과! 내일 다시 대화해주세요 😭");
+                            alert("⚠️ 일일 대화량 초과! 내일 다시 대화해주세요.");
                         } else if (retryCount < 3) {
                             await this.wait(1000);
                             this.state.messageQueue.push(combinedParts); 
@@ -612,7 +535,7 @@
                     
                     this.elements['message-area'].innerHTML = '';
                     
-                    // [이전 대화 표시] 저장된 visualHistory를 화면에 뿌림
+                    // [핵심 수정] 이전 대화 불러오기 (화면 렌더링)
                     const historyToRender = (this.state.visualHistory && this.state.visualHistory.length > 0) 
                         ? this.state.visualHistory 
                         : this.state.chatHistory;
@@ -620,8 +543,8 @@
                     if (historyToRender.length > 0) {
                         historyToRender.forEach(m => {
                             let text = m.text;
-                            // parts 구조 대응
                             if (!text && m.parts) m.parts.forEach(p => { if(p.text) text = p.text; });
+                            // 저장된 데이터는 role이 있으므로 그대로 사용
                             this.displayMessage(m.role, text, m.img || null); 
                         });
                         setTimeout(() => this.scrollToBottom(), 100);
@@ -636,6 +559,7 @@
                             weekday: 'long', hour: '2-digit', minute: '2-digit', hour12: true 
                         });
                         
+                        // 3일치만 API에 전달
                         const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
                         const apiHistory = this.state.chatHistory
                             .filter(m => !m.timestamp || m.timestamp > threeDaysAgo)
@@ -644,12 +568,12 @@
                         const prompt = `
                         You are '${this.state.persona.name}'. Nickname: '${this.state.persona.nickname}'. Age: ${this.state.persona.age}. Style: ${this.state.persona.style}. 
                         [CONTEXT] Self-Intro: ${this.state.persona.intro || ''}.
-                        [TIME] Current Time: ${now} (in ${timezone}). Please recognize if it is Morning, Afternoon, Evening, or Dawn based on this time.
+                        [TIME] Current Time: ${now} (in ${timezone}). Recognize Morning/Day/Night.
                         
                         [RULES]
                         1. Speak naturally in Korean (KakaoTalk style).
                         2. NEVER output internal thoughts. ONLY the message.
-                        3. EMOJI RULE: Use emojis EXTREMELY RARELY (max 0-1 per message). Basically text only.
+                        3. Use emojis moderately (0-1 per message).
                         `;
                         
                         const model = genAI.getGenerativeModel({ model: MODEL_NAME, systemInstruction: prompt });
@@ -669,7 +593,7 @@
                     row.className = `message-row ${role === 'user' ? 'user' : 'partner'}`;
                     
                     if (role !== 'user') {
-                        // [상대방] 아바타 + (이름/말풍선)
+                        // 상대방: 아바타 + (이름 + 말풍선)
                         const avatar = document.createElement('img');
                         avatar.className = 'msg-avatar';
                         avatar.src = this.state.persona.avatarUrl || DEFAULT_AVATAR;
@@ -698,7 +622,7 @@
                         contentDiv.appendChild(bubble);
                         row.appendChild(contentDiv);
                     } else {
-                        // [나] 말풍선만
+                        // 나: 말풍선만
                         const bubble = document.createElement('div');
                         bubble.className = 'message-bubble';
                         if (imgBase64) {
@@ -725,7 +649,7 @@
                 toggleLanguage: function() {
                     this.state.language = this.state.language === 'ko' ? 'EN' : 'ko';
                     localStorage.setItem('lang', this.state.language);
-                    this.applyTheme(); this.updateUI();
+                    this.applyTheme(); 
                 },
                 toggleTheme: function() {
                     this.state.isDarkMode = !this.state.isDarkMode;
@@ -739,15 +663,6 @@
                         if(this.elements[`theme-toggle-${scr}`]) this.elements[`theme-toggle-${scr}`].textContent = this.state.isDarkMode ? '🌞' : '🌕';
                     });
                     if(this.elements['theme-toggle-chat']) this.elements['theme-toggle-chat'].textContent = this.state.isDarkMode ? '🌞' : '🌕';
-                },
-                updateUI: function() {
-                    const t = this.i18n[this.state.language];
-                    document.querySelectorAll('[data-i18n]').forEach(el => {
-                        if (t[el.dataset.i18n]) el.innerHTML = t[el.dataset.i18n];
-                    });
-                    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                        if (t[el.dataset.i18nPlaceholder]) el.placeholder = t[el.dataset.i18nPlaceholder];
-                    });
                 }
             };
             document.addEventListener('DOMContentLoaded', () => app.init());
