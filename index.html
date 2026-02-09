@@ -35,8 +35,8 @@
             --accent-color: #8A2BE2; /* Deep Violet */
             --accent-hover: #7b1fa2;
             
-            /* Chat Bubbles */
-            --bubble-user: #9F7AEA; /* 연보라색 */
+            /* Chat Bubbles (Light) */
+            --bubble-user: #9F7AEA; /* 연보라색 (요청사항) */
             --text-user: #ffffff;
             --bubble-partner: #ffffff;
             --text-partner: #1c1e21;
@@ -49,42 +49,56 @@
         }
 
         body.dark-mode {
+            /* Dark Mode Colors */
             --bg-primary: #18191a;
             --bg-secondary: #000000;
             --text-primary: #e4e6eb;
             --text-secondary: #b0b3b8;
             --divider: #3e4042;
+            
             --accent-color: #BB86FC;
-            --bubble-user: #6B46C1;
+            --accent-hover: #9e70d4;
+            
+            /* Chat Bubbles (Dark) */
+            --bubble-user: #6B46C1; /* 진한 연보라 */
+            --text-user: #ffffff;
             --bubble-partner: #242526;
             --text-partner: #e4e6eb;
+            
             --modal-bg: #242526;
             --danger-color: #ff7875;
             --shadow-card: 0 2px 8px rgba(0,0,0,0.3);
+            --shadow-float: 0 4px 12px rgba(0,0,0,0.5);
         }
 
+        /* =========================================
+           GLOBAL LAYOUT
+           ========================================= */
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         
         html, body {
             margin: 0; padding: 0;
             height: 100%; width: 100%;
-            overflow: hidden;
+            overflow: hidden; /* 앱처럼 스크롤 방지 */
             font-family: var(--font-main);
             background-color: var(--bg-secondary);
             color: var(--text-primary);
-            transition: 0.3s;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         #app-container {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             display: flex; flex-direction: column;
-            max-width: 600px; margin: 0 auto;
+            max-width: 600px; /* 모바일 뷰 제한 */
+            margin: 0 auto;
             background-color: var(--bg-primary);
             box-shadow: 0 0 30px rgba(0,0,0,0.1);
         }
 
+        /* Screen Management */
         .screen {
-            display: none !important; flex-direction: column;
+            display: none !important;
+            flex-direction: column;
             height: 100%; width: 100%;
             position: absolute; top: 0; left: 0;
             background-color: var(--bg-primary);
@@ -92,30 +106,48 @@
             animation: fadeIn 0.3s ease-in-out;
         }
         .screen.active { display: flex !important; z-index: 100; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* UI Components */
+        /* =========================================
+           COMMON UI COMPONENTS
+           ========================================= */
+        /* Header */
         .app-header {
-            flex-shrink: 0; display: flex; justify-content: space-between; align-items: center;
-            padding: 0.8rem 1.2rem; border-bottom: 1px solid var(--divider);
-            background: var(--bg-primary); height: 60px;
+            flex-shrink: 0;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.8rem 1.2rem;
+            border-bottom: 1px solid var(--divider);
+            background: var(--bg-primary);
+            height: 60px;
         }
         .header-title { font-size: 1.1rem; font-weight: 700; margin: 0; }
 
+        /* Controls (Lang, Theme, Logout) */
         .control-group { display: flex; gap: 8px; align-items: center; }
         .icon-btn {
             background: none; border: 1px solid var(--divider);
             border-radius: 8px; padding: 6px 10px;
             cursor: pointer; color: var(--text-secondary);
             font-size: 0.85rem; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .icon-btn:hover { background-color: var(--bg-secondary); color: var(--text-primary); }
+
+        /* Content Area */
+        .scroll-content {
+            flex: 1; overflow-y: auto; padding: 20px;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .scroll-content { flex: 1; overflow-y: auto; padding: 20px; }
+        /* Cards & Inputs */
         .settings-card {
             background-color: var(--bg-primary);
             border: 1px solid var(--divider);
-            border-radius: 16px; padding: 20px;
-            margin-bottom: 20px; box-shadow: var(--shadow-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-card);
         }
         
         .input-group { margin-bottom: 15px; }
@@ -123,38 +155,53 @@
             display: block; font-size: 0.85rem; font-weight: 600;
             color: var(--text-secondary); margin-bottom: 6px;
         }
-        .text-input, .textarea-input {
+        .text-input, .select-input, .textarea-input {
             width: 100%; padding: 12px;
             border-radius: 10px; border: 1px solid var(--divider);
             background-color: var(--bg-primary); color: var(--text-primary);
-            font-size: 1rem;
+            font-size: 1rem; transition: border-color 0.2s;
         }
+        .text-input:focus, .textarea-input:focus { border-color: var(--accent-color); }
         .textarea-input { min-height: 80px; resize: vertical; font-family: inherit; }
 
+        /* Special Hint Box (Purple) */
         .purple-hint-box {
             background-color: rgba(138, 43, 226, 0.08);
             border: 1px solid rgba(138, 43, 226, 0.2);
-            color: var(--accent-color); padding: 15px;
-            border-radius: 12px; text-align: center;
-            font-size: 0.9rem; font-weight: 600;
-            margin: 10px 0 20px 0; line-height: 1.5;
+            color: var(--accent-color);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin: 10px 0 20px 0;
+            line-height: 1.5;
         }
 
+        /* Buttons */
         .primary-btn {
-            display: block; width: 100%; padding: 14px;
-            background-color: var(--accent-color); color: white;
+            display: block; width: 100%;
+            padding: 14px;
+            background-color: var(--accent-color);
+            color: white;
             border: none; border-radius: 12px;
             font-size: 1rem; font-weight: 700;
-            cursor: pointer; text-align: center; margin-top: 10px;
+            cursor: pointer; text-align: center;
+            transition: transform 0.1s, background-color 0.2s;
+            margin-top: 10px;
         }
+        .primary-btn:active { transform: scale(0.98); }
         .danger-btn { background-color: var(--danger-color); margin-top: 10px; }
-        
+
         .link-btn {
-            background: none; border: none; color: var(--text-secondary);
-            text-decoration: underline; font-size: 0.85rem; cursor: pointer; padding: 5px 0;
+            background: none; border: none;
+            color: var(--text-secondary); text-decoration: underline;
+            font-size: 0.85rem; cursor: pointer; padding: 5px 0;
         }
 
-        /* Chat Screen */
+        /* =========================================
+           CHAT SCREEN SPECIFIC
+           ========================================= */
         .chat-header-profile { display: flex; align-items: center; }
         .chat-avatar-small {
             width: 40px; height: 40px; border-radius: 40%;
@@ -168,93 +215,141 @@
             background-color: var(--bg-secondary);
         }
 
+        /* Message Rows */
         .msg-row { display: flex; align-items: flex-end; margin-bottom: 5px; width: 100%; }
         .msg-row.me { flex-direction: row-reverse; }
+        .msg-row.partner { flex-direction: row; }
+
+        /* Avatar & Name in Chat */
         .partner-profile-col { display: flex; flex-direction: column; max-width: 75%; }
         .msg-avatar-tiny {
             width: 36px; height: 36px; border-radius: 40%;
             object-fit: cover; margin-right: 8px; flex-shrink: 0;
-            background-color: #ccc; margin-bottom: auto;
+            background-color: #ccc; margin-bottom: auto; /* 상단 정렬 */
         }
         .msg-name-label {
             font-size: 0.8rem; color: var(--text-secondary);
             margin-bottom: 4px; margin-left: 2px;
         }
 
+        /* Bubbles */
         .msg-bubble {
-            padding: 10px 14px; border-radius: 18px;
+            padding: 10px 14px;
+            border-radius: 18px;
             font-size: 0.95rem; line-height: 1.5;
             word-wrap: break-word; white-space: pre-wrap;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05); position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            position: relative;
         }
-        .msg-row.me .msg-bubble { background-color: var(--bubble-user); color: var(--text-user); border-top-right-radius: 4px; }
-        .msg-row.partner .msg-bubble { background-color: var(--bubble-partner); color: var(--text-partner); border-top-left-radius: 4px; }
+        .msg-row.me .msg-bubble {
+            background-color: var(--bubble-user);
+            color: var(--text-user);
+            border-top-right-radius: 4px;
+        }
+        .msg-row.partner .msg-bubble {
+            background-color: var(--bubble-partner);
+            color: var(--text-partner);
+            border-top-left-radius: 4px;
+        }
         .msg-bubble img { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
 
+        /* Time Stamp */
         .msg-time {
             font-size: 0.65rem; color: var(--text-secondary);
             margin: 0 6px; white-space: nowrap; margin-bottom: 2px;
         }
 
+        /* Date Divider */
         .date-divider {
-            align-self: center; background-color: rgba(0,0,0,0.15);
-            color: #fff; padding: 4px 12px; border-radius: 20px;
-            font-size: 0.75rem; margin: 15px 0;
+            align-self: center;
+            background-color: rgba(0,0,0,0.15);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin: 15px 0;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.2);
         }
         .dark-mode .date-divider { background-color: rgba(255,255,255,0.15); }
 
+        /* Chat Footer */
         .chat-input-area {
-            flex-shrink: 0; display: flex; align-items: center; gap: 8px;
-            padding: 10px 15px; background-color: var(--bg-primary);
-            border-top: 1px solid var(--divider); position: relative;
+            flex-shrink: 0;
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 15px;
+            background-color: var(--bg-primary);
+            border-top: 1px solid var(--divider);
+            position: relative;
         }
         #message-input {
-            flex: 1; padding: 10px 15px; border-radius: 24px;
-            border: 1px solid var(--divider); background-color: var(--bg-secondary);
-            font-size: 1rem; color: var(--text-primary);
+            flex: 1; padding: 10px 15px;
+            border-radius: 24px; border: 1px solid var(--divider);
+            background-color: var(--bg-secondary); font-size: 1rem;
+            color: var(--text-primary);
         }
         #send-btn {
             width: 40px; height: 40px; border-radius: 50%;
             background-color: var(--accent-color); color: #fff;
             border: none; display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; cursor: pointer;
+            font-size: 1.2rem; cursor: pointer; transition: transform 0.1s;
         }
+        #send-btn:active { transform: scale(0.9); }
+        
         #plus-btn {
             font-size: 1.8rem; background: none; border: none;
-            color: var(--text-secondary); cursor: pointer; padding: 0 5px; transition: 0.2s;
+            color: var(--text-secondary); cursor: pointer;
+            padding: 0 5px; transition: transform 0.2s;
         }
         #plus-btn.active { transform: rotate(45deg); color: var(--accent-color); }
 
+        /* Plus Menu (Popup) */
         .plus-menu-popup {
-            position: absolute; bottom: 70px; left: 15px; width: 200px;
-            background-color: var(--bg-primary); border-radius: 12px;
-            box-shadow: var(--shadow-float); display: none;
-            flex-direction: column; overflow: hidden;
-            border: 1px solid var(--divider); z-index: 200;
+            position: absolute; bottom: 70px; left: 15px;
+            width: 200px;
+            background-color: var(--bg-primary);
+            border-radius: 12px;
+            box-shadow: var(--shadow-float);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--divider);
+            z-index: 200;
         }
         .menu-item {
-            padding: 15px; text-align: left; background: none; border: none;
-            border-bottom: 1px solid var(--divider); color: var(--text-primary);
-            font-size: 0.95rem; cursor: pointer;
+            padding: 15px; text-align: left;
+            background: none; border: none;
+            border-bottom: 1px solid var(--divider);
+            color: var(--text-primary); font-size: 0.95rem;
+            cursor: pointer;
         }
         .menu-item:hover { background-color: var(--bg-secondary); }
+        .menu-item:last-child { border-bottom: none; }
 
+        /* Image Preview */
         .img-preview-box {
-            display: none; padding: 10px; background: var(--bg-secondary);
+            display: none; padding: 10px;
+            background: var(--bg-secondary);
             text-align: center; border-top: 1px solid var(--divider);
         }
         .img-preview-box.active { display: block; }
         .img-preview-box img { height: 80px; border-radius: 8px; }
 
+        /* Loading Spinner */
         .loading-container {
-            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            height: 100%;
         }
         .spinner {
-            width: 50px; height: 50px; border: 5px solid var(--divider);
-            border-top: 5px solid var(--accent-color); border-radius: 50%;
-            animation: spin 1s linear infinite; margin-bottom: 20px;
+            width: 50px; height: 50px;
+            border: 5px solid var(--divider);
+            border-top: 5px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
     </style>
 </head>
 <body>
@@ -278,7 +373,9 @@
                 <p data-i18n="appDescription" style="color: var(--text-secondary); margin-bottom: 40px; text-align: center; line-height: 1.5;">
                     익숙한 대화, 색다른 공감.<br>나만의 AI 파트너.
                 </p>
-                <button id="login-btn" class="primary-btn" data-i18n="loginBtn">Google 계정으로 시작하기</button>
+                <button id="login-btn" class="primary-btn" data-i18n="loginBtn">
+                    Google 계정으로 시작하기
+                </button>
             </div>
         </div>
 
@@ -291,6 +388,7 @@
                 </div>
             </header>
             <div class="scroll-content">
+                
                 <div style="text-align: center; margin-bottom: 20px;">
                     <img id="avatar-preview" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" 
                          style="width: 100px; height: 100px; border-radius: 40%; object-fit: cover; border: 3px solid var(--divider); margin-bottom: 10px;">
@@ -317,7 +415,7 @@
                 <div class="settings-card">
                     <div class="input-group">
                         <label class="input-label">자기소개 (상황/컨셉)</label>
-                        <textarea id="input-intro" class="textarea-input" placeholder="예: 우리는 3년차 커플이고..."></textarea>
+                        <textarea id="input-intro" class="textarea-input" placeholder="예: 우리는 3년차 커플이고, 너는 지금 회사 점심시간이야."></textarea>
                     </div>
                     <div class="input-group">
                         <label class="input-label">성격 스타일</label>
@@ -325,7 +423,7 @@
                     </div>
                     <div class="input-group">
                         <label class="input-label">연락 빈도/답장 속도</label>
-                        <input type="text" id="input-frequency" class="text-input" placeholder="예: 칼답">
+                        <input type="text" id="input-frequency" class="text-input" placeholder="예: 칼답, 이모티콘 자주 사용">
                     </div>
                     <div class="input-group">
                         <label class="input-label">대화 성향</label>
@@ -391,6 +489,7 @@
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js";
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
+        /* ================= CONFIGURATION ================= */
         const firebaseConfig = {
             apiKey: "AIzaSyDmO1wpZQJEiPEjNoq7xtFcq33akIzoGY8",
             authDomain: "aimeet-c235c.firebaseapp.com",
@@ -406,7 +505,7 @@
         const BACKUP_MODEL = "gemini-2.5-flash-lite";
         const TPM_THRESHOLD = 15000 * 0.75; 
 
-        // 다국어
+        // i18n Dictionary
         const I18N = {
             en: {
                 appDescription: 'Familiar conversations,\nYour own AI Partner.',
@@ -434,15 +533,16 @@
             }
         };
 
-        // 상태 관리
+        /* ================= STATE MANAGEMENT ================= */
         const state = {
             user: null,
-            lang: 'ko',
+            lang: 'ko', // 'ko' or 'en'
+            theme: 'light', // 'light' or 'dark'
             apiKey: '',
             persona: {},
-            chatHistory: [],
-            visualHistory: [],
-            longTermMemory: "",
+            chatHistory: [], // Raw history for API (with memory management)
+            visualHistory: [], // For UI rendering
+            longTermMemory: "", // Compressed memory
             currentTPM: 0,
             chatSession: null,
             pendingImage: null,
@@ -450,9 +550,12 @@
             lastMsgTime: Date.now()
         };
 
+        /* ================= DOM ELEMENTS ================= */
         const el = (id) => document.getElementById(id);
 
+        /* ================= INIT & EVENT LISTENERS ================= */
         function init() {
+            // Auth Listener
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     state.user = user;
@@ -462,7 +565,7 @@
                 }
             });
 
-            // 이벤트 리스너 연결
+            // Button Events
             el('login-btn').onclick = () => signInWithPopup(auth, new GoogleAuthProvider());
             el('logout-btn').onclick = () => signOut(auth);
             
@@ -475,39 +578,52 @@
             el('send-btn').onclick = handleUserMessage;
             el('message-input').onkeydown = (e) => { if(e.key === 'Enter') handleUserMessage(); };
             
+            // + Menu
             el('plus-btn').onclick = togglePlusMenu;
             el('menu-photo').onclick = () => { el('chat-file-input').click(); togglePlusMenu(); };
             el('menu-settings').onclick = () => { showScreen('setup-screen'); togglePlusMenu(); };
             el('chat-file-input').onchange = (e) => processImage(e.target.files[0], 'chat');
             el('cancel-img-btn').onclick = clearPendingImage;
 
+            // Toggles
             el('lang-toggle-login').onclick = toggleLang;
             el('lang-toggle-setup').onclick = toggleLang;
             el('theme-toggle-setup').onclick = toggleTheme;
             el('theme-toggle-chat').onclick = toggleTheme;
             
+            // Start Loop
             startSunTokLoop();
-            updateUI(); // 초기 UI 텍스트 설정
+            
+            // Initial UI Update
+            updateUI();
         }
 
+        /* ================= UI & LOGIC FUNCTIONS ================= */
+        
+        // 1. Screen Navigation
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             el(id).classList.add('active');
             if(id === 'chat-screen') scrollToBottom();
         }
 
+        // 2. Data Loading
         async function loadUserData() {
-            const snap = await getDoc(doc(db, 'users', state.user.uid));
+            const docRef = doc(db, 'users', state.user.uid);
+            const snap = await getDoc(docRef);
+            
             if (snap.exists()) {
-                const d = snap.data();
-                state.apiKey = d.apiKey || '';
-                state.persona = d.persona || {};
-                state.chatHistory = d.chatHistory || [];
-                state.visualHistory = d.visualHistory || [];
-                state.longTermMemory = d.longTermMemory || "";
+                const data = snap.data();
+                state.apiKey = data.apiKey || '';
+                state.persona = data.persona || {};
+                state.chatHistory = data.chatHistory || [];
+                state.visualHistory = data.visualHistory || [];
+                state.longTermMemory = data.longTermMemory || "";
                 
+                // Fill Inputs
                 fillInputs();
                 
+                // If ready, go to chat
                 if (state.apiKey && state.persona.name) {
                     initChatSession();
                 } else {
@@ -531,6 +647,7 @@
             el('avatar-preview').src = state.persona.avatar || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
         }
 
+        // 3. Saving Data
         async function saveAndStart() {
             state.apiKey = el('input-apikey').value.trim();
             state.persona = {
@@ -553,20 +670,24 @@
             initChatSession();
         }
 
+        // 4. Chat Session Initialization (Hybrid & Memory Logic)
         async function initChatSession() {
+            // UI Setup
             el('header-roomname').textContent = state.persona.chatRoomName;
             el('header-avatar').src = state.persona.avatar;
             el('message-list').innerHTML = '';
             state.lastDateStr = null;
 
+            // Render Previous Messages
             state.visualHistory.forEach(msg => renderMessageUI(msg));
 
-            // 단기 기억 보호: 최근 20개는 절대 요약 안함 (티키타카 유지)
-            // 20개 넘어가면 오래된 것만 요약
+            // [MEMORY LOGIC] Relaxed Compression
+            // Only compress if history > 20 items. Always keep last 20 items raw.
             if (state.chatHistory.length > 20) {
                 await compressMemory();
             }
 
+            // Construct System Prompt
             const systemPrompt = `
             [ROLE] 당신은 '${state.persona.name}' (${state.persona.age}세)입니다.
             [RELATION] ${state.persona.chatRoomName}
@@ -582,24 +703,30 @@
             4. 답변은 1~3문장 내외로 짧게 하세요.
             `;
 
-            // 최근 20개 대화는 원본 그대로 주입
-            const recentHistory = state.chatHistory.slice(-20);
+            // [CRITICAL FIX] Sanitize History (Remove timestamps, images, etc.)
+            // API only allows { role: "...", parts: [...] }
+            const recentHistory = state.chatHistory.slice(-20).map(msg => ({
+                role: msg.role,
+                parts: msg.parts
+            }));
+
             const historyWithSystem = [
                 { role: 'user', parts: [{ text: systemPrompt }] },
                 { role: 'model', parts: [{ text: "응, 알겠어. 자연스럽게 대화할게." }] },
                 ...recentHistory
             ];
 
+            // Initialize GenAI
             try {
                 const genAI = new GoogleGenerativeAI(state.apiKey);
-                // TPM 기반 하이브리드 모델 선택
+                // Hybrid Model Selection based on TPM
                 const modelName = (state.currentTPM > TPM_THRESHOLD) ? BACKUP_MODEL : MAIN_MODEL;
                 const model = genAI.getGenerativeModel({ model: modelName });
                 
                 state.chatSession = model.startChat({ history: historyWithSystem });
                 showScreen('chat-screen');
 
-                // 대화 기록이 없으면 첫 인사 트리거
+                // Trigger First Message if new
                 if (state.visualHistory.length === 0) {
                     triggerAIResponse("상황에 맞춰 자연스럽게 첫 인사를 건네줘 (짧게)");
                 }
@@ -610,57 +737,72 @@
             }
         }
 
+        // 5. Memory Compression (Summary)
         async function compressMemory() {
+            // Use lightweight model for summary
             const genAI = new GoogleGenerativeAI(state.apiKey);
             const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
             
-            // 가장 오래된 10개만 요약
-            const toSummarize = state.chatHistory.slice(0, 10);
+            // Summarize oldest 10 messages
+            // Also need to sanitize here just in case
+            const toSummarize = state.chatHistory.slice(0, 10).map(msg => ({ role: msg.role, parts: msg.parts }));
             const prompt = `다음 대화 내용을 '주요 사건, 유저의 기분, 대화 주제' 위주로 한 줄로 요약해: ${JSON.stringify(toSummarize)}`;
             
             try {
                 const res = await model.generateContent(prompt);
                 const summary = res.response.text();
                 state.longTermMemory += ` / ${summary}`;
-                // 요약된 10개 삭제
+                // Remove oldest 10
                 state.chatHistory = state.chatHistory.slice(10);
             } catch (e) {
                 console.error("Summary Failed", e);
             }
         }
 
+        // 6. Messaging Logic
         async function handleUserMessage() {
             const txt = el('message-input').value.trim();
             const img = state.pendingImage;
             
             if (!txt && !img) return;
             
+            // Clear Input
             el('message-input').value = '';
             clearPendingImage();
 
+            // 1. Render User Message
             const now = Date.now();
             const userMsg = { role: 'user', text: txt, image: img, timestamp: now };
             renderMessageUI(userMsg);
             
+            // 2. Update State
             state.visualHistory.push(userMsg);
             
+            // API History
             let apiPart = { text: txt };
+            // Note: Inline image handling would go here for API if needed, simpler text flow for now.
             state.chatHistory.push({ role: 'user', parts: [apiPart] });
             
+            // TPM Counter
             state.currentTPM += txt.length;
             
+            // 3. Trigger AI
             await triggerAIResponse(txt);
         }
 
         async function triggerAIResponse(userText) {
             displayTyping(true);
             try {
+                // Actual API Call
                 const result = await state.chatSession.sendMessage(userText);
                 const rawText = result.response.text();
+                
+                // Process Text (Emoji & Clean)
                 const processedText = cleanAIResponse(rawText);
                 
                 displayTyping(false);
                 
+                // Render AI Message
                 const now = Date.now();
                 const aiMsg = { role: 'model', text: processedText, timestamp: now };
                 
@@ -678,7 +820,10 @@
         }
 
         function cleanAIResponse(text) {
+            // Remove "System:" or "Thought:" artifacts
             let clean = text.replace(/(\*\*|System:|User:|Model:)/gi, "").trim();
+            
+            // Emoji Logic: Remove emojis from body, append 1 at end
             const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
             let emojis = clean.match(emojiRegex) || [];
             clean = clean.replace(emojiRegex, '').trim();
@@ -689,11 +834,13 @@
             return clean;
         }
 
+        // 7. UI Rendering Helpers
         function renderMessageUI(msg) {
             const list = el('message-list');
+            
+            // Date Divider
             const date = new Date(msg.timestamp);
             const dateStr = date.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'long'});
-            
             if (state.lastDateStr !== dateStr) {
                 const div = document.createElement('div');
                 div.className = 'date-divider';
@@ -702,9 +849,11 @@
                 state.lastDateStr = dateStr;
             }
 
+            // Message Row
             const row = document.createElement('div');
             row.className = `msg-row ${msg.role === 'user' ? 'me' : 'partner'}`;
             
+            // Avatar (Partner Only)
             if (msg.role === 'model') {
                 const col = document.createElement('div');
                 col.className = 'partner-profile-col';
@@ -717,15 +866,23 @@
                 name.className = 'msg-name-label';
                 name.textContent = state.persona.name;
                 
+                // Wrapper for Bubble
                 const bubble = createBubble(msg.text, msg.image, false);
+                
                 col.appendChild(name);
                 col.appendChild(bubble);
+                
                 row.appendChild(av);
                 row.appendChild(col);
-                row.appendChild(createTimeElement(date));
+                
+                // Time
+                const time = createTimeElement(date);
+                row.appendChild(time);
             } else {
+                // User
                 const bubble = createBubble(msg.text, msg.image, true);
-                row.appendChild(createTimeElement(date));
+                const time = createTimeElement(date);
+                row.appendChild(time);
                 row.appendChild(bubble);
             }
 
@@ -736,6 +893,7 @@
         function createBubble(text, imageBase64, isUser) {
             const b = document.createElement('div');
             b.className = 'msg-bubble';
+            
             if (imageBase64) {
                 const img = document.createElement('img');
                 img.src = imageBase64;
@@ -767,13 +925,16 @@
                 row.className = 'msg-row partner';
                 row.innerHTML = `
                     <img class="msg-avatar-tiny" src="${state.persona.avatar}">
-                    <div class="msg-bubble" style="background:var(--bubble-partner); color:var(--text-partner);">...</div>
+                    <div class="msg-bubble" style="background:var(--bubble-partner); color:var(--text-partner);">
+                        ...
+                    </div>
                 `;
                 list.appendChild(row);
                 scrollToBottom();
             }
         }
 
+        // 8. Utilities
         function scrollToBottom() {
             const list = el('message-list');
             list.scrollTop = list.scrollHeight;
@@ -810,15 +971,18 @@
             else btn.classList.add('active');
         }
 
+        // [FIXED] Language Toggle
         function toggleLang() {
             state.lang = (state.lang === 'ko') ? 'en' : 'ko';
             updateUI();
         }
 
         function updateUI() {
+            // Button Text Update
             el('lang-toggle-login').textContent = state.lang === 'ko' ? 'EN' : 'KR';
             el('lang-toggle-setup').textContent = state.lang === 'ko' ? 'EN' : 'KR';
             
+            // Text Content Update
             const t = I18N[state.lang];
             document.querySelectorAll('[data-i18n]').forEach(elem => {
                 const key = elem.dataset.i18n;
@@ -827,6 +991,7 @@
         }
 
         function toggleTheme() {
+            state.theme = state.theme === 'light' ? 'dark' : 'light';
             document.body.classList.toggle('dark-mode');
         }
 
@@ -840,7 +1005,7 @@
         }
 
         async function resetData() {
-            if (!confirm("초기화하시겠습니까?")) return;
+            if (!confirm("모든 대화 내용과 설정이 삭제됩니다. 계속하시겠습니까?")) return;
             state.chatHistory = [];
             state.visualHistory = [];
             state.longTermMemory = "";
@@ -852,19 +1017,35 @@
             location.reload();
         }
 
+        // 9. Sun-tok Loop (Push Notification Sim)
         function startSunTokLoop() {
             setInterval(async () => {
                 if (!state.chatSession) return;
-                const diffMin = (Date.now() - state.lastMsgTime) / 60000;
-                // 20~40분 랜덤 트리거
-                if (diffMin > (Math.random() * 20 + 20)) {
-                    triggerAIResponse("유저가 답장이 늦네. 서운한 티를 내면서 선톡해줘.");
+                const now = Date.now();
+                const diffMin = (now - state.lastMsgTime) / (1000 * 60);
+                // 20~40 min random
+                const trigger = Math.random() * 20 + 20; 
+                
+                if (diffMin > trigger) {
+                    try {
+                        const res = await state.chatSession.sendMessage("유저가 답장이 늦네. 서운한 티를 내면서 선톡해줘.");
+                        const text = cleanAIResponse(res.response.text());
+                        
+                        // UI update
+                        const aiMsg = { role: 'model', text: text, timestamp: now };
+                        renderMessageUI(aiMsg);
+                        state.visualHistory.push(aiMsg);
+                        state.chatHistory.push({ role: 'model', parts: [{ text }] });
+                        state.lastMsgTime = now;
+                        saveData();
+                    } catch(e) {}
                 }
-            }, 60000);
+            }, 60000); // Check every 1 min
         }
 
-        // 실행
+        // Run Init
         init();
+
     </script>
 </body>
 </html>
