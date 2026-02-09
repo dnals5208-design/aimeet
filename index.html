@@ -593,6 +593,9 @@
             
             // Start Loop
             startSunTokLoop();
+            
+            // Initial UI Update
+            updateUI();
         }
 
         /* ================= UI & LOGIC FUNCTIONS ================= */
@@ -679,8 +682,8 @@
             state.visualHistory.forEach(msg => renderMessageUI(msg));
 
             // [MEMORY LOGIC] Relaxed Compression
-            // Only compress if history > 20 items. Always keep last 15 items raw.
-            if (state.chatHistory.length > 30) {
+            // Only compress if history > 20 items. Always keep last 20 items raw.
+            if (state.chatHistory.length > 20) {
                 await compressMemory();
             }
 
@@ -769,10 +772,9 @@
             // 2. Update State
             state.visualHistory.push(userMsg);
             
-            // API History (Text only for simplicity in this logic, Gemini handles images too but simplified here)
-            // Note: chatHistory stores specific format for API
+            // API History
             let apiPart = { text: txt };
-            // If image exists, need to handle inline data (omitted for brevity, focusing on text flow)
+            // Note: Inline image handling would go here for API if needed, simpler text flow for now.
             state.chatHistory.push({ role: 'user', parts: [apiPart] });
             
             // TPM Counter
@@ -808,7 +810,6 @@
             } catch (e) {
                 displayTyping(false);
                 console.error(e);
-                // Retry logic or Alert could go here
             }
         }
 
@@ -967,7 +968,10 @@
         // [FIXED] Language Toggle
         function toggleLang() {
             state.lang = (state.lang === 'ko') ? 'en' : 'ko';
-            
+            updateUI();
+        }
+
+        function updateUI() {
             // Button Text Update
             el('lang-toggle-login').textContent = state.lang === 'ko' ? 'EN' : 'KR';
             el('lang-toggle-setup').textContent = state.lang === 'ko' ? 'EN' : 'KR';
