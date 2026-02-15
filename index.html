@@ -272,6 +272,19 @@
         }
         .dark-mode .date-divider { background-color: rgba(255,255,255,0.15); }
 
+        /* Typing Animation */
+        .typing-bubble { 
+            display: flex; align-items: center; gap: 4px; 
+            padding: 12px 16px !important; min-width: 50px; justify-content: center; 
+        }
+        .typing-dot { 
+            width: 6px; height: 6px; background-color: #b0b0b0; border-radius: 50%; 
+            animation: typing 1.4s infinite ease-in-out both; 
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
         /* Chat Footer */
         .chat-input-area {
             flex-shrink: 0;
@@ -682,7 +695,6 @@
             state.visualHistory.forEach(msg => renderMessageUI(msg));
 
             // [MEMORY LOGIC] Relaxed Compression
-            // Only compress if history > 20 items. Always keep last 20 items raw.
             if (state.chatHistory.length > 20) {
                 await compressMemory();
             }
@@ -700,11 +712,11 @@
             1. 무조건 자연스러운 한국어 반말(카톡체)을 사용하세요.
             2. 당신은 AI이지만, 티를 내지 마세요. 단, 물리적으로 불가능한 약속(만나자, 사갈게)은 피하세요.
             3. 이모지는 문장의 맨 끝에 최대 1개만 붙이세요. (남발 금지)
-            4. 답변은 1~3문장 내외로 짧게 하세요.
+            4. 절대 '(웃으며)', '(생각하며)' 같은 지문을 출력하지 마세요. 오직 대사만 출력하세요.
+            5. 답변은 1~3문장 내외로 짧게 하세요.
             `;
 
-            // [CRITICAL FIX] Sanitize History (Remove timestamps, images, etc.)
-            // API only allows { role: "...", parts: [...] }
+            // Sanitize History
             const recentHistory = state.chatHistory.slice(-20).map(msg => ({
                 role: msg.role,
                 parts: msg.parts
@@ -719,7 +731,6 @@
             // Initialize GenAI
             try {
                 const genAI = new GoogleGenerativeAI(state.apiKey);
-                // Hybrid Model Selection based on TPM
                 const modelName = (state.currentTPM > TPM_THRESHOLD) ? BACKUP_MODEL : MAIN_MODEL;
                 const model = genAI.getGenerativeModel({ model: modelName });
                 
@@ -739,12 +750,9 @@
 
         // 5. Memory Compression (Summary)
         async function compressMemory() {
-            // Use lightweight model for summary
             const genAI = new GoogleGenerativeAI(state.apiKey);
             const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
             
-            // Summarize oldest 10 messages
-            // Also need to sanitize here just in case
             const toSummarize = state.chatHistory.slice(0, 10).map(msg => ({ role: msg.role, parts: msg.parts }));
             const prompt = `다음 대화 내용을 '주요 사건, 유저의 기분, 대화 주제' 위주로 한 줄로 요약해: ${JSON.stringify(toSummarize)}`;
             
@@ -752,7 +760,6 @@
                 const res = await model.generateContent(prompt);
                 const summary = res.response.text();
                 state.longTermMemory += ` / ${summary}`;
-                // Remove oldest 10
                 state.chatHistory = state.chatHistory.slice(10);
             } catch (e) {
                 console.error("Summary Failed", e);
@@ -766,7 +773,6 @@
             
             if (!txt && !img) return;
             
-            // Clear Input
             el('message-input').value = '';
             clearPendingImage();
 
@@ -777,40 +783,67 @@
             
             // 2. Update State
             state.visualHistory.push(userMsg);
-            
-            // API History
             let apiPart = { text: txt };
-            // Note: Inline image handling would go here for API if needed, simpler text flow for now.
             state.chatHistory.push({ role: 'user', parts: [apiPart] });
-            
-            // TPM Counter
             state.currentTPM += txt.length;
             
             // 3. Trigger AI
             await triggerAIResponse(txt);
         }
 
+        // [핵심 수정] 대화 쪼개기 및 딜레이 로직 추가
         async function triggerAIResponse(userText) {
-            displayTyping(true);
+            displayTyping(true); // 최초 입력 중 표시
             try {
                 // Actual API Call
                 const result = await state.chatSession.sendMessage(userText);
                 const rawText = result.response.text();
                 
-                // Process Text (Emoji & Clean)
-                const processedText = cleanAIResponse(rawText);
+                // 1. 괄호 지문 강력 제거
+                let cleanText = rawText.replace(/\(.*?\)|\[.*?\]|\*.*?\*/g, "").trim(); 
                 
-                displayTyping(false);
+                // 2. 문장 단위로 분리 (., ?, !, 줄바꿈 기준)
+                // 단순히 split만 하면 구분자가 사라지므로, 구분자도 포함해서 split 후 합치는 로직보다
+                // 정규식 매칭을 이용해 문장을 추출합니다.
+                const segments = cleanText.match(/[^.!?\n]+[.!?\n]*/g) || [cleanText];
+
+                // 3. 순차적 출력 (타이핑 효과)
+                let fullText = ""; // API 히스토리 저장용
                 
-                // Render AI Message
-                const now = Date.now();
-                const aiMsg = { role: 'model', text: processedText, timestamp: now };
-                
-                renderMessageUI(aiMsg);
-                state.visualHistory.push(aiMsg);
-                state.chatHistory.push({ role: 'model', parts: [{ text: processedText }] });
-                
-                state.lastMsgTime = now;
+                for (let i = 0; i < segments.length; i++) {
+                    let segment = segments[i].trim();
+                    if (!segment) continue;
+
+                    // 이모지 처리 (문장 끝 1개)
+                    const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
+                    let emojis = segment.match(emojiRegex) || [];
+                    segment = segment.replace(emojiRegex, '').trim();
+                    if (emojis.length > 0) segment += " " + emojis[0];
+
+                    // 입력 중 애니메이션 다시 갱신 (리얼함 부여)
+                    displayTyping(false); // 잠깐 끔
+                    displayTyping(true);  // 다시 켬 (깜빡임 효과)
+
+                    // 읽는 시간 + 치는 시간 계산 (최소 0.5초 ~ 최대 2.5초)
+                    // 글자당 80ms 정도 잡으면 적당함
+                    const typingDelay = Math.min(Math.max(500, segment.length * 80), 2500);
+                    
+                    // 첫 문장이면 API 대기시간이 있었으니 딜레이를 조금 줄여도 됨
+                    await new Promise(resolve => setTimeout(resolve, i === 0 ? typingDelay / 2 : typingDelay));
+
+                    displayTyping(false); // 입력 중 끄고
+                    
+                    const now = Date.now();
+                    const aiMsg = { role: 'model', text: segment, timestamp: now };
+                    
+                    renderMessageUI(aiMsg); // 말풍선 투척
+                    state.visualHistory.push(aiMsg); // 화면용 저장
+                    fullText += segment + " "; // API용 저장 (합쳐서)
+                }
+
+                // API 기록용에는 전체 텍스트를 한 번에 저장 (맥락 유지)
+                state.chatHistory.push({ role: 'model', parts: [{ text: fullText.trim() }] });
+                state.lastMsgTime = Date.now();
                 saveData();
 
             } catch (e) {
@@ -819,28 +852,12 @@
             }
         }
 
-        function cleanAIResponse(text) {
-            // Remove "System:" or "Thought:" artifacts
-            let clean = text.replace(/(\*\*|System:|User:|Model:)/gi, "").trim();
-            
-            // Emoji Logic: Remove emojis from body, append 1 at end
-            const emojiRegex = /[\u{1F300}-\u{1F9FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu;
-            let emojis = clean.match(emojiRegex) || [];
-            clean = clean.replace(emojiRegex, '').trim();
-            
-            if (emojis.length > 0) {
-                clean += " " + emojis[0];
-            }
-            return clean;
-        }
-
         // 7. UI Rendering Helpers
         function renderMessageUI(msg) {
             const list = el('message-list');
-            
-            // Date Divider
             const date = new Date(msg.timestamp);
             const dateStr = date.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'long'});
+            
             if (state.lastDateStr !== dateStr) {
                 const div = document.createElement('div');
                 div.className = 'date-divider';
@@ -849,11 +866,9 @@
                 state.lastDateStr = dateStr;
             }
 
-            // Message Row
             const row = document.createElement('div');
             row.className = `msg-row ${msg.role === 'user' ? 'me' : 'partner'}`;
             
-            // Avatar (Partner Only)
             if (msg.role === 'model') {
                 const col = document.createElement('div');
                 col.className = 'partner-profile-col';
@@ -866,23 +881,15 @@
                 name.className = 'msg-name-label';
                 name.textContent = state.persona.name;
                 
-                // Wrapper for Bubble
                 const bubble = createBubble(msg.text, msg.image, false);
-                
                 col.appendChild(name);
                 col.appendChild(bubble);
-                
                 row.appendChild(av);
                 row.appendChild(col);
-                
-                // Time
-                const time = createTimeElement(date);
-                row.appendChild(time);
+                row.appendChild(createTimeElement(date));
             } else {
-                // User
                 const bubble = createBubble(msg.text, msg.image, true);
-                const time = createTimeElement(date);
-                row.appendChild(time);
+                row.appendChild(createTimeElement(date));
                 row.appendChild(bubble);
             }
 
@@ -893,7 +900,6 @@
         function createBubble(text, imageBase64, isUser) {
             const b = document.createElement('div');
             b.className = 'msg-bubble';
-            
             if (imageBase64) {
                 const img = document.createElement('img');
                 img.src = imageBase64;
@@ -925,8 +931,8 @@
                 row.className = 'msg-row partner';
                 row.innerHTML = `
                     <img class="msg-avatar-tiny" src="${state.persona.avatar}">
-                    <div class="msg-bubble" style="background:var(--bubble-partner); color:var(--text-partner);">
-                        ...
+                    <div class="msg-bubble typing-bubble" style="background:var(--bubble-partner);">
+                        <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
                     </div>
                 `;
                 list.appendChild(row);
@@ -934,7 +940,6 @@
             }
         }
 
-        // 8. Utilities
         function scrollToBottom() {
             const list = el('message-list');
             list.scrollTop = list.scrollHeight;
@@ -971,18 +976,14 @@
             else btn.classList.add('active');
         }
 
-        // [FIXED] Language Toggle
         function toggleLang() {
             state.lang = (state.lang === 'ko') ? 'en' : 'ko';
             updateUI();
         }
 
         function updateUI() {
-            // Button Text Update
             el('lang-toggle-login').textContent = state.lang === 'ko' ? 'EN' : 'KR';
             el('lang-toggle-setup').textContent = state.lang === 'ko' ? 'EN' : 'KR';
-            
-            // Text Content Update
             const t = I18N[state.lang];
             document.querySelectorAll('[data-i18n]').forEach(elem => {
                 const key = elem.dataset.i18n;
@@ -1017,21 +1018,20 @@
             location.reload();
         }
 
-        // 9. Sun-tok Loop (Push Notification Sim)
         function startSunTokLoop() {
             setInterval(async () => {
                 if (!state.chatSession) return;
                 const now = Date.now();
-                const diffMin = (now - state.lastMsgTime) / (1000 * 60);
-                // 20~40 min random
+                const diffMin = (now - state.lastMsgTime) / 60000;
+                // 20~40분 랜덤 트리거
                 const trigger = Math.random() * 20 + 20; 
                 
                 if (diffMin > trigger) {
                     try {
                         const res = await state.chatSession.sendMessage("유저가 답장이 늦네. 서운한 티를 내면서 선톡해줘.");
-                        const text = cleanAIResponse(res.response.text());
-                        
-                        // UI update
+                        // 선톡은 쪼개지 않고 한 번에 표시 (짧으니까)
+                        let text = res.response.text().replace(/\(.*?\)|\[.*?\]|\*.*?\*/g, "").trim();
+                        const now = Date.now();
                         const aiMsg = { role: 'model', text: text, timestamp: now };
                         renderMessageUI(aiMsg);
                         state.visualHistory.push(aiMsg);
@@ -1043,9 +1043,7 @@
             }, 60000); // Check every 1 min
         }
 
-        // Run Init
         init();
-
     </script>
 </body>
 </html>
